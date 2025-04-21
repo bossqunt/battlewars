@@ -183,37 +183,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $firstTurn = $playerSpeed >= $monsterSpeed ? $player : $monster;
         $secondTurn = $firstTurn === $player ? $monster : $player;
 
+        // Helper function for critical and lifesteal
+        function calculateAttack($attacker, $target) {
+            // Only use getPlayerEquippedItemAttack if attacker is Player, else fallback to calculateDamage
+            $isPlayer = get_class($attacker) === 'Player';
+            if ($isPlayer && method_exists($attacker, 'getPlayerItemAttack')) {
+                $baseDamage = $attacker->getPlayerItemAttack($target);
+            } else {
+                $baseDamage = calculateDamage($attacker, $target);
+            }
+
+            // Only apply crit if attacker is a Player
+            $critChance = $isPlayer && method_exists($attacker, 'getPlayerItemCritChance') ? $attacker->getPlayerItemCritChance() : 0;
+            $critMulti  = $isPlayer && method_exists($attacker, 'getPlayerItemCritMulti') ? $attacker->getPlayerItemCritMulti() : 1;
+            $isCrit = false;
+            if ($critChance > 0 && rand(1, 100) <= $critChance) {
+                $baseDamage = intval($baseDamage * $critMulti);
+                $isCrit = true;
+            }
+
+            // Life steal: applies to all hits, but only a chance to leech (10% flat chance)
+            $lifeSteal = $isPlayer && method_exists($attacker, 'getPlayerItemLifesteal') ? $attacker->getPlayerItemLifesteal() : 0;
+            $lifeStealChance = 10; // Flat 10% chance
+            $lifeStealAmount = 0;
+            if ($lifeSteal > 0 && $baseDamage > 0 && rand(1, 100) <= $lifeStealChance) {
+                $lifeStealAmount = intval($baseDamage * ($lifeSteal / 100));
+            }
+
+            return [
+                'damage' => $baseDamage,
+                'isCrit' => $isCrit,
+                'lifeSteal' => $lifeStealAmount
+            ];
+        }
 
         while ($playerCurrentHp > 0 && $monsterCurrentHp > 0) {
 
             $attacker = $firstTurn;
             $target = $firstTurn === $player ? $monster : $player;
-            $damage = calculateDamage($attacker, $target);
+            $result = calculateAttack($attacker, $target);
+            $damage = $result['damage'];
 
             if ($target === $monster) {
                 $monsterCurrentHp -= $damage;
+                // Life steal for player
+                if ($result['lifeSteal'] > 0 && $attacker === $player) {
+                    $playerCurrentHp = min($playerCurrentHp + $result['lifeSteal'], $player->getMaxHp());
+                }
             } else {
                 $playerCurrentHp -= $damage;
+                // Life steal for monster (if ever implemented)
+                if ($result['lifeSteal'] > 0 && $attacker === $monster) {
+                    $monsterCurrentHp = min($monsterCurrentHp + $result['lifeSteal'], $monster->getMaxHp());
+                }
             }
 
-            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+            $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
+            $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
+            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
 
             if ($playerCurrentHp <= 0 || $monsterCurrentHp <= 0)
                 break;
 
-            if (rollDice(6) > 4 && $firstTurn === $player)
-                continue; // Player's chance to attack consecutively
+            // Speed-based consecutive attack: 10% chance if faster
+            if ($playerSpeed > $monsterSpeed && $firstTurn === $player && rand(1, 100) <= 10) {
+                $battleLog['battle'][] = "{$player->getName()} attacks consecutively due to speed advantage!";
+                continue;
+            }
+            if ($monsterSpeed > $playerSpeed && $firstTurn === $monster && rand(1, 100) <= 10) {
+                $battleLog['battle'][] = "{$monster->getName()} attacks consecutively due to speed advantage!";
+                continue;
+            }
 
             $attacker = $secondTurn;
             $target = $secondTurn === $player ? $monster : $player;
-            $damage = calculateDamage($attacker, $target);
+            $result = calculateAttack($attacker, $target);
+            $damage = $result['damage'];
 
             if ($target === $monster) {
                 $monsterCurrentHp -= $damage;
+                if ($result['lifeSteal'] > 0 && $attacker === $player) {
+                    $playerCurrentHp = min($playerCurrentHp + $result['lifeSteal'], $player->getMaxHp());
+                }
             } else {
                 $playerCurrentHp -= $damage;
+                if ($result['lifeSteal'] > 0 && $attacker === $monster) {
+                    $monsterCurrentHp = min($monsterCurrentHp + $result['lifeSteal'], $monster->getMaxHp());
+                }
             }
-            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+
+            $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
+            $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
+            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
         }
 
         if ($playerCurrentHp <= 0) {

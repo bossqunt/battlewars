@@ -7,8 +7,13 @@ $decodedUser = authenticateOrRedirect(); // defaults to redirect to index.php
 $playerId = $decodedUser->id;
 $isAdmin = $decodedUser->admin;
 
-function authenticateOrRedirect($redirectPath = 'index.php') {
+function authenticateOrRedirect($redirectPath = null) {
     $authHeader = $_COOKIE['token'] ?? null;
+
+    // Default to the index.php in the current directory if not provided
+    if ($redirectPath === null) {
+        $redirectPath = dirname($_SERVER['PHP_SELF']) . '/index.php';
+    }
 
     if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
         $token = $matches[1];

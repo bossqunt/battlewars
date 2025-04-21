@@ -64,9 +64,8 @@ class Player
     {
         $playerAttack = $this->getPlayerAttribute('attack');
         $itemAttack = $this->getPlayerItemAttack();
-        $bonusItemAttack = $this->getPlayerEquippedItemBonusAttack();
 
-        return $playerAttack + $itemAttack + $bonusItemAttack;
+        return $playerAttack + $itemAttack;
     }
 
     // Fetches a single attribute for the player from the players table
@@ -80,7 +79,7 @@ class Player
     }
 
     // Fetches the total attack from equipped items in the player_inventory table
-    private function getPlayerEquippedItemBonusAttack()
+    public function getPlayerItemAttack()
     {
         $query = "SELECT SUM(pi.attack) AS total_attack 
                 FROM player_inventory pi 
@@ -90,19 +89,37 @@ class Player
 
         return $row ? (int)$row['total_attack'] : 0;
     }
-
-    // Fetches the total attack from equipped items in the items table
-    private function getPlayerItemAttack()
+    public function getPlayerItemCritChance()
     {
-        $query = "SELECT SUM(i.attack) AS total_attack 
+        $query = "SELECT SUM(pi.crit_chance) AS crit_chance 
                 FROM player_inventory pi 
-                INNER JOIN items i ON i.id = pi.item_id 
                 WHERE pi.player_id = ? AND pi.equipped = 1";
         $params = [$this->id];
         $row = $this->fetchSingleRow($query, $params);
 
-        return $row ? (int)$row['total_attack'] : 0;
+        return $row ? (int)$row['crit_chance'] : 0;
     }
+    public function getPlayerItemCritMulti()
+    {
+        $query = "SELECT SUM(pi.crit_multi) AS crit_multi 
+                FROM player_inventory pi 
+                WHERE pi.player_id = ? AND pi.equipped = 1";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($query, $params);
+
+        return $row ? (int)$row['crit_multi'] : 0;
+    }
+    public function getPlayerItemLifesteal()
+    {
+        $query = "SELECT SUM(pi.life_steal) AS life_steal 
+                FROM player_inventory pi 
+                WHERE pi.player_id = ? AND pi.equipped = 1";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($query, $params);
+
+        return $row ? (int)$row['life_steal'] : 0;
+    }
+
 
     // Fetches a single attribute for the player from the database
     private function getAttribute($attributeName)
