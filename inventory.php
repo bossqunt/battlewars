@@ -80,6 +80,14 @@ function renderItemCard(item, isEquipped = false) {
       <button type="submit" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 w-full">${action}</button>
     </form>`;
 
+  // Add sell button and gold value for inventory items only
+  const sellSection = !isEquipped && item.gold_value
+    ? `<div class="mt-2 flex items-center justify-between">
+        <span class="text-xs text-yellow-700 font-semibold">Gold Price: <span class="font-bold">${item.gold_value}</span></span>
+        <button class="sell-btn bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded" data-id="${item.id}" data-gold="${item.gold_value}">Sell</button>
+      </div>`
+    : '';
+
   const badge = `<div class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${getRarityBadgeClass(item.rarity)}">
       ${item.rarity_text}
     </div>`;
@@ -95,6 +103,7 @@ function renderItemCard(item, isEquipped = false) {
       </div>
       <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">${statHtml}</div>
       ${form}
+      ${sellSection}
     </div>`;
 }
 
@@ -180,6 +189,18 @@ $(document).ready(function () {
     e.preventDefault();
     const itemId = $(this).data('id');
     $.post('api/playerEquipItem.php', { item_id: itemId }, response => {
+      showToast(response.message, response.success);
+      loadInventory();
+    });
+  });
+
+  // Handle sell button click
+  $(document).on('click', '.sell-btn', function (e) {
+    e.preventDefault();
+    const itemId = $(this).data('id');
+    const gold = $(this).data('gold');
+    if (!confirm(`Sell this item for ${gold} gold?`)) return;
+    $.post('api/playerSellItem.php', { item_id: itemId }, response => {
       showToast(response.message, response.success);
       loadInventory();
     });
