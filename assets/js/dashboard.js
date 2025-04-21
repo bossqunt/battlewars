@@ -35,4 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(async () => {
     await loadWorldEvents();
   }, 17000); // 17 seconds (between 15-20s, adjust as desired)
+
 });
+getBattleHistory(playerId);

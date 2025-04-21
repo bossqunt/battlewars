@@ -1,5 +1,7 @@
 import { getRarityBadgeClass, getRarityLabel } from './rarity.js';
 import { updatePlayerStats } from './playerStats.js';
+import { getBattleHistory } from './battle.js';
+
 
 export async function updateMonstersTable() {
   try {
@@ -112,28 +114,27 @@ export function createMonsterCard(monster, index) {
 }
 
 export async function battleMonster(event) {
-  const button = event.currentTarget;
-  const monsterId = button.getAttribute('data-monster-id');
-  const monsterIndex = button.getAttribute('data-monster-index');  // Assuming this is passed in the button as a unique index
-
-//   console.log("Monster ID:", monsterId); // Debug log
-//   console.log("Monster Index:", monsterIndex); // Debug log
-
-  // Use the unique monster index to find the correct card
-  const monsterCard = document.getElementById(`monster-${monsterIndex}`);
-//   console.log("Monster Card:", monsterCard); // Debug log
-
-
-if (monsterCard) {
-    monsterCard.remove();
+    const button = event.currentTarget;
+    const monsterId = button.getAttribute('data-monster-id');
+    const monsterIndex = button.getAttribute('data-monster-index');
+  
+    const monsterCard = document.getElementById(`monster-${monsterIndex}`);
     
-    const container = document.getElementById('monsters-nearby');
-    // Check if any monsters are left
-    const remainingMonsters = monsterCard.querySelectorAll('.monster-card');
-    if (remainingMonsters.length === 0) {
-      container.innerHTML = '<div class="text-center text-sm text-muted-foreground py-4">🧭 There are no nearby monsters.</div>';
+    if (monsterCard) {
+      monsterCard.remove();
+  
+      const container = document.getElementById('monsters-nearby');
+  
+      // ✅ Select all remaining monster cards in the container
+      const remainingMonsters = container.querySelectorAll('.monster-card');
+  
+      if (remainingMonsters.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-sm text-muted-foreground py-4">
+            🧭 There are no nearby monsters.
+          </div>`;
+      }
     }
-  }
  
   
 
@@ -241,6 +242,11 @@ if (monsterCard) {
 
     // Update player stats UI
     updatePlayerStats();
+
+    // update battle history
+    if (typeof playerId !== 'undefined') {
+        getBattleHistory(playerId);
+      }
 
   } catch (error) {
     console.error('Error during battle:', error);
