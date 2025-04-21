@@ -31,7 +31,7 @@ export async function updateMonstersTable() {
 
 export function createMonsterCard(monster, index) {
   const monsterCard = document.createElement('div');
-  monsterCard.className = 'flex flex-row justify-between items-center border p-1 rounded-md';
+  monsterCard.className = 'flex flex-row justify-between items-center border p-1 rounded-md monster-card';
   monsterCard.id = `monster-${index}`;
 
   // Left side: Name and HP
@@ -116,14 +116,26 @@ export async function battleMonster(event) {
   const monsterId = button.getAttribute('data-monster-id');
   const monsterIndex = button.getAttribute('data-monster-index');  // Assuming this is passed in the button as a unique index
 
-  console.log("Monster ID:", monsterId); // Debug log
-  console.log("Monster Index:", monsterIndex); // Debug log
+//   console.log("Monster ID:", monsterId); // Debug log
+//   console.log("Monster Index:", monsterIndex); // Debug log
 
   // Use the unique monster index to find the correct card
   const monsterCard = document.getElementById(`monster-${monsterIndex}`);
-  console.log("Monster Card:", monsterCard); // Debug log
+//   console.log("Monster Card:", monsterCard); // Debug log
 
-  if (monsterCard) monsterCard.remove();
+
+if (monsterCard) {
+    monsterCard.remove();
+    
+    const container = document.getElementById('monsters-nearby');
+    // Check if any monsters are left
+    const remainingMonsters = monsterCard.querySelectorAll('.monster-card');
+    if (remainingMonsters.length === 0) {
+      container.innerHTML = '<div class="text-center text-sm text-muted-foreground py-4">🧭 There are no nearby monsters.</div>';
+    }
+  }
+ 
+  
 
   // Pre-fetch level up elements (or do it inside the if/else if preferred)
   const levelUpContainer = document.getElementById("level-up");
