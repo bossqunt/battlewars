@@ -316,7 +316,8 @@ class Player
         i.crit_chance + pi.crit_chance as crit_chance, 
         i.crit_multi + pi.crit_multi as crit_multi, 
         pi.rarity,
-        pi.quantity
+        pi.quantity,
+        i.gold as gold_value
          FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id WHERE pi.player_id = ? AND pi.equipped = 0
          ORDER BY pi.rarity desc";
         $params = [$this->id];
@@ -455,6 +456,35 @@ class Player
         $stmt->execute();
 
         return $stmt->affected_rows > 0;
+    }
+    private function getItemGoldValue($item_id)
+    {
+        $query = "SELECT i.gold FROM items i INNER JOIN player_inventory pi ON pi.item_id = i.id WHERE pi.id = ?";
+        $params = [$item_id];
+        $row = $this->fetchSingleRow($query, $params);
+    
+        return $row ? (int)$row['gold'] : 0;
+    }
+    
+    public function sellItem($item_id)
+    {
+        $itemGoldValue = $this->getItemGoldValue($item_id);
+        
+        if ($itemGoldValue) {
+            $query = "DELETE FROM player_inventory WHERE id = ? AND player_id = ?";
+            $params = [$item_id, $this->id];
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ii", ...$params);
+            $stmt->execute();
+    
+            if ($stmt->affected_rows > 0) {
+                // Update player's gold
+                $this->updateGold($itemGoldValue);
+                return true;
+            }
+        }
+    
+        return false;
     }
 
     // Equips an item for the player
