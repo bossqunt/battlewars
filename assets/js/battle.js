@@ -1,5 +1,6 @@
 import { updatePlayerStats } from './playerStats.js';
 
+
 export function getBattleHistory(playerId) {
   const endpoint = `/bw2/api/getPlayerBattleHistory.php`;
   updatePlayerStats();
@@ -7,7 +8,11 @@ export function getBattleHistory(playerId) {
   fetch(`${endpoint}?id=${playerId}`)
     .then(response => response.json())
     .then(data => {
-      const battleLog = document.getElementById('battle-log');
+      // Try to get the battle log container by id, fallback to class selector if not found
+      let battleLog = document.getElementById('battle-log');
+      if (!battleLog) {
+        battleLog = document.querySelector('.battle-log .space-y-0.5');
+      }
       if (!battleLog) {
         console.warn('Battle log container not found.');
         return;
@@ -32,7 +37,10 @@ export function getBattleHistory(playerId) {
     })
     .catch(error => {
       console.error('Error fetching battle history:', error);
-      const battleLog = document.querySelector('.battle-log .space-y-0.5');
+      let battleLog = document.getElementById('battle-log');
+      if (!battleLog) {
+        battleLog = document.querySelector('.battle-log .space-y-0.5');
+      }
       if (battleLog) {
         battleLog.innerHTML = '<div class="rpg-battle-log-entry text-red-500 text-[10px]">Failed to fetch battle history. Please try again later.</div>';
       }
