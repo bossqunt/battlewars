@@ -153,11 +153,26 @@ function isActivePage($page)
           <i class="menu-icon tf-icons bx bx-user"></i>
           <span class="text-[14px]">Logout</span>
         </a>
-
+        <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+        <div class="mb-3">
+        <h2 class="font-medium text-xs text-sidebar-foreground">Admin Tools</h2>
+      </div>
         <?php if ($isAdmin == 1) { ?>
           <a href="admin.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Admin.php'); ?>">
             <i class="menu-icon tf-icons bx bx-cog"></i>
-            <span class="text-[14px]">Admin</span>
+            <span class="text-[14px]">Console</span>
+          </a>
+        <?php } ?>
+        <?php if ($isAdmin == 1) { ?>
+          <a href="generate-monster.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Admin.php'); ?>">
+            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <span class="text-[14px]">Monsters SQL</span>
+          </a>
+        <?php } ?>
+        <?php if ($isAdmin == 1) { ?>
+          <a href="generate-items.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Admin.php'); ?>">
+            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <span class="text-[14px]">Items SQL</span>
           </a>
         <?php } ?>
       </nav>
