@@ -8,22 +8,34 @@ include 'includes/sidebar.php';
 <!-- Include custom CSS for playerStats -->
 <link rel="stylesheet" href="assets/css/custom.css">
 
-<h1 class="text-x2 py-1 mb-1">
-  <span class="text-muted-foreground font-light">Battlewarz /</span>
-  <span class="font-bold"> Overworld</span>
+<h1 class="text-x2 py-1 mb-1 flex items-center justify-between">
+  <span>
+    <span class="text-muted-foreground font-light">Battlewarz /</span>
+    <span class="font-bold"> Overworld</span>
+  </span>
+  <!-- Online Players Button (inline, styled) -->
+  <button class="h-7 px-2 flex items-center gap-1 bg-sidebar text-sidebar-foreground border-sidebar-border border hover:bg-accent hover:text-accent-foreground rounded-md justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
+    <!-- Lucide Users Icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users h-3.5 w-3.5">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+    <span class="text-xs">Online (<span id="online-players-count">Not Implemented</span>) </span>
+  </button>
 </h1>
 
-<!-- FIX THE FUCKING COL-SPAN SO I HAVE MORE CONTROL OVER THE GRID+MONSTER CARD LAYOUT -->
-<main class="flex-1 overflow-auto p-0">
-  <div class="space-y-4 flex flex-col h-full">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow">
-      <div class="md:col-span-2">
+<div id="main-container" class="grid grid-cols-12 gap-4">
+  <!-- Grid and controls (9 columns) -->
+  <div id="grid-controller" class="col-span-9 rpg-panel">
+    <main class="flex-1 overflow-auto p-0">
+      <div class="space-y-4 flex flex-col h-full">
         <div class="rpg-panel space-y-4">
           <div class="flex justify-between items-center">
             <h1 class="text-lg font-bold"></h1>
-
-
-            <div class="flex space-x-2">
+            <!-- Buttons aligned right -->
+            <div class="flex space-x-2 ml-auto">
               <div id="owner-text" class="flex items-center gap-1 text-sm text-black"></div>
               <div class="flex items-center gap-1 text-black bg-white border border-black px-3 py-1 rounded-md w-fit"
                 id="player-location-display">
@@ -53,38 +65,37 @@ include 'includes/sidebar.php';
           <p class="text-sm text-muted-foreground" id="travel-details">Loading travel position details</p>
           <div class="w-full flex justify-center">
             <div id="grid-container" class="grid grid-cols-9 gap-1" style="width: max-content;">
-
-
               <!-- Grid will be dynamically populated here -->
-
             </div>
           </div>
-          <!-- grid end -->
         </div>
       </div>
-      <div class="md:col-span-1">
-  <div class="border rounded-md p-2 bg-card/50">
-    <h2 class="text-m font-medium mb-2">Monsters nearby</h2>
-    <div class="space-y-1" id="monsters-nearby">
-      <!-- Monsters will be dynamically populated here -->
-       
+    </main>
+  </div>
+  <!-- Monsters nearby (3 columns) -->
+  <div class="col-span-3 flex flex-col h-full">
+    <div class="border rounded-md p-3 bg-card/50">
+      <h2 class="text-sm font-medium mb-2">Nearby Monsters</h2>
+      <div class="space-y-1" id="monsters-nearby">
+        <!-- Monsters will be dynamically populated here -->
+      </div>
     </div>
   </div>
-</div></div>
-    <div class="sticky bottom-0 pb-3 pt-1">
-      <div class="border rounded-md p-3 bg-card/50">
-        <h2 class="text-sm font-medium mb-2">World Events</h2>
-          <div
-            class="position: relative; --radix-scroll-area-corner-width: 0px; --radix-scroll-area-corner-height: 0px;">
-            <div id="world-events" class="max-h-[40vh] overflow-y-auto overflow-x-hidden pr-2">
-            <!-- world events should be populated here -->
-              <p class="text-xs text-muted-foreground">fuckoff</p>
-            </div>
-          </div>
+  <!-- World Events as a new row at the bottom -->
+  <div class="col-span-12">
+    <div class="border rounded-md p-3 bg-card/50 mt-2">
+      <h2 class="text-sm font-medium mb-2">World Events</h2>
+      <div>
+        <div id="world-events" 
+             class="overflow-y-auto overflow-x-hidden pr-2"
+             style="height:30vh; max-height:30vh;">
+          <!-- world events should be populated here -->
+          <p class="text-xs text-muted-foreground">Loading...</p>
         </div>
       </div>
     </div>
-</main>
+  </div>
+</div>
 
 <!-- Player Battle Modal -->
 <div id="player-battle-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -107,57 +118,38 @@ include 'includes/sidebar.php';
       <h2 class="text-xl font-bold">Battle Result</h2>
       <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
     </div>
-
-    <!-- Outcome -->
+    <!-- ...existing code for modal content... -->
     <div id="battle-outcome" class="mb-4 text-center"></div>
-
-    <!-- Level Up -->
     <div id="level-up" class="mb-4" style="display: none;">
       <p id="level-up-message" class="text-sm text-green-600 text-center"></p>
-      <!-- Level message will be displayed here -->
     </div>
-    <!-- Battle Log -->
     <div class="mb-4">
       <h3 class="text-lg font-semibold text-gray-800 mb-2">Battle Log</h3>
       <div id="battle-log-content"
         class="bg-gray-100 p-3 rounded-md max-h-40 overflow-y-auto space-y-1 text-sm text-gray-700">
-        <!-- Dynamic log lines go here -->
       </div>
     </div>
-
-    <!-- Rewards -->
     <div class="mb-4">
       <h3 class="text-lg font-semibold text-gray-800 mb-2">Rewards</h3>
       <ul class="space-y-1 text-sm">
-        <p class="text-md text-purple-600" id="loot-message" class="flex items-center space-x-2"></>
+        <p class="text-md text-purple-600" id="loot-message" class="flex items-center space-x-2"></p>
         <li id="exp-reward" class="flex items-center space-x-2"></li>
         <li id="gold-reward" class="flex items-center space-x-2"></li>
       </ul>
     </div>
-    <!-- Loot -->
     <div class="mb-4" id="loot-section" style="display: none;">
       <h3 class="text-lg font-semibold text-gray-800 mb-2">Loot</h3>
-      <ul id="loot-list" class="space-y-1 text-sm text-gray-700">
-        <!-- Loot items will be appended here -->
-      </ul>
+      <ul id="loot-list" class="space-y-1 text-sm text-gray-700"></ul>
     </div>
-
-    <!-- Close Button -->
     <button id="close-battle" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
       Close
     </button>
   </div>
 </div>
 
-
-<!-- <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div> -->
-
-<!-- Place this tag in your head or just before your close body tag. -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="module" src="assets/js/playerStats.js"></script>
 <script type="module" src="assets/js/dashboard.js"></script>
 <script src="assets/js/main.js"></script>
-
 </body>
-
 </html>

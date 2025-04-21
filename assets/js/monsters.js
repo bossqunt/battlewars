@@ -33,7 +33,7 @@ export async function updateMonstersTable() {
 
 export function createMonsterCard(monster, index) {
   const monsterCard = document.createElement('div');
-  monsterCard.className = 'flex flex-row justify-between items-center border p-1 rounded-md monster-card';
+  monsterCard.className = 'flex flex-row justify-between items-center border p-2 rounded-md monster-card';
   monsterCard.id = `monster-${index}`;
 
   // Left side: Name and HP
@@ -41,11 +41,11 @@ export function createMonsterCard(monster, index) {
   leftWrapper.className = 'flex flex-col truncate max-w-[70%]';
 
   const nameDiv = document.createElement('div');
-  nameDiv.className = 'text-[11px] font-medium';
+  nameDiv.className = 'text-[12px] font-medium';
   nameDiv.textContent = `${monster.name} (Lv. ${monster.level})`;
 
   const hpDiv = document.createElement('div');
-  hpDiv.className = 'text-[9px] text-muted-foreground';
+  hpDiv.className = 'text-[11px] text-muted-foreground';
   hpDiv.textContent = `HP: ${monster.hp}`;
 
   leftWrapper.appendChild(nameDiv);
@@ -54,7 +54,7 @@ export function createMonsterCard(monster, index) {
   // Right side: Auto-Battle button
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'rpg-button rpg-button-danger w-auto shrink-0 h-6 px-1.5 py-0.5 flex gap-1 items-center text-[10px] rounded-md';
+  button.className = 'rpg-button rpg-button-primary w-auto shrink-0 h-6 px-1.5 py-0.5 flex gap-1 items-center text-[10px] rounded-md';
   button.setAttribute('data-monster-id', monster.id);
   button.setAttribute('data-monster-index', index);
   button.addEventListener('click', battleMonster);
