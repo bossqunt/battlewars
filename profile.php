@@ -2,7 +2,7 @@
 session_start();
 include 'includes/sidebar.php';
 require 'controller/Player.php';
-require 'controller/Database.php';
+require_once 'controller/Database.php';
 require_once 'controller/authCheck.php';
 
 // Handle profile update

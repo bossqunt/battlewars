@@ -2,18 +2,25 @@
 session_start();
 
 include 'includes/sidebar.php';
+
+// sword's should be balanced in attack, speed, and defence
+// axe's should have more attack, less speed, less defence
+// dagger's should have less attack, more speed, more crit
+// spear's should have more attack, less speed, less defence
+
 ?>
 
 <?php
 
 // Define global drop pool for item prefixes, types, and names, and associate scaling factors
 $itemPrefixes = [
+    'Starter'   => 0.5, // 1-10
     'Wooden'    => 1.0, // 1-10
     'Cloth'     => 1.1,  // 11-20
     'Leather'   => 1.2, // 21-30
     'Bronze'    => 1.3, // 31-40
     'Iron'      => 1.4, // 41-50
-    'Steel'     => 1.5,        // 51-60
+    'Steel'     => 1.5,  // 51-60
     'Plate'     => 1.6,
     'Tempered'  => 1.7,
     'Forged'    => 1.8,
@@ -29,6 +36,7 @@ $itemPrefixes = [
     'Godforged' => 2.8,
     'Deity'     => 2.9
 ];
+
 $itemTypes = ['Weapon', 'Helmet', 'Armor', 'Boots', 'Shield', 'Amulet', 'Ring', 'Legs'];
 
 // Define item names specific to each type (e.g., Steel Armor, Titan Helmet)
@@ -49,14 +57,15 @@ $baseStats = [
     'Helmet' => ['attack' => [1, 5], 'defense' => [10, 25], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [5, 15], 'speed' => [0, 0], 'health' => [5, 20], 'stamina' => [5, 15]],
     'Armor' => ['attack' => [1, 10], 'defense' => [15, 40], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [10, 30], 'speed' => [0, 0], 'health' => [15, 50], 'stamina' => [10, 25]],
     'Boots' => ['attack' => [1, 5], 'defense' => [0, 5], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [3, 10], 'speed' => [2, 10], 'health' => [3, 15], 'stamina' => [2, 10]],
-    'Shield' => ['attack' => [1, 1], 'defense' => [20, 50], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [15, 50], 'speed' => [0, 0], 'health' => [5, 25], 'stamina' => [5, 20]],
+    'Shield' => ['attack' => [1, 1], 'defense' => [5, 15], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [15, 50], 'speed' => [0, 0], 'health' => [5, 25], 'stamina' => [5, 20]],
     'Amulet' => ['attack' => [1, 1], 'defense' => [0, 0], 'crit_chance' => [5, 15], 'crit_multi' => [1, 1], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 2], 'health' => [10, 30], 'stamina' => [0, 5]],
     'Ring' => ['attack' => [1, 1], 'defense' => [0, 0], 'crit_chance' => [2, 10], 'crit_multi' => [1, 2], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [5, 20], 'stamina' => [0, 10]],
-    'Legs' => ['attack' => [1, 5], 'defense' => [10, 30], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [8, 20], 'speed' => [0, 0], 'health' => [8, 30], 'stamina' => [5, 20]],
+    'Legs' => ['attack' => [1, 5], 'defense' => [5, 15], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [8, 20], 'speed' => [0, 0], 'health' => [8, 30], 'stamina' => [5, 20]],
 ];
 
 // Define level ranges
 $levelRanges = [
+    [1, 10],
     [1, 10],
     [11, 20],
     [21, 30],
@@ -132,6 +141,28 @@ function generateItem($type, $itemNames, $baseStats, $prefix, $levelRange, $subt
     $stats = $baseStats[$type];
 
     foreach ($stats as $stat => $range) {
+        // Only roll crit_chance if minimum level is 20 or higher
+        if ($stat === 'crit_chance') {
+            if ($levelRange[0] < 20) {
+                $stats[$stat] = 0;
+                continue;
+            }
+            // Scale crit chance so that a full set at endgame is <= 80%
+            // Assume endgame = highest prefix, so max per item = 10%
+            $maxCritChancePerItem = 10;
+            $minCritChancePerItem = 2;
+            $baseValue = generateStat($minCritChancePerItem, $maxCritChancePerItem);
+            $stats[$stat] = applyNameScaling($baseValue, $prefix);
+            continue;
+        }
+        // Cap crit_multi at 300% (3.0)
+        if ($stat === 'crit_multi') {
+            $baseValue = generateStat($range[0], $range[1]);
+            $stats[$stat] = applyNameScaling($baseValue, $prefix);
+            $stats[$stat] = min($stats[$stat], 3);
+            continue;
+        }
+        // ...existing code for other stats...
         $baseValue = generateStat($range[0], $range[1]);
         $stats[$stat] = applyNameScaling($baseValue, $prefix);
     }
@@ -150,6 +181,15 @@ function generateItem($type, $itemNames, $baseStats, $prefix, $levelRange, $subt
         $stats[$stat] = intval($stats[$stat] * $levelMultiplier);
     }
 
+    // Cap crit_chance after all multipliers (hard cap per item)
+    if ($levelRange[0] >= 20 && isset($stats['crit_chance'])) {
+        $stats['crit_chance'] = min($stats['crit_chance'], 12);
+    }
+
+    // Exponential gold scaling based on minimum level (gentle curve, slightly higher for low levels)
+    $baseGold = rand(50,80); // was 20
+    $gold = intval($baseGold * pow(1.045, $levelRange[0])); // 4.5% increase per level
+
     return [
         'name' => $name,
         'type' => $type,
@@ -163,7 +203,7 @@ function generateItem($type, $itemNames, $baseStats, $prefix, $levelRange, $subt
         'speed' => $stats['speed'],
         'health' => $stats['health'],
         'stamina' => $stats['stamina'],
-        'gold' => generateStat(50, 200)
+        'gold' => $gold
     ];
 }
 
@@ -195,49 +235,53 @@ function generateItemTable($types, $itemNames, $baseStats, $itemPrefixes, $prefi
         }
     }
 
-    $html .= '<table border="1" cellpadding="5" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Level Range</th>
-                        <th>Attack</th>
-                        <th>Defense</th>
-                        <th>Crit Chance</th>
-                        <th>Crit Multi</th>
-                        <th>Life Steal</th>
-                        <th>Armor</th>
-                        <th>Speed</th>
-                        <th>Health</th>
-                        <th>Stamina</th>
-                        <th>Gold</th>
-                    </tr>
-                </thead>
-                <tbody>';
-
+    $html .= '
+<h1 class="text-x2 py-1 mb-1">
+  <span class="text-muted-foreground font-light">Battlewarz /</span>
+  <span class="font-bold"> Hospital</span>
+</h1>
+<div class="w-full overflow-x-auto rpg-panel space-y-4">
+  <table class="min-w-full divide-y divide-gray-200 border border-gray-300 rounded-lg shadow-sm bg-white">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Name</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Type</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Level Range</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Attack</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Defense</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Crit Chance</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Crit Multi</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Life Steal</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Armor</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Speed</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Health</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Stamina</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">Gold</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">';
     foreach ($groupedItems as $group => $items) {
-        $html .= '<tr><td colspan="13"><strong>' . ucfirst($group) . '</strong></td></tr>';
+        $html .= '<tr class="bg-gray-50"><td colspan="13" class="px-3 py-2 font-semibold text-indigo-700">'.ucfirst($group).'</td></tr>';
         foreach ($items as $item) {
             $levelRange = implode(' - ', $item['level_range']);
-            $html .= '<tr>
-                        <td>' . $item['name'] . '</td>
-                        <td>' . $item['type'] . '</td>
-                        <td>' . $levelRange . '</td>
-                        <td>' . $item['attack'] . '</td>
-                        <td>' . $item['defense'] . '</td>
-                        <td>' . $item['crit_chance'] . '</td>
-                        <td>' . $item['crit_multi'] . '</td>
-                        <td>' . $item['life_steal'] . '</td>
-                        <td>' . $item['armor'] . '</td>
-                        <td>' . $item['speed'] . '</td>
-                        <td>' . $item['health'] . '</td>
-                        <td>' . $item['stamina'] . '</td>
-                        <td>' . $item['gold'] . '</td>
+            $html .= '<tr class="hover:bg-indigo-50 transition">
+                        <td class="px-3 py-2">'.$item['name'].'</td>
+                        <td class="px-3 py-2">'.$item['type'].'</td>
+                        <td class="px-3 py-2">'.$levelRange.'</td>
+                        <td class="px-3 py-2">'.$item['attack'].'</td>
+                        <td class="px-3 py-2">'.$item['defense'].'</td>
+                        <td class="px-3 py-2">'.$item['crit_chance'].'</td>
+                        <td class="px-3 py-2">'.$item['crit_multi'].'</td>
+                        <td class="px-3 py-2">'.$item['life_steal'].'</td>
+                        <td class="px-3 py-2">'.$item['armor'].'</td>
+                        <td class="px-3 py-2">'.$item['speed'].'</td>
+                        <td class="px-3 py-2">'.$item['health'].'</td>
+                        <td class="px-3 py-2">'.$item['stamina'].'</td>
+                        <td class="px-3 py-2">'.$item['gold'].'</td>
                     </tr>';
         }
     }
-
-    $html .= '</tbody></table>';
+    $html .= '</tbody></table></div>';
     return $html;
 }
 

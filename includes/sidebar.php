@@ -175,6 +175,13 @@ function isActivePage($page)
             <span class="text-[14px]">Items SQL</span>
           </a>
         <?php } ?>
+        <?php if ($isAdmin == 1) { ?>
+          <a href="adminScheduler.php" class="rpg-sidebar-nav-item <?php echo isActivePage('adminScheduler.php'); ?>">
+            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <span class="text-[14px]">Scheduler</span>
+          </a>
+        <?php } ?>
+
       </nav>
 
             <!-- Battle Log -->
@@ -195,4 +202,3 @@ function isActivePage($page)
             <div class="flex-1 overflow-auto p-0">
                 <!-- Your content goes here -->
 
-  

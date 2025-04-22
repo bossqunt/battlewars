@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'includes/sidebar.php';
 require 'controller/Player.php';
-require 'controller/Database.php';
+require_once 'controller/Database.php';
 
 function compareStat($invValue, $eqValue) {
   if ($invValue > $eqValue) {

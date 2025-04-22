@@ -7,13 +7,17 @@ $decodedUser = authenticateOrRedirect(); // defaults to redirect to index.php
 $playerId = $decodedUser->id;
 $isAdmin = $decodedUser->admin;
 
-function authenticateOrRedirect($redirectPath = null) {
-    $authHeader = $_COOKIE['token'] ?? null;
+// Update last_active and online status
+try {
+    $db = new PDO('mysql:host=localhost;dbname=bw2;charset=utf8', 'root', ''); // adjust credentials as needed
+    $stmt = $db->prepare("UPDATE players SET last_active = NOW(), online = 1 WHERE id = ?");
+    $stmt->execute([$playerId]);
+} catch (Exception $e) {
+    // Optionally log error
+}
 
-    // Default to the index.php in the current directory if not provided
-    if ($redirectPath === null) {
-        $redirectPath = dirname($_SERVER['PHP_SELF']) . '/index.php';
-    }
+function authenticateOrRedirect($redirectPath = '/index.php', $asJson = false) {
+    $authHeader = $_COOKIE['token'] ?? null;
 
     if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
         $token = $matches[1];
@@ -21,11 +25,23 @@ function authenticateOrRedirect($redirectPath = null) {
             $decoded = JWT::decode($token, new Key('fuckoffdog', 'HS256'));
             return $decoded;
         } catch (Exception $e) {
+            if ($asJson) {
+                http_response_code(401);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Unauthorized: Invalid or expired token']);
+                exit;
+            }
             header("Location: $redirectPath");
             exit;
         }
     }
 
+    if ($asJson) {
+        http_response_code(401);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Unauthorized: No token provided']);
+        exit;
+    }
     header("Location: $redirectPath");
     exit;
 }

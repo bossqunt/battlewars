@@ -7,6 +7,24 @@ import { updateMonstersTable, createMonsterCard, battleMonster } from './monster
 import { getBattleHistory, clearBattleModalRewards } from './battle.js';
 import { loadWorldEvents } from './worldEvents.js';
 
+
+
+async function updateOnlinePlayers() {
+  try {
+    const response = await fetch('/bw2/api/getOnlinePlayers.php');
+    const data = await response.json();
+ 
+    const onlineCountElem = document.getElementById('online-player-count');
+    if (onlineCountElem) {
+      onlineCountElem.textContent = data.count;
+    } else {
+      console.log('Element #online-player-count not found');
+    }
+  } catch (e) {
+    console.error('Error fetching online players:', e);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const travelBtn = document.getElementById('travel-button');
   if (travelBtn) travelBtn.addEventListener('click', travelPlayer);
@@ -36,5 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     await loadWorldEvents();
   }, 17000); // 17 seconds (between 15-20s, adjust as desired)
 
+  updateOnlinePlayers();
+  setInterval(updateOnlinePlayers, 15000); // update every 15s
+
 });
+
 getBattleHistory(playerId);
