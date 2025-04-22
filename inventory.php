@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'includes/sidebar.php';
 require 'controller/Player.php';
+
 require_once 'controller/Database.php';
 
 function compareStat($invValue, $eqValue) {
@@ -32,9 +33,7 @@ function compareStat($invValue, $eqValue) {
   </button>
 </div>
 
-<div id="toast" class="fixed top-4 right-4 hidden bg-green-600 text-white px-4 py-2 rounded shadow-md z-50"></div>
-
-<div id="inventorySection" class="grid grid-cols-2 md:grid-cols-6 gap-4"></div>
+<div id="inventorySection" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 <div id="equippedSection" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
 
@@ -56,15 +55,9 @@ function compareStat($invValue, $eqValue) {
 </body>
 
 </html>
-<script>
-function showToast(message, success = true) {
-  const toast = $('#toast');
-  toast.removeClass().addClass('fixed top-4 right-4 z-50 px-4 py-2 rounded shadow-md text-white')
-       .addClass(success ? 'bg-green-600' : 'bg-red-600')
-       .text(message).fadeIn();
 
-  setTimeout(() => toast.fadeOut(), 3000);
-}
+<script type="module">
+import { showToast } from './assets/js/ui.js';
 
 function renderItemCard(item, isEquipped = false) {
   const stats = ['attack', 'defense', 'crit_multi', 'crit_chance', 'speed', 'health', 'stamina' ,'life_steal'];
@@ -77,14 +70,23 @@ function renderItemCard(item, isEquipped = false) {
   const action = isEquipped ? 'Unequip' : 'Equip';
   const form = `
     <form class="mt-3 equip-form" data-id="${item.id}">
-      <button type="submit" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 w-full">${action}</button>
+      <button type="submit" class="bg-primary text-white text-xs px-3 py-1 rounded hover:bg-primary-800 w-full">${action}</button>
     </form>`;
 
-  // Add sell button and gold value for inventory items only
+  // Sell (left) and Market (right) buttons, colored
   const sellSection = !isEquipped && item.gold_value
-    ? `<div class="mt-2 flex items-center justify-between">
-        <span class="text-xs text-yellow-700 font-semibold">Gold Price: <span class="font-bold">${item.gold_value}</span></span>
-        <button class="sell-btn bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded" data-id="${item.id}" data-gold="${item.gold_value}">Sell</button>
+    ? `<div class="mt-2 flex items-center justify-between w-full">
+        <div class="flex items-center">
+          <button class="sell-btn bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded mr-2" data-id="${item.id}" data-gold="${item.gold_value}">Sell</button>
+          <span class="flex items-center mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M9 10c0-1.1.9-2 2-2h2a2 2 0 1 1 0 4h-2 2a2 2 0 1 1 0 4h-2c-1.1 0-2-.9-2-2"></path>
+            </svg>
+            <span class="font-bold text-amber-500 text-xs" id="gold-value">${item.gold_value}</span>
+          </span>
+        </div>
+        <button class="market-list-btn bg-gray-600 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded ml-auto" style="margin-left:auto;" data-id="${item.id}">List on Market</button>
       </div>`
     : '';
 
@@ -140,7 +142,6 @@ function getRarityLabel(rarity) {
         case 6: return 'Godly';
       }
     }
-
 
 function loadInventory() {
   $.get('api/getPlayerInventory.php', data => {
@@ -204,6 +205,19 @@ $(document).ready(function () {
       showToast(response.message, response.success);
       loadInventory();
     });
+  });
+
+  // Handle "List on Market" button click
+  $(document).on('click', '.market-list-btn', function (e) {
+    e.preventDefault();
+    const itemId = $(this).data('id');
+    const price = prompt('Enter the price (gold) to list this item for:');
+    if (!price || isNaN(price) || price <= 0) return;
+    $.post('api/marketListItem.php', { player_inventory_id: itemId, price: price }, response => {
+      // Use backend message directly
+      showToast(response.message, response.success);
+      loadInventory();
+    }, 'json');
   });
 });
 </script>

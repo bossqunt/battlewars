@@ -45,3 +45,5 @@ export function getRarityBadgeClass(rarity) {
 export function getRarityBorderClass(rarity) {
   return (RARITY[rarity] || RARITY.default).borderClass;
 }
+
+

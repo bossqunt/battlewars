@@ -7,8 +7,6 @@ import { updateMonstersTable, createMonsterCard, battleMonster } from './monster
 import { getBattleHistory, clearBattleModalRewards } from './battle.js';
 import { loadWorldEvents } from './worldEvents.js';
 
-
-
 async function updateOnlinePlayers() {
   try {
     const response = await fetch('/bw2/api/getOnlinePlayers.php');

@@ -20,8 +20,8 @@ class Database {
         return $this->conn;
     }
 
-    public function __destruct() {
-        $this->conn->close();
-    }
+    // public function __destruct() {
+    //     $this->conn->close();
+    // }
 }
 ?>

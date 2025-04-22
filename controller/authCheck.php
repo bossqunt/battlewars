@@ -3,7 +3,11 @@ require __DIR__ . '/../vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-$decodedUser = authenticateOrRedirect(); // defaults to redirect to index.php
+// Dynamically determine app root for redirect
+$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+$redirectPath = rtrim($scriptDir, '/\\') . '/index.php';
+
+$decodedUser = authenticateOrRedirect($redirectPath); // dynamic redirect
 $playerId = $decodedUser->id;
 $isAdmin = $decodedUser->admin;
 

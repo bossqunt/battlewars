@@ -1,4 +1,6 @@
 import { updateGridLocation } from './grid.js';
+import { showToast } from './ui.js';
+
 
 setInterval(updatePlayerStats, 5000); // Poll every 5 seconds
 updatePlayerStats(); // Initial call to fetch and display data
@@ -18,7 +20,10 @@ async function updatePlayerStats() {
 
     // Update the gold value dynamically
     document.getElementById('gold-value').textContent = playerData.gold;
-    updateGridLocation(playerData); // Call updateGridLocation here
+    // Only update grid location if the grid element exists
+    if (document.getElementById('grid-controller')) {
+      updateGridLocation(playerData);
+    }
  // Update the inventory count dynamically
  if (playerData.inventoryCount && playerData.inventoryCount.length > 0) {
   document.getElementById('inventorycount').textContent = playerData.inventoryCount[0].count;

@@ -134,23 +134,23 @@ function isActivePage($page)
         </a>
 
         <a href="inventory.php" class="rpg-sidebar-nav-item <?php echo isActivePage('inventory.php'); ?>">
-          <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
+          <i class="menu-icon tf-icons bx bx-archive"></i>
           <span class="text-[14px]">Inventory</span>
           <span class="ml-auto text-[9px] bg-primary px-1.5 py-0.5 rounded-full text-white" id="inventorycount">0</span>
         </a>
 
-        <a href="market.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Market.php'); ?>">
-          <i class="menu-icon tf-icons bx bx-user"></i>
+        <a href="market.php" class="rpg-sidebar-nav-item <?php echo isActivePage('market.php'); ?>">
+          <i class="menu-icon tf-icons bx bx-cart"></i>
           <span class="text-[14px]">Market</span>
         </a>
 
         <a href="profile.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Profile.php'); ?>">
-          <i class="menu-icon tf-icons bx bx-user"></i>
+          <i class="menu-icon tf-icons bx bx-id-card"></i>
           <span class="text-[14px]">Profile</span>
         </a>
 
         <a href="logout.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Logout.php'); ?>">
-          <i class="menu-icon tf-icons bx bx-user"></i>
+          <i class="menu-icon tf-icons bx bx-log-out"></i>
           <span class="text-[14px]">Logout</span>
         </a>
         <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
@@ -165,23 +165,22 @@ function isActivePage($page)
         <?php } ?>
         <?php if ($isAdmin == 1) { ?>
           <a href="generate-monster.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Admin.php'); ?>">
-            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <i class="menu-icon tf-icons bx bx-dna"></i>
             <span class="text-[14px]">Monsters SQL</span>
           </a>
         <?php } ?>
         <?php if ($isAdmin == 1) { ?>
           <a href="generate-items.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Admin.php'); ?>">
-            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <i class="menu-icon tf-icons bx bx-package"></i>
             <span class="text-[14px]">Items SQL</span>
           </a>
         <?php } ?>
         <?php if ($isAdmin == 1) { ?>
           <a href="adminScheduler.php" class="rpg-sidebar-nav-item <?php echo isActivePage('adminScheduler.php'); ?>">
-            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <i class="menu-icon tf-icons bx bx-calendar"></i>
             <span class="text-[14px]">Scheduler</span>
           </a>
         <?php } ?>
-
       </nav>
 
             <!-- Battle Log -->
