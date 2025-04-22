@@ -184,6 +184,43 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 
 ---
 
+## Battle Calculations
+
+### Turn Order
+- The player or monster with the highest **speed** stat attacks first.
+
+### Damage Calculation
+- **Base Damage:**  
+  `damage = attacker.attack - defender.defense`
+- If `damage < 1`, set `damage = 1` (minimum damage).
+- **Critical Hit:**  
+  - Each attack has a chance to crit:  
+    `if rand(0, 100) < attacker.crit_chance, crit = true`
+  - If critical,  
+    `damage = damage * attacker.crit_multi`
+- **Life Steal:**  
+  - If the attacker has `life_steal`, they heal for  
+    `heal = floor(damage * (life_steal / 100))`
+- **Armor/Other Modifiers:**  
+  - If armor is present, subtract from damage or apply as a percent reduction.
+
+### Example (Pseudo-PHP)
+```php
+$damage = max(1, $attacker['attack'] - $defender['defense']);
+if (rand(0, 100) < $attacker['crit_chance']) {
+    $damage *= $attacker['crit_multi'];
+}
+$defender['c_hp'] -= $damage;
+if ($attacker['life_steal'] > 0) {
+    $attacker['c_hp'] += floor($damage * ($attacker['life_steal'] / 100));
+}
+```
+
+### Victory
+- The first to reduce the opponent's `c_hp` (current HP) to 0 wins.
+
+---
+
 ## Big Features to Build
 - [ ] Online player list display
 - [ ] Passive Regeneration
