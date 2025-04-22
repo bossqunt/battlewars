@@ -184,10 +184,20 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 
 ---
 
+## Big Features to Build
+- [ ] Online player list display
+- [ ] Passive Regeneration
+- [ ] Level-up Stats
+- [ ] Temporary stat buff consumables
+- [ ] Item Generation & Monster Loot Tables
+- [ ] Classes (Wizard, Ranger)
+- [ ] Incorporate more item bonuses
+- [ ] Potential animations? (Player/Monster/Items?)
+
 ## Known Issues / To-Do List
 
-- [ ] Redirect after registration is not working
-- [ ] Starting equipment
+- [x] Redirect after registration is not working
+- [x] Starting equipment
 - [x] My image is displayed for players grid tile (**FIXED**)
 - [ ] Stamina run out, display NOT defeated, that you have run out of stamina...
 - [ ] Negative effects -- stronger upside
@@ -197,7 +207,7 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 - [x] Consolidate rarity classes (**FIXED FOR FE**)
 - [ ] Consolidate rarity classes (**NOT FIXED FOR BE**)
 - [x] Move inventory count outside of dashboard into playerStats class (**FIXED**)
-- [ ] Display level of monster
+- [x] Display level of monster
 
 ---
 
