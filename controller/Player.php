@@ -81,8 +81,8 @@ class Player
     // Fetches the total attack from equipped items in the player_inventory table
     public function getPlayerItemAttack()
     {
-        $query = "SELECT SUM(pi.attack) AS total_attack 
-                FROM player_inventory pi 
+        $query = "SELECT SUM(pi.attack + i.attack) AS total_attack 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
                 WHERE pi.player_id = ? AND pi.equipped = 1";
         $params = [$this->id];
         $row = $this->fetchSingleRow($query, $params);
@@ -91,8 +91,8 @@ class Player
     }
     public function getPlayerItemCritChance()
     {
-        $query = "SELECT SUM(pi.crit_chance) AS crit_chance 
-                FROM player_inventory pi 
+        $query = "SELECT SUM(pi.crit_chance + i.crit_chance) AS crit_chance 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
                 WHERE pi.player_id = ? AND pi.equipped = 1";
         $params = [$this->id];
         $row = $this->fetchSingleRow($query, $params);
@@ -101,8 +101,8 @@ class Player
     }
     public function getPlayerItemCritMulti()
     {
-        $query = "SELECT SUM(pi.crit_multi) AS crit_multi 
-                FROM player_inventory pi 
+        $query = "SELECT SUM(pi.crit_multi + i.crit_multi) AS crit_multi 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
                 WHERE pi.player_id = ? AND pi.equipped = 1";
         $params = [$this->id];
         $row = $this->fetchSingleRow($query, $params);
