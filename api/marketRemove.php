@@ -8,5 +8,5 @@ if (!isset($_POST['listing_id'])) {
   exit;
 }
 $market = new Market();
-$result = $market->buyListing($_POST['listing_id'], $playerId);
+$result = $market->removeListing($_POST['listing_id'], $playerId);
 echo json_encode($result);

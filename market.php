@@ -4,9 +4,18 @@ include 'includes/sidebar.php';
 require_once 'controller/Market.php';
 require_once 'controller/Player.php';
 
-
+// Determine filter
+$filter = $_GET['filter'] ?? 'all';
+$status = 'active';
+$ownerId = null;
+if ($filter === 'my') {
+  $ownerId = $playerId ?? null;
+} elseif ($filter === 'past') {
+  $status = 'sold';
+}
 $market = new Market();
-$listings = $market->getListings($_GET['search'] ?? '');
+$listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
+
 
 ?>
 
@@ -16,37 +25,52 @@ $listings = $market->getListings($_GET['search'] ?? '');
   <span class="font-bold"> Marketplace</span>
 </h1>
 
-<div class="w-full overflow-x-hidden rpg-panel space-y-4">
+<div class="w-full !overflow-x-hidden rpg-panel space-y-4">
 
-  <div class="mb-4">
+  <div class="mb-4 flex gap-2">
     <form method="GET" class="flex gap-2">
       <input type="text" name="search" placeholder="Search items..." class="p-2 border rounded"
         value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+      <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
       <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">Search</button>
     </form>
+    <a href="?filter=all" class="px-3 py-1 rounded <?= $filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">All Listings</a>
+    <a href="?filter=my" class="px-3 py-1 rounded <?= $filter === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">My Listings</a>
+    <a href="?filter=past" class="px-3 py-1 rounded <?= $filter === 'past' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">Past Listings</a>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white border border-gray-200 rounded shadow text-xs">
-      <thead>
+  <div class="!overflow-x-none">
+    <table class="min-w-full divide-y divide-gray-200 border border-gray-300  rounded-lg shadow-sm bg-white">
+      <thead class="bg-gray-100">
         <tr class="bg-gray-100">
-          <th class="p-2 border-b">Seller</th>
-          <th class="p-2 border-b">Item Name</th>
-          <th class="p-2 border-b">Type</th>
-          <th class="p-2 border-b">Rarity</th>
-          <th class="p-2 border-b">Stats</th>
-          <th class="p-2 border-b">Price</th>
-          <th class="p-2 border-b">Actions</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">SELLER</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">ITEM NAME</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">TYPE</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">RARITY</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">STATS</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">PRICE</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">OFFER</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">ACTIONS</th>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($listings as $listing): ?>
-          <tr class="border-b hover:bg-gray-50">
-            <td class="p-2"><?= htmlspecialchars($listing['seller_name']) ?></td>
-            <td class="p-2"><?= htmlspecialchars($listing['item_name']) ?></td>
-            <td class="p-2 capitalize"><?= htmlspecialchars($listing['type'] ?? '') ?></td>
-            <td class="p-2">
-              <span class="inline-block px-2 py-0.5 rounded-full font-semibold rarity-badge"
+          <tr class="border-b hover:bg-gray-50 text-xs text-gray-600 ">
+            <td class="p-2 text-center">
+              <?php
+                // Show seller name, with [GM] if admin, and image if available
+                $sellerName = $listing['seller_name'] ?? '';
+                $sellerImage = $listing['seller_image_path'] ?? '';
+                if ($sellerImage) {
+                  echo '<img src="' . htmlspecialchars($sellerImage) . '" alt="" class="inline w-6 h-6 rounded-full mr-1 align-middle">';
+                }
+                echo htmlspecialchars($sellerName);
+              ?>
+            </td>
+            <td class="p-2 text-center "><?= htmlspecialchars($listing['item_name']) ?></td>
+            <td class="p-2 capitalize text-center"><?= htmlspecialchars($listing['type'] ?? '') ?></td>
+            <td class="p-2 text-center">
+              <span class="inline-block px-2 py-0.5 rounded-full font-semibold rarity-badge "
                 data-rarity="<?= (int) ($listing['rarity'] ?? 0) ?>">
                 <!-- JS will fill this in -->
               </span>
@@ -61,12 +85,12 @@ $listings = $market->getListings($_GET['search'] ?? '');
     <?php endif; ?>
     <?php if ($listing['defense'] ?? 0): ?>
       <div class="flex justify-start gap-1">
-        <span class="text-muted-foreground">Defense</span>
-        <span class="text-foreground font-medium"><?= (int)$listing['defense'] ?></span>
+        <span class="text-muted-foreground ">Defense</span>
+        <span class="text-foreground font-medium "><?= (int)$listing['defense'] ?></span>
       </div>
     <?php endif; ?>
     <?php if ($listing['speed'] ?? 0): ?>
-      <div class="flex justify-start gap-1">
+      <div class="flex justify-start gap-1 ">
         <span class="text-muted-foreground">Speed</span>
         <span class="text-foreground font-medium"><?= (int)$listing['speed'] ?></span>
       </div>
@@ -91,42 +115,48 @@ $listings = $market->getListings($_GET['search'] ?? '');
     <?php endif; ?>
   </div>
 </td>
-
-
-
-
-
-
-
-
-
-
-
-
-            <td class="p-2 font-bold"><?= (int) $listing['price'] ?> gold</td>
-            <td class="p-2">
-              <?php if (($listing['player_id'] ?? null) == ($playerId ?? null)): ?>
-                <span class="text-xs text-gray-400">Your Listing</span>
-                <?php if (!empty($listing['offer'])): ?>
-                  <form method="POST" action="api/marketAcceptOffer.php" class="inline market-action-form">
-                    <input type="hidden" name="listing_id" value="<?= $listing['id'] ?>">
-                    <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Accept Offer
-                      (<?= (int) ($listing['offer_amount'] ?? $listing['offer']) ?>g)</button>
-                  </form>
-                <?php endif; ?>
-              <?php else: ?>
-                <form method="POST" action="api/marketBuy.php" class="inline w-full mb-1 market-action-form">
-                  <input type="hidden" name="listing_id" value="<?= $listing['id'] ?>">
-                  <button type="submit" class="bg-yellow-500 text-white px-2 py-1 rounded text-xs w-full">Buy</button>
-                </form>
-                <form method="POST" action="api/marketOffer.php" class="inline w-full mt-1 market-action-form">
-                  <input type="hidden" name="listing_id" value="<?= $listing['id'] ?>">
-                  <input type="number" name="offer_amount" min="1" placeholder="Offer"
-                    class="w-16 p-1 border rounded text-xs">
-                  <button type="submit" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">Offer</button>
-                </form>
-              <?php endif; ?>
-            </td>
+            <td class="p-2 text-center"><?= (int) $listing['price'] ?> Gold</td>
+            <td class="p-2 text-center"><?= (int) $listing['highest_offer'] ?> Gold</td>
+            <td class="p-2 text-center">
+  <?php if ($status === 'sold'): ?>
+    <!-- No actions for past listings -->
+  <?php elseif (($listing['player_id'] ?? null) == ($playerId ?? null) && $status === 'active'): ?>
+    <?php if (!empty($listing['highest_offer']) && !empty($listing['highest_offer_id'])): ?>
+      <form method="POST" action="api/marketAcceptOffer.php" class="inline market-action-form">
+        <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
+        <input type="hidden" name="offer_id" value="<?= (int) $listing['highest_offer_id'] ?>">
+        <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded text-xs">
+          Accept Offer (<?= (int) $listing['highest_offer'] ?>g)
+        </button>
+      </form>
+    <?php endif; ?>
+    <form method="POST" action="api/marketRemove.php" class="inline market-action-form ml-2">
+      <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
+      <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Remove</button>
+    </form>
+    <?php if (empty($listing['highest_offer'])): ?>
+      <!-- <span class="text-xs text-gray-400 ">No offers</span> -->
+    <?php endif; ?>
+  <?php else: ?>
+    <div class="flex flex-col gap-2 w-full">
+      <form method="POST" action="api/marketBuy.php" class="market-action-form">
+        <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
+        <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded text-xs">
+  Buy item
+</button>
+      </form>
+      <form method="POST" action="api/marketOffer.php" class="market-action-form ">
+        <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
+        <input type="hidden" name="player_id" value="<?= htmlspecialchars($playerId ?? '') ?>">
+        <input type="number" name="offer_amount" min="1" placeholder="Offer"
+          class="w-20 p-1 border border-gray-300 rounded text-xs" />
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium shadow">
+          Offer
+        </button>
+      </form>
+    </div>
+  <?php endif; ?>
+</td>
           </tr>
         <?php endforeach; ?>
       </tbody>
