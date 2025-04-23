@@ -10,7 +10,7 @@ class Market {
 
   // Fetch active listings from the market with optional search
   public function getListings($search = '') {
-    $sql = "SELECT ml.*, i.name as item_name, CONCAT(i.attack, '/', i.defense, '/', i.speed) as stats, p.name as seller_name, pi.rarity, i.type
+    $sql = "SELECT ml.*, i.name as item_name, pi.*, p.name as seller_name, pi.rarity, i.type
             FROM market_listings ml
             JOIN player_inventory pi ON ml.inventory_id = pi.id
             JOIN items i ON pi.item_id = i.id
@@ -58,7 +58,7 @@ class Market {
 
   // Make an offer on a market listing
   public function makeOffer($listingId, $buyerId, $amount) {
-    $stmt = $this->conn->prepare("UPDATE market_listings SET offer=?, offer_buyer_id=? WHERE id=? AND status='active'");
+    $stmt = $this->conn->prepare("UPDATE market_offers SET offer_amount=?, offer_player_id=? WHERE listing_id=? AND status='active'");
     $stmt->bind_param("iii", $amount, $buyerId, $listingId);
     return $stmt->execute();
   }
@@ -69,7 +69,7 @@ class Market {
   }
 
   // Buy a market listing
-  public function buy($listingId, $buyerId) {
+  public function buyListing($listingId, $buyerId) {
     // Mark as sold, transfer item, gold, etc. (to be implemented)
   }
 

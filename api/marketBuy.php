@@ -8,5 +8,5 @@ if (!isset($_POST['listing_id'])) {
   exit;
 }
 $market = new Market();
-$success = $market->buy($_POST['listing_id'], $playerId);
+$success = $market->buyListing($_POST['listing_id'], $playerId);
 echo json_encode(['success' => $success]);

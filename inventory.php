@@ -58,56 +58,83 @@ function compareStat($invValue, $eqValue) {
 
 <script type="module">
 import { showToast } from './assets/js/ui.js';
+function renderItemCard(item, isEquipped = false, equippedItems = {}) {
+  const stats = ['attack', 'defense', 'crit_multi', 'crit_chance', 'speed', 'health', 'stamina', 'life_steal'];
 
-function renderItemCard(item, isEquipped = false) {
-  const stats = ['attack', 'defense', 'crit_multi', 'crit_chance', 'speed', 'health', 'stamina' ,'life_steal'];
+  const equippedItem = equippedItems[item.type]; // Match equipped item by type
+
   const statHtml = stats.map(stat => {
-    return item[stat] != 0 ? 
-      `<div class="flex justify-between text-black text-xs"><span>${stat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span><span class="font-medium">${item[stat]}</span></div>` 
-      : '';
-  }).join('');
+  const value = item[stat];
+  if (value != 0) {
+    const label = stat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    let comparison = '';
+    if (!isEquipped && equippedItem && equippedItem[stat] != null) {
+      const diff = value - equippedItem[stat];
+      const diffClass = diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-400';
+      const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '–';
+      comparison = `<span class="min-w-[30px] text-right ${diffClass}">${arrow} ${Math.abs(diff)}</span>`;
+    } else {
+      comparison = `<span class="min-w-[30px]"></span>`;
+    }
+
+    return `
+      <div class="flex justify-between items-center gap-2">
+        <span class="text-muted-foreground flex-1">${label}</span>
+        ${comparison}
+        <span class="text-foreground font-medium min-w-[30px] text-right">${value}</span>
+      </div>`;
+  }
+  return '';
+}).join('');
+
+
+  const badge = `<span class="rounded-full px-2 py-0.5 text-xs font-semibold ${getRarityBadgeClass(item.rarity)}">
+    ${item.rarity_text}
+  </span>`;
 
   const action = isEquipped ? 'Unequip' : 'Equip';
   const form = `
-    <form class="mt-3 equip-form" data-id="${item.id}">
-      <button type="submit" class="bg-primary text-white text-xs px-3 py-1 rounded hover:bg-primary-800 w-full">${action}</button>
+    <form class="equip-form mt-4" data-id="${item.id}">
+      <button type="submit" class="w-full text-xs py-1.5 rounded-md bg-muted hover:bg-muted/80 border text-foreground transition">
+        ${action}
+      </button>
     </form>`;
 
-  // Sell (left) and Market (right) buttons, colored
-  const sellSection = !isEquipped && item.gold_value
-    ? `<div class="mt-2 flex items-center justify-between w-full">
-        <div class="flex items-center">
-          <button class="sell-btn bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded mr-2" data-id="${item.id}" data-gold="${item.gold_value}">Sell</button>
-          <span class="flex items-center mt-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="8"></circle>
-              <path d="M9 10c0-1.1.9-2 2-2h2a2 2 0 1 1 0 4h-2 2a2 2 0 1 1 0 4h-2c-1.1 0-2-.9-2-2"></path>
-            </svg>
-            <span class="font-bold text-amber-500 text-xs" id="gold-value">${item.gold_value}</span>
-          </span>
-        </div>
-        <button class="market-list-btn bg-gray-600 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded ml-auto" style="margin-left:auto;" data-id="${item.id}">List on Market</button>
-      </div>`
-    : '';
-
-  const badge = `<div class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${getRarityBadgeClass(item.rarity)}">
-      ${item.rarity_text}
-    </div>`;
+  const sellButtons = !isEquipped && item.gold_value ? `
+    <div class="mt-3 flex justify-between items-center">
+      <button class="sell-btn text-xs px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition" data-id="${item.id}" data-gold="${item.gold_value}">
+        Sell
+      </button>
+      <div class="flex items-center gap-1 text-amber-600 text-xs font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="8"></circle>
+          <path d="M9 10c0-1.1.9-2 2-2h2a2 2 0 1 1 0 4h-2 2a2 2 0 1 1 0 4h-2c-1.1 0-2-.9-2-2"></path>
+        </svg>
+        ${item.gold_value}
+      </div>
+      <button class="market-list-btn text-xs px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition" data-id="${item.id}">
+        List
+      </button>
+    </div>` : '';
 
   return `
-    <div class="border rounded-md p-3 ${getRarityClasses(item.rarity)} bg-muted/40">
+    <div class="bg-white/80 border border-muted rounded-xl shadow-sm p-4 text-sm space-y-2 transition hover:shadow-md">
       <div class="flex justify-between items-start">
         <div>
-          <div class="text-sm font-bold">${item.name}</div>
+          <div class="font-semibold text-foreground">${item.name}</div>
           <div class="text-xs text-muted-foreground capitalize">${item.type}</div>
         </div>
         ${badge}
       </div>
-      <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">${statHtml}</div>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+        ${statHtml}
+      </div>
       ${form}
-      ${sellSection}
+      ${sellButtons}
     </div>`;
 }
+
 
 function getRarityClasses(rarity) {
   switch (rarity) {
@@ -143,22 +170,25 @@ function getRarityLabel(rarity) {
       }
     }
 
-function loadInventory() {
+    function loadInventory() {
   $.get('api/getPlayerInventory.php', data => {
     $('#equippedSection').html('');
     $('#inventorySection').html('');
 
+    const equippedItems = {};
     data.equipped.forEach(item => {
       item.rarity_text = getRarityLabel(item.rarity);
+      equippedItems[item.type] = item;
       $('#equippedSection').append(renderItemCard(item, true));
     });
 
     data.inventory.forEach(item => {
       item.rarity_text = getRarityLabel(item.rarity);
-      $('#inventorySection').append(renderItemCard(item, false));
+      $('#inventorySection').append(renderItemCard(item, false, equippedItems));
     });
   });
 }
+
 
 
 $(document).ready(function () {
