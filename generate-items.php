@@ -533,6 +533,7 @@ foreach ($itemTypes as $type) {
             } else {
                 echo '<td class="px-2 py-1">' . $base . '</td>';
             }
+            hi
         }
         echo '<td class="px-2 py-1 font-semibold">' . $rname . '</td>';
         echo '</tr>';
