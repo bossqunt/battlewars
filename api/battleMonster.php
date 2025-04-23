@@ -14,133 +14,6 @@ require_once '../controller/Battle.php'; // Adjust the path as needed
 $database = new Database();
 $conn = $database->getConnection();
 
-// Function to handle item drops
-function handleItemDrops($conn, $playerId, $monsterId)
-{
-    $itemsDropped = [];
-
-    // Fetch rarity tiers
-    $rarityStmt = $conn->query("SELECT * FROM item_rarities");
-    $rarities = [];
-    while ($rarity = $rarityStmt->fetch_assoc()) {
-        $rarities[] = $rarity;
-
-    }
-
-    // Fetch item drops
-    $stmt = $conn->prepare('SELECT item_id, drop_chance FROM monster_item_drops WHERE monster_id = ?');
-    $stmt->bind_param('i', $monsterId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $dropChance = $row['drop_chance'];
-        $itemId = $row['item_id'];
-
-        if (rollDice(100) <= $dropChance) {
-
-            // Fetch item base stats
-            $itemStmt = $conn->prepare('SELECT * FROM items WHERE id = ?');
-            $itemStmt->bind_param('i', $itemId);
-            $itemStmt->execute();
-            $item = $itemStmt->get_result()->fetch_assoc();
-
-            // Roll rarity
-            $rolledRarity = rollRarity($rarities);
-
-            // Fetch and apply rarity modifiers
-            $modStmt = $conn->prepare("SELECT * FROM item_rarity_modifiers WHERE rarity_id = ?");
-            $modStmt->bind_param('i', $rolledRarity['id']);
-            $modStmt->execute();
-            $mods = $modStmt->get_result();
-
-            $modifiedStats = applyModifiers($item, $mods);
-
-
-            // Insert into inventory
-            $insertStmt = $conn->prepare(
-                'INSERT INTO player_inventory 
-                (player_id, item_id, quantity, rarity, attack, defense, crit_chance, crit_multi, life_steal, armor, speed, health, stamina) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-
-            $insertStmt->bind_param(
-                'iiiiiiiiiiiii',
-                $playerId,
-                $itemId,
-                $item['quantity'],
-                $rolledRarity['id'],
-                $modifiedStats['attack'],
-                $modifiedStats['defense'],
-                $modifiedStats['crit_chance'],
-                $modifiedStats['crit_multi'],
-                $modifiedStats['life_steal'],
-                $modifiedStats['armor'],
-                $modifiedStats['speed'],
-                $modifiedStats['health'],
-                $modifiedStats['stamina']
-            );
-            $insertStmt->execute();
-
-            // Include rarity in returned item
-            $item['rarity'] = (int) $rolledRarity['id'];
-            $itemsDropped[] = $item;
-        }
-    }
-
-    return $itemsDropped;
-}
-
-function rollRarity($rarities)
-{
-    $roll = rand(1, 100);
-    $cumulative = 0;
-
-    foreach ($rarities as $rarity) {
-        $cumulative += $rarity['chance'];
-        if ($roll <= $cumulative) {
-            return $rarity;
-        }
-    }
-
-    return end($rarities); // fallback
-}
-function applyModifiers($baseItem, $modifiers)
-{
-    $stats = [
-        'attack',
-        'defense',
-        'crit_chance',
-        'crit_multi',
-        'life_steal',
-        'armor',
-        'speed',
-        'health',
-        'stamina'
-    ];
-
-    foreach ($stats as $stat) {
-        $baseItem[$stat] = (int) $baseItem[$stat]; // ensure numeric
-    }
-
-    while ($mod = $modifiers->fetch_assoc()) {
-        $stat = $mod['stat_name'];
-        // Get random value between min_value and max_value
-        $value = rand($mod['min_value'], $mod['max_value']);
-
-        if (!isset($baseItem[$stat]))
-            continue;
-
-        if ($mod['modifier_type'] === 'percent') {
-            $baseItem[$stat] += floor($baseItem[$stat] * ($value / 100));
-        } elseif ($mod['modifier_type'] === 'fixed') {
-            $baseItem[$stat] += $value;
-        }
-    }
-
-    return $baseItem;
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['playerId']) && isset($_GET['monsterId']) && ($_GET['playerId']) == $playerId) {
 
@@ -165,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit();
         }
         if ($player->getStamina() <= 0) {
-            $battleLog['result'] = "You don't enough stamina required to fight";
+            $battleLog['result'] = "You don't have enough stamina required to fight";
             $battleLog['gold_gain'] = 0;
             $battleLog['exp_gain'] = 0;
             $battleLog['battle'] = "You lose.";
@@ -185,12 +58,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         // Helper function for critical and lifesteal
         function calculateAttack($attacker, $target) {
-            // Only use getPlayerEquippedItemAttack if attacker is Player, else fallback to calculateDamage
             $isPlayer = get_class($attacker) === 'Player';
             if ($isPlayer && method_exists($attacker, 'getPlayerItemAttack')) {
-                $baseDamage = $attacker->getPlayerItemAttack($target);
+                $baseDamage = $attacker->getAttack($target);
             } else {
                 $baseDamage = calculateDamage($attacker, $target);
+            }
+
+            // Defense scaling: diminishing returns
+            $defense = method_exists($target, 'getDefense') ? $target->getDefense() : 0;
+            $damageAfterDefense = $baseDamage * (100 / (100 + max(0, $defense)));
+
+            // Level difference factor
+            $attackerLevel = method_exists($attacker, 'getLevel') ? $attacker->getLevel() : 1;
+            $targetLevel = method_exists($target, 'getLevel') ? $target->getLevel() : 1;
+            $levelDiff = $targetLevel - $attackerLevel;
+            $levelFactor = 1 - 0.02 * max(0, $levelDiff); // Each level higher reduces damage by 2%
+            $levelFactor = max(0, $levelFactor); // Clamp to 0 minimum
+
+            $finalDamage = intval(max(0, $damageAfterDefense * $levelFactor));
+
+            // Flat random adjustment: -2 to +2
+            $flatVariance = mt_rand(-2, 2);
+            $finalDamage += $flatVariance;
+            // Minimum 1 if baseDamage > 0
+            if ($baseDamage > 0) {
+                $finalDamage = max(1, $finalDamage);
+            } else {
+                $finalDamage = 0;
             }
 
             // Only apply crit if attacker is a Player
@@ -198,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $critMulti  = $isPlayer && method_exists($attacker, 'getPlayerItemCritMulti') ? $attacker->getPlayerItemCritMulti() : 1;
             $isCrit = false;
             if ($critChance > 0 && rand(1, 100) <= $critChance) {
-                $baseDamage = intval($baseDamage * $critMulti);
+                $finalDamage = intval($finalDamage * $critMulti);
                 $isCrit = true;
             }
 
@@ -206,12 +101,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $lifeSteal = $isPlayer && method_exists($attacker, 'getPlayerItemLifesteal') ? $attacker->getPlayerItemLifesteal() : 0;
             $lifeStealChance = 10; // Flat 10% chance
             $lifeStealAmount = 0;
-            if ($lifeSteal > 0 && $baseDamage > 0 && rand(1, 100) <= $lifeStealChance) {
-                $lifeStealAmount = intval($baseDamage * ($lifeSteal / 100));
+            if ($lifeSteal > 0 && $finalDamage > 0 && rand(1, 100) <= $lifeStealChance) {
+                $lifeStealAmount = intval($finalDamage * ($lifeSteal / 100));
             }
 
             return [
-                'damage' => $baseDamage,
+                'damage' => $finalDamage,
                 'isCrit' => $isCrit,
                 'lifeSteal' => $lifeStealAmount
             ];
@@ -221,26 +116,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             $attacker = $firstTurn;
             $target = $firstTurn === $player ? $monster : $player;
-            $result = calculateAttack($attacker, $target);
-            $damage = $result['damage'];
 
-            if ($target === $monster) {
-                $monsterCurrentHp -= $damage;
-                // Life steal for player
-                if ($result['lifeSteal'] > 0 && $attacker === $player) {
-                    $playerCurrentHp = min($playerCurrentHp + $result['lifeSteal'], $player->getMaxHp());
-                }
-            } else {
-                $playerCurrentHp -= $damage;
-                // Life steal for monster (if ever implemented)
-                if ($result['lifeSteal'] > 0 && $attacker === $monster) {
-                    $monsterCurrentHp = min($monsterCurrentHp + $result['lifeSteal'], $monster->getMaxHp());
-                }
+            // Miss logic: 5% chance if attacker has less speed than target
+            $attackerSpeed = $attacker->getSpeed();
+            $targetSpeed = $target->getSpeed();
+            $missed = false;
+            if ($attackerSpeed < $targetSpeed && mt_rand(1, 100) <= 5) {
+                $battleLog['battle'][] = "{$attacker->getName()} missed their attack on {$target->getName()}!";
+                $missed = true;
             }
 
-            $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
-            $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
-            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+            if (!$missed) {
+                $result = calculateAttack($attacker, $target);
+                $damage = $result['damage'];
+
+                if ($target === $monster) {
+                    $monsterCurrentHp -= $damage;
+                    // Life steal for player
+                    if ($result['lifeSteal'] > 0 && $attacker === $player) {
+                        $playerCurrentHp = min($playerCurrentHp + $result['lifeSteal'], $player->getMaxHp());
+                    }
+                } else {
+                    $playerCurrentHp -= $damage;
+                    // Life steal for monster (if ever implemented)
+                    if ($result['lifeSteal'] > 0 && $attacker === $monster) {
+                        $monsterCurrentHp = min($monsterCurrentHp + $result['lifeSteal'], $monster->getMaxHp());
+                    }
+                }
+
+                $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
+                $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
+                $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+            }
 
             if ($playerCurrentHp <= 0 || $monsterCurrentHp <= 0)
                 break;
@@ -257,24 +164,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             $attacker = $secondTurn;
             $target = $secondTurn === $player ? $monster : $player;
-            $result = calculateAttack($attacker, $target);
-            $damage = $result['damage'];
 
-            if ($target === $monster) {
-                $monsterCurrentHp -= $damage;
-                if ($result['lifeSteal'] > 0 && $attacker === $player) {
-                    $playerCurrentHp = min($playerCurrentHp + $result['lifeSteal'], $player->getMaxHp());
-                }
-            } else {
-                $playerCurrentHp -= $damage;
-                if ($result['lifeSteal'] > 0 && $attacker === $monster) {
-                    $monsterCurrentHp = min($monsterCurrentHp + $result['lifeSteal'], $monster->getMaxHp());
-                }
+            // Miss logic for second turn
+            $attackerSpeed = $attacker->getSpeed();
+            $targetSpeed = $target->getSpeed();
+            $missed = false;
+            if ($attackerSpeed < $targetSpeed && mt_rand(1, 100) <= 5) {
+                $battleLog['battle'][] = "{$attacker->getName()} missed their attack on {$target->getName()}!";
+                $missed = true;
             }
 
-            $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
-            $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
-            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+            if (!$missed) {
+                $result = calculateAttack($attacker, $target);
+                $damage = $result['damage'];
+
+                if ($target === $monster) {
+                    $monsterCurrentHp -= $damage;
+                    if ($result['lifeSteal'] > 0 && $attacker === $player) {
+                        $playerCurrentHp = min($playerCurrentHp + $result['lifeSteal'], $player->getMaxHp());
+                    }
+                } else {
+                    $playerCurrentHp -= $damage;
+                    if ($result['lifeSteal'] > 0 && $attacker === $monster) {
+                        $monsterCurrentHp = min($monsterCurrentHp + $result['lifeSteal'], $monster->getMaxHp());
+                    }
+                }
+
+                $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
+                $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
+                $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+            }
         }
 
         if ($playerCurrentHp <= 0) {
