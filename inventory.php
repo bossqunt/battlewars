@@ -36,9 +36,6 @@ function compareStat($invValue, $eqValue) {
 <div id="inventorySection" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 <div id="equippedSection" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-
-
-
 </div>
   <?php include 'includes/footer.php';?>
 
@@ -118,11 +115,13 @@ function renderItemCard(item, isEquipped = false, equippedItems = {}) {
       </button>
     </div>` : '';
 
+    const rarityClass = getRarityClasses(item.rarity);
+  // Add rarity name color class to item name
   return `
-    <div class="bg-white/80 border border-muted rounded-xl shadow-sm p-4 text-sm space-y-2 transition hover:shadow-md">
+    <div class="bg-white/80 rounded-xl p-3 text-sm space-y-2 transition hover:shadow-md ${getRarityClasses(item.rarity)}">
       <div class="flex justify-between items-start">
         <div>
-          <div class="font-semibold text-foreground">${item.name}</div>
+          <div class="font-semibold text-foreground ${getRarityNameClass(item.rarity)}">${item.name}</div>
           <div class="text-xs text-muted-foreground capitalize">${item.type}</div>
         </div>
         ${badge}
@@ -135,30 +134,43 @@ function renderItemCard(item, isEquipped = false, equippedItems = {}) {
     </div>`;
 }
 
+// Add this function for rarity name color
+function getRarityNameClass(rarity) {
+  switch (rarity) {
+    case 1: return 'text-gray-700';      // Common
+    case 2: return 'text-green-600';     // Uncommon
+    case 3: return 'text-blue-600';      // Rare
+    case 4: return 'text-purple-600';    // Epic
+    case 5: return 'text-orange-500';    // Legendary
+    case 6: return 'text-red-500';       // Godly
+    default: return 'text-gray-700';
+  }
+}
 
 function getRarityClasses(rarity) {
   switch (rarity) {
-    case 1: return '!border-[2px] !border-grey-600 text-black';
-    case 2: return '!border-[2px] !border-green-600 text-green-600';
-    case 3: return '!border-[2px] !border-blue-600 text-blue-600';
-    case 4: return '!border-[2px] !border-purple-600 text-purple-600';
-    case 5: return '!border-[2px] !border-orange-500 text-white-500';
-    case 6: return '!border-[2px] !border-red-500 text-red-500';
-    default: return '!border-[2px] !border-gray-300 text-gray-700';
+    case 1: return 'border border-gray-300 hover:border-gray-600 hover:shadow-md hover:shadow-gray-400';
+    case 2: return 'border border-gray-300 hover:border-green-600 hover:shadow-md hover:shadow-green-400';
+    case 3: return 'border border-gray-300 hover:border-blue-600 hover:shadow-md hover:shadow-blue-400';
+    case 4: return 'border border-gray-300 hover:border-purple-600 hover:shadow-md hover:shadow-purple-400';
+    case 5: return 'border border-gray-300 hover:border-orange-500 hover:shadow-md hover:shadow-orange-400';
+    case 6: return 'border border-gray-300 hover:border-red-500 hover:shadow-md hover:shadow-red-400';
+    default: return 'border border-gray-300 hover:shadow-md hover:shadow-gray-300';
   }
 }
 
 function getRarityBadgeClass(rarity) {
   switch (rarity) {
     case 1: return 'bg-black text-white';
-    case 2: return 'bg-green-600 text-white';
-    case 3: return 'bg-blue-600 text-white';
-    case 4: return 'bg-purple-600 text-white';
-    case 5: return 'bg-orange-500 text-white';
-    case 6: return 'bg-red-400 text-white';
+    case 2: return 'bg-green-600 text-white shadow-md shadow-green-400 m-2';
+    case 3: return 'bg-blue-600 text-white shadow-md shadow-blue-400 m-2';
+    case 4: return 'bg-purple-600 text-white text-white shadow-md shadow-purple-400 m-2';
+    case 5: return 'bg-orange-500 text-white text-white shadow-md shadow-orange-400 m-2';
+    case 6: return 'bg-red-400 text-white text-white shadow-md shadow-red-400 m-2';
     default: return 'bg-gray-300 text-black';
   }
 }
+
 function getRarityLabel(rarity) {
       switch (rarity) {
         case 1: return 'Common';
@@ -244,8 +256,11 @@ $(document).ready(function () {
     const price = prompt('Enter the price (gold) to list this item for:');
     if (!price || isNaN(price) || price <= 0) return;
     $.post('api/marketListItem.php', { player_inventory_id: itemId, price: price }, response => {
-      // Use backend message directly
-      showToast(response.message, response.success);
+      let resp = response;
+      if (Array.isArray(response)) {
+        resp = response[0];
+      }
+      showToast(resp.message, resp.success);
       loadInventory();
     }, 'json');
   });

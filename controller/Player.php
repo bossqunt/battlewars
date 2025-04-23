@@ -39,7 +39,11 @@ class Player
     }
     public function getName()
     {
-        return $this->getAttribute('name');
+        $name = $this->getAttribute('name');
+        if ($this->getAdmin() == 1) {
+            return '[GM] ' . $name;
+        }
+        return $name;
     }
     public function getExp()
     {
@@ -53,11 +57,17 @@ class Player
     {
         return $this->getAttribute('class_id');
     }
+    public function getAdmin()
+    {
+        return $this->getAttribute('admin');
+    }
+
     public function __construct($conn, $id)
     {
         $this->conn = $conn;
         $this->id = $id;
     }
+
 
     // Fetches the attack attribute from multiple sources
     public function getAttack()
@@ -178,21 +188,6 @@ class Player
             default: return 'bg-gray-300 text-black';
         }
       }
-      private function fetchBaseDetails()
-      {
-          $query = "
-              SELECT p.id, p.level, p.name, p.image_path, p.exp, e.exp_req, p.gold, p.max_hp, p.max_mp,
-                     p.c_hp, p.c_mp, p.attack, p.speed, p.magic_level, p.defence, p.skill_points,
-                     p.sword, p.axe, p.distance, p.club, p.shielding, p.fist, p.stamina,
-                     pc.name AS class
-              FROM players p
-              LEFT JOIN exp_table e ON e.level = p.level
-              INNER JOIN player_classes pc ON pc.id = p.class_id
-              WHERE p.id = ?
-          ";
-      
-          return $this->fetchSingleRow($query, [$this->id]);
-      }
       public function fetchProfileDetails()
       {
           $query = "
@@ -212,7 +207,7 @@ class Player
     // Retrieves player details including attributes and related data
     public function getDetails()
     {
-        $player = $this->fetchBaseDetails();
+        $player = $this->fetchProfileDetails();
     
         if ($player) {
             $player['area'] = $this->getPlayerArea();
@@ -234,7 +229,6 @@ class Player
             return true;
         }
         return false;
-  
     }
     
 

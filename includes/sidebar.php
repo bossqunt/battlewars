@@ -65,7 +65,7 @@ function isActivePage($page)
         <div class="w-64 mt-1">
           <div class="flex justify-between w-full text-xs">
             <span class="text-muted-foreground">EXP</span>
-            <span class="text-amber-500 font-medium" id="exp-value">20 / 100</span>
+            <span class="text-amber-500 font-medium" id="exp-value">Loading...</span>
           </div>
           <div class="relative w-full overflow-hidden rounded-full h-2 mt-0.5 bg-amber-100/20">
             <div id="exp-bar" class="h-full transition-all bg-gradient-to-r from-amber-400 to-amber-300"
@@ -110,7 +110,7 @@ function isActivePage($page)
     <circle cx="12" cy="12" r="8"></circle>
     <path d="M9 10c0-1.1.9-2 2-2h2a2 2 0 1 1 0 4h-2 2a2 2 0 1 1 0 4h-2c-1.1 0-2-.9-2-2"></path>
   </svg>
-  <span class="font-bold text-amber-500" id="gold-value">55</span>
+  <span class="font-bold text-amber-500" id="gold-value">Loading...</span>
 </div>
   </header>
 
@@ -153,11 +153,12 @@ function isActivePage($page)
           <i class="menu-icon tf-icons bx bx-log-out"></i>
           <span class="text-[14px]">Logout</span>
         </a>
-        <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+
+        <?php if ($isAdmin == 1) { ?>
+          <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
         <div class="mb-3">
         <h2 class="font-medium text-xs text-sidebar-foreground">Admin Tools</h2>
       </div>
-        <?php if ($isAdmin == 1) { ?>
           <a href="admin.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Admin.php'); ?>">
             <i class="menu-icon tf-icons bx bx-cog"></i>
             <span class="text-[14px]">Console</span>

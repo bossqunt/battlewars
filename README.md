@@ -230,7 +230,8 @@ if ($attacker['life_steal'] > 0) {
 - [ ] Classes (Wizard, Ranger)
 - [ ] Incorporate more item bonuses
 - [ ] Potential animations? (Player/Monster/Items?)
-
+- [ ] Guilds
+- [ ] Unique attributes (Attributes determine other attribute bonuses)
 ## Known Issues / To-Do List
 
 - [x] Redirect after registration is not working
