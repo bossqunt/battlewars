@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
         if($player->getStamina() <= 0) {
-            $battleLog['result'] = "You don't enough stamina required to fight";
-            $battleLog['battle'] = "You don't enough stamina required to fight.";
+            $battleLog['result'] = "You don't have enough stamina to fight";
+            $battleLog['battle'] = "You don't have enough stamina to fight.";
             echo json_encode($battleLog);
             exit();
         } else {
@@ -68,15 +68,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            
             $attacker = $firstTurn;
             $target = $firstTurn === $player ? $opponent : $player;
-            $damage = calculateDamage($attacker, $target);
 
-            if ($target === $opponent) {
-                $opponentCurrentHp -= $damage;
-            } else {
-                $playerCurrentHp -= $damage;
+            // Miss logic: 5% chance if attacker has less speed than target
+            $attackerSpeed = $attacker->getSpeed();
+            $targetSpeed = $target->getSpeed();
+            $missed = false;
+            if ($attackerSpeed < $targetSpeed && mt_rand(1, 100) <= 5) {
+                $battleLog['battle'][] = "{$attacker->getName()} missed their attack on {$target->getName()}!";
+                $missed = true;
             }
 
-            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Opponent: {$opponentCurrentHp}/{$opponentMaxHp} HP)";
+            if (!$missed) {
+                $damage = calculateVariableDamage($attacker, $target);
+
+                if ($target === $opponent) {
+                    $opponentCurrentHp -= $damage;
+                } else {
+                    $playerCurrentHp -= $damage;
+                }
+
+                $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Opponent: {$opponentCurrentHp}/{$opponentMaxHp} HP)";
+            }
 
             if ($playerCurrentHp <= 0 || $opponentCurrentHp <= 0) break;
 
@@ -84,15 +96,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $attacker = $secondTurn;
             $target = $secondTurn === $player ? $opponent : $player;
-            $damage = calculateDamage($attacker, $target);
 
-            if ($target === $opponent) {
-                $opponentCurrentHp -= $damage;
-            } else {
-                $playerCurrentHp -= $damage;
+            // Miss logic for second turn
+            $attackerSpeed = $attacker->getSpeed();
+            $targetSpeed = $target->getSpeed();
+            $missed = false;
+            if ($attackerSpeed < $targetSpeed && mt_rand(1, 100) <= 5) {
+                $battleLog['battle'][] = "{$attacker->getName()} missed their attack on {$target->getName()}!";
+                $missed = true;
             }
 
-            $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, opponent: {$opponentCurrentHp}/{$opponentMaxHp} HP)";
+            if (!$missed) {
+                $damage = calculateVariableDamage($attacker, $target);
+
+                if ($target === $opponent) {
+                    $opponentCurrentHp -= $damage;
+                } else {
+                    $playerCurrentHp -= $damage;
+                }
+
+                $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, opponent: {$opponentCurrentHp}/{$opponentMaxHp} HP)";
+            }
         }
 
         if ($playerCurrentHp <= 0) {
@@ -124,6 +148,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         echo json_encode(array("status" => "error", "message" => "Error: You are unauthorised :)" ));
     }
+}
+
+function calculateVariableDamage($attacker, $target) {
+    $baseDamage = calculateDamage($attacker, $target);
+    // Flat random adjustment: -2 to +2
+    $flatVariance = mt_rand(-2, 2);
+    $damage = $baseDamage + $flatVariance;
+    // Minimum 1 if baseDamage > 0
+    return $baseDamage > 0 ? max(1, $damage) : 0;
 }
 ?>
 

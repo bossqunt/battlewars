@@ -98,3 +98,130 @@ function calculateDamage($attacker, $target) {
 
     return round($damage);
 }
+
+// Function to handle item drops
+function handleItemDrops($conn, $playerId, $monsterId)
+{
+    $itemsDropped = [];
+
+    // Fetch rarity tiers
+    $rarityStmt = $conn->query("SELECT * FROM item_rarities");
+    $rarities = [];
+    while ($rarity = $rarityStmt->fetch_assoc()) {
+        $rarities[] = $rarity;
+
+    }
+
+    // Fetch item drops
+    $stmt = $conn->prepare('SELECT item_id, drop_chance FROM monster_item_drops WHERE monster_id = ?');
+    $stmt->bind_param('i', $monsterId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $dropChance = $row['drop_chance'];
+        $itemId = $row['item_id'];
+
+        if (rollDice(100) <= $dropChance) {
+
+            // Fetch item base stats
+            $itemStmt = $conn->prepare('SELECT * FROM items WHERE id = ?');
+            $itemStmt->bind_param('i', $itemId);
+            $itemStmt->execute();
+            $item = $itemStmt->get_result()->fetch_assoc();
+
+            // Roll rarity
+            $rolledRarity = rollRarity($rarities);
+
+            // Fetch and apply rarity modifiers
+            $modStmt = $conn->prepare("SELECT * FROM item_rarity_modifiers WHERE rarity_id = ?");
+            $modStmt->bind_param('i', $rolledRarity['id']);
+            $modStmt->execute();
+            $mods = $modStmt->get_result();
+
+            $modifiedStats = applyModifiers($item, $mods);
+
+
+            // Insert into inventory
+            $insertStmt = $conn->prepare(
+                'INSERT INTO player_inventory 
+                (player_id, item_id, quantity, rarity, attack, defense, crit_chance, crit_multi, life_steal, armor, speed, health, stamina) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+
+            $insertStmt->bind_param(
+                'iiiiiiiiiiiii',
+                $playerId,
+                $itemId,
+                $item['quantity'],
+                $rolledRarity['id'],
+                $modifiedStats['attack'],
+                $modifiedStats['defense'],
+                $modifiedStats['crit_chance'],
+                $modifiedStats['crit_multi'],
+                $modifiedStats['life_steal'],
+                $modifiedStats['armor'],
+                $modifiedStats['speed'],
+                $modifiedStats['health'],
+                $modifiedStats['stamina']
+            );
+            $insertStmt->execute();
+
+            // Include rarity in returned item
+            $item['rarity'] = (int) $rolledRarity['id'];
+            $itemsDropped[] = $item;
+        }
+    }
+
+    return $itemsDropped;
+}
+
+function rollRarity($rarities)
+{
+    $roll = rand(1, 100);
+    $cumulative = 0;
+
+    foreach ($rarities as $rarity) {
+        $cumulative += $rarity['chance'];
+        if ($roll <= $cumulative) {
+            return $rarity;
+        }
+    }
+
+    return end($rarities); // fallback
+}
+function applyModifiers($baseItem, $modifiers)
+{
+    $stats = [
+        'attack',
+        'defense',
+        'crit_chance',
+        'crit_multi',
+        'life_steal',
+        'armor',
+        'speed',
+        'health',
+        'stamina'
+    ];
+
+    foreach ($stats as $stat) {
+        $baseItem[$stat] = (int) $baseItem[$stat]; // ensure numeric
+    }
+
+    while ($mod = $modifiers->fetch_assoc()) {
+        $stat = $mod['stat_name'];
+        // Get random value between min_value and max_value
+        $value = rand($mod['min_value'], $mod['max_value']);
+
+        if (!isset($baseItem[$stat]))
+            continue;
+
+        if ($mod['modifier_type'] === 'percent') {
+            $baseItem[$stat] += floor($baseItem[$stat] * ($value / 100));
+        } elseif ($mod['modifier_type'] === 'fixed') {
+            $baseItem[$stat] += $value;
+        }
+    }
+
+    return $baseItem;
+}

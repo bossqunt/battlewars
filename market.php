@@ -12,11 +12,10 @@ if ($filter === 'my') {
   $ownerId = $playerId ?? null;
 } elseif ($filter === 'past') {
   $status = 'sold';
+  $ownerId = $playerId ?? null;
 }
 $market = new Market();
 $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
-
-
 ?>
 
 
@@ -25,7 +24,7 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
   <span class="font-bold"> Marketplace</span>
 </h1>
 
-<div class="w-full !overflow-x-hidden rpg-panel space-y-4">
+<div class="w-full !overflow-x-hidden rpg-panel space-y-4 p-4">
 
   <div class="mb-4 flex gap-2">
     <form method="GET" class="flex gap-2">
@@ -34,9 +33,9 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
       <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
       <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">Search</button>
     </form>
-    <a href="?filter=all" class="px-3 py-1 rounded <?= $filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">All Listings</a>
-    <a href="?filter=my" class="px-3 py-1 rounded <?= $filter === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">My Listings</a>
-    <a href="?filter=past" class="px-3 py-1 rounded <?= $filter === 'past' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">Past Listings</a>
+    <a href="?filter=all" class="inline-flex items-center px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">All Listings</a>
+    <a href="?filter=my" class="inline-flex items-center px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">My Listings</a>
+    <a href="?filter=past" class=" inline-flex items-center px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'past' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">Past Listings</a>
   </div>
 
   <div class="!overflow-x-none">
@@ -50,7 +49,9 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
           <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">STATS</th>
           <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">PRICE</th>
           <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">OFFER</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">ACTIONS</th>
+          <?php if ($status !== 'sold'): ?>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">ACTIONS</th>
+          <?php endif; ?>
         </tr>
       </thead>
       <tbody>
@@ -116,9 +117,25 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
   </div>
 </td>
             <td class="p-2 text-center"><?= (int) $listing['price'] ?> Gold</td>
-            <td class="p-2 text-center"><?= (int) $listing['highest_offer'] ?> Gold</td>
             <td class="p-2 text-center">
-  <?php if ($status === 'sold'): ?>
+              <?= (int) $listing['highest_offer'] ?> Gold
+              <?php if ($status !== 'sold' && ($listing['player_id'] ?? null) != ($playerId ?? null)): ?>
+                <form method="POST" action="api/marketOffer.php" class="market-action-form flex flex-col items-center gap-1 mt-1">
+                  <div class="flex items-center gap-2 justify-center">
+                    <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
+                    <input type="hidden" name="player_id" value="<?= htmlspecialchars($playerId ?? '') ?>">
+                    <input type="number" name="offer_amount" min="1" placeholder="Offer"
+                      class="w-20 p-1 border border-gray-300 rounded text-xs text-center" />
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium shadow">
+                      Offer
+                    </button>
+                  </div>
+                </form>
+              <?php endif; ?>
+            </td>
+            <?php if ($status !== 'sold'): ?>
+            <td class="p-2 text-center">
+  <?php if ($status === 'sold' || $status === 'past'): ?>
     <!-- No actions for past listings -->
   <?php elseif (($listing['player_id'] ?? null) == ($playerId ?? null) && $status === 'active'): ?>
     <?php if (!empty($listing['highest_offer']) && !empty($listing['highest_offer_id'])): ?>
@@ -138,25 +155,15 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
       <!-- <span class="text-xs text-gray-400 ">No offers</span> -->
     <?php endif; ?>
   <?php else: ?>
-    <div class="flex flex-col gap-2 w-full">
-      <form method="POST" action="api/marketBuy.php" class="market-action-form">
-        <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
-        <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded text-xs">
-  Buy item
-</button>
-      </form>
-      <form method="POST" action="api/marketOffer.php" class="market-action-form ">
-        <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
-        <input type="hidden" name="player_id" value="<?= htmlspecialchars($playerId ?? '') ?>">
-        <input type="number" name="offer_amount" min="1" placeholder="Offer"
-          class="w-20 p-1 border border-gray-300 rounded text-xs" />
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium shadow">
-          Offer
-        </button>
-      </form>
-    </div>
+    <form method="POST" action="api/marketBuy.php" class="market-action-form">
+      <input type="hidden" name="listing_id" value="<?= $listing['listing_id'] ?>">
+      <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded text-xs">
+        Buy item
+      </button>
+    </form>
   <?php endif; ?>
 </td>
+            <?php endif; ?>
           </tr>
         <?php endforeach; ?>
       </tbody>

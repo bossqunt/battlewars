@@ -16,7 +16,6 @@ class Market {
               SELECT listing_id, MAX(offer_amount) AS highest_offer, 
                      SUBSTRING_INDEX(GROUP_CONCAT(id ORDER BY offer_amount DESC), ',', 1) AS highest_offer_id
               FROM market_offers 
-              WHERE status = 'active'
               GROUP BY listing_id
             ) mo ON ml.id = mo.listing_id
             JOIN player_inventory pi ON ml.inventory_id = pi.id
