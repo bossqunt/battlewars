@@ -10,7 +10,7 @@ class Market {
 
   // Fetch active listings from the market with optional search, owner, and status filter
   public function getListings($search = '', $ownerId = null, $status = 'active') {
-    $sql = "SELECT ml.id listing_id, ml.player_id, ml.inventory_id, mo.highest_offer, mo.highest_offer_id, ml.price, ml.status, ml.created_at, i.name as item_name, pi.*, p.name as seller_name, p.image_path seller_image_path, pi.rarity, i.type
+    $sql = "SELECT ml.id listing_id, ml.player_id, ml.inventory_id, mo.highest_offer, mo.highest_offer_id, ml.price, ml.status, ml.created_at, i.name as item_name, pi.attack + i.attack as attack, pi.defense + i.defense as defense, pi.speed + i.speed as speed, pi.crit_multi + i.crit_multi as crit_multi, pi.crit_chance + i.crit_chance as crit_chance, pi.life_steal + i.life_steal as life_steal, pi.health + i.health as health, pi.stamina + i.stamina as stamina, p.name as seller_name, p.image_path seller_image_path, pi.rarity, i.type
             FROM market_listings ml
             LEFT JOIN (
               SELECT listing_id, MAX(offer_amount) AS highest_offer, 

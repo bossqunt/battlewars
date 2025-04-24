@@ -5,7 +5,7 @@ import { getBattleHistory } from './battle.js';
 
 export async function updateMonstersTable(onBossTile = false) {
   try {
-    let url = '/bw2/api/GetMonsters.php';
+    let url = '/bw2/api/getMonsters.php';
     if (onBossTile) {
       url += '?boss=1';
     }

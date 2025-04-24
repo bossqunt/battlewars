@@ -250,6 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $areaQuery->execute();
             $areaResult = $areaQuery->get_result();
             $areaRow = $areaResult->fetch_assoc();
+            // if the monster level is equal to the max level of the area, it is a boss
             if ($areaRow && $monster->getLevel() == $areaRow['max_level']) {
                 // Use Player method to mark boss as defeated
                 $player->setBossDefeated($area_id);
