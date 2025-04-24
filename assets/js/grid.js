@@ -56,8 +56,6 @@ export async function updateGridLocation(playerData) {
     }
   }
 
-  // Move the log here, after the loop
-  console.log('onBossTile:', onBossTile); // Debug log
 
   // After rendering the grid, update monsters table with boss flag
   if (typeof updateMonstersTable === 'function') {

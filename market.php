@@ -99,7 +99,7 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
     <?php if ($listing['crit_multi'] ?? 0): ?>
       <div class="flex justify-start gap-1">
         <span class="text-muted-foreground">Crit Multi</span>
-        <span class="text-foreground font-medium"><?= (int)$listing['crit_multi'] ?></span>
+        <span class="text-foreground font-medium"><?= (int)$listing['crit_multi'] ?>%</span>
       </div>
     <?php endif; ?>
     <?php if ($listing['crit_chance'] ?? 0): ?>
@@ -112,6 +112,18 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
       <div class="flex justify-start gap-1">
         <span class="text-muted-foreground">Life Steal</span>
         <span class="text-foreground font-medium"><?= (int)$listing['life_steal'] ?>%</span>
+      </div>
+    <?php endif; ?>
+    <?php if ($listing['health'] ?? 0): ?>
+      <div class="flex justify-start gap-1">
+        <span class="text-muted-foreground">Health</span>
+        <span class="text-foreground font-medium"><?= (int)$listing['health'] ?></span>
+      </div>
+    <?php endif; ?>
+    <?php if ($listing['stamina'] ?? 0): ?>
+      <div class="flex justify-start gap-1">
+        <span class="text-muted-foreground">Stamina</span>
+        <span class="text-foreground font-medium"><?= (int)$listing['stamina'] ?></span>
       </div>
     <?php endif; ?>
   </div>

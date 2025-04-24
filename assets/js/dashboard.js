@@ -64,6 +64,10 @@ function renderAreaSidebar(playerData) {
         const data = await response.json();
         if (!data.error) {
           showToast(`Traveled to ${select.options[select.selectedIndex].text}`, 'success', 2000);
+          // Clear monster list after traveling
+          const monstersContainer = document.getElementById('monsters-nearby');
+          if (monstersContainer) monstersContainer.innerHTML = '';
+          // Refresh sidebar and grid with new data
           renderAreaSidebar(data);
           updateGridLocation(data);
           updatePlayerStats();

@@ -68,7 +68,7 @@ include 'includes/sidebar.php';
           <div id="area-sidebar" class="w-full mb-2"></div>
           <p class="text-sm text-muted-foreground" id="travel-details">Loading travel position details</p>
           <div class="w-full flex justify-center">
-            <div id="grid-container" class="grid grid-cols-9 gap-1" style="width: max-content;">
+            <div id="grid-container" class="grid grid-cols-9 gap-2" style="width: max-content;">
               <!-- Grid will be dynamically populated here -->
             </div>
           </div>
