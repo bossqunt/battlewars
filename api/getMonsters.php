@@ -27,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         // if (isset($_SESSION['id'])) {
             //$playerId = intval($_SESSION['id']);
 
-            $monsterList = $monster->getMonsterList($playerId);
+            if (isset($_GET['boss']) && $_GET['boss'] == '1') {
+                $monsterList = $monster->getMonsterListwithBoss($playerId);
+            } else {
+                $monsterList = $monster->getMonsterList($playerId);
+            }
             echo json_encode($monsterList);
         // } else {
         //     echo json_encode(['error' => 'Player ID is required']);

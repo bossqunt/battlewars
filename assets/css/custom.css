@@ -3932,9 +3932,19 @@ body {
 
 
 .player-location {
-  background-color: rgba(255, 0, 0, 0.5) !important;
+  border: 6px solid rgba(255, 0, 0, 0.7) !important;
   /* Red color with 50% opacity */
-  background-image: none !important;
+
+  /* Remove any background image */
+  /* Color for player's location */
+  color: white;
+  /* Text color */
+}
+.boss-location {
+  
+  border: 6px solid rgba(0, 26, 255, 0.7) !important;
+  /* Red color with 50% opacity */
+
   /* Remove any background image */
   /* Color for player's location */
   color: white;
