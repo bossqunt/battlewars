@@ -33,11 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Create a new Player object
         $player = new Player($conn, $playerId);
 
+        // Get current area_id for player
+        $area_id = $player->getPlayerAreaId(); 
+
+        // Check if boss is defeated for this area
+        $stmt = $conn->prepare("SELECT boss_defeated FROM player_area_boss WHERE player_id = ? AND area_id = ?");
+        $stmt->bind_param('ii', $playerId, $area_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $bossDefeated = false;
+        if ($row = $result->fetch_assoc()) {
+            $bossDefeated = $row['boss_defeated'] == 1;
+        }
+
         // Generate random x and y coordinates (within a 9x9 grid)
         $x = rand(0, 8);
         $y = rand(0, 8);
-        // this will need to be changed to the area id once I implement boss mechanics
-        $area_id = 1; // Use the same area_id for now
 
         // Update the player's location
         $updateSuccess = $player->updateLocation($x, $y, $area_id);

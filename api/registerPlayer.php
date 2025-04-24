@@ -55,20 +55,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['name'] = $name;
 
         // Insert initial position for the player
-        $area_id = 1; // Example area ID
+        $area_id = 1; // Starter area ID
         $x = 0; // Example starting X coordinate
         $y = 0; // Example starting Y coordinate
-        $starter_item = 1;
-        $rarity = 1;
-        $equipped = 1;
 
+        // Set the player's starting area and position
         $stmt = $conn->prepare("INSERT INTO player_position (area_id, x, y, player_id) VALUES (?, ?, ?, ?)");
         $stmt->bind_param("iiii", $area_id, $x, $y, $player_id);
         $stmt->execute();
 
+        // Insert the starter item into the player's inventory
         $stmt2 = $conn->prepare("INSERT INTO player_inventory (player_id, item_id, rarity, equipped) VALUES (?, ?, ?, ?)");
         $stmt2->bind_param("iiii", $player_id, $starter_item, $rarity, $equipped);  
+        $equipped = 1; // Item is equipped at the start
+        $rarity = 1; // Common rarity item
+        $starter_item = 1; // Assuming the starter item ID is 1
         $stmt2->execute();
+
+        //
+        $stmt3 = $conn->prepare("INSERT INTO player_area_boss (player_id, area_id, boss_defeated) VALUES (?, ?, ?)");
+        $stmt3->bind_param("iii", $player_id, $area_id, $boss_defeated);
+        $boss_defeated = 0; // Boss is not defeated at the start
+        $stmt3->execute();
 
         echo json_encode(array("status" => "success", "message" => "Registration successful"));
         exit;

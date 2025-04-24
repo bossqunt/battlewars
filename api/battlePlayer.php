@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             //takeOwnership($conn, $playerId, $opponentId, $areaid, $x, $y);
             // adjust players final HP
             $player->updatePlayerBattleReward($playerCurrentHp);
-            $player->setCurrentAreaAsOwner($areaid, $x, $y);
+            $player->setCurrentAreaOwnerAsPlayer($areaid, $x, $y);
             // comment this line for player testing.. this will update opponents HP to 0
             //$opponent->updatePlayerBattleReward($opponentCurrentHp);
         }

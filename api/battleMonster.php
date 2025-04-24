@@ -242,6 +242,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     }
                 }
             }
+
+            // --- Boss defeat tracking ---
+            $area_id = $player->getPlayerAreaId(); // or getAreaId()
+            $areaQuery = $conn->prepare("SELECT max_level FROM areas WHERE id = ?");
+            $areaQuery->bind_param('i', $area_id);
+            $areaQuery->execute();
+            $areaResult = $areaQuery->get_result();
+            $areaRow = $areaResult->fetch_assoc();
+            if ($areaRow && $monster->getLevel() == $areaRow['max_level']) {
+                // Use Player method to mark boss as defeated
+                $player->setBossDefeated($area_id);
+                $battleLog['boss_defeated'] = true;
+                $worldEvent = "{$player->getName()} has defeated the boss {$monster->getName()}!";
+                updateWorldEvent($conn, $playerId, $worldEvent);
+            }
+            
+            // --- end boss defeat tracking ---
         } else {
             $battleLog['loot_message'] = "No items dropped.";
         }

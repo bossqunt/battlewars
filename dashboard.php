@@ -49,6 +49,7 @@ include 'includes/sidebar.php';
                 </svg>
                 <span id="location-text" class="text-sm">Loading...</span>
               </div>
+              
               <button class="rpg-button flex items-center gap-1 h-8 border border-black" id="take-ownership-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -63,6 +64,8 @@ include 'includes/sidebar.php';
               </button>
             </div>
           </div>
+          <!-- Move area-sidebar here, below the flex row -->
+          <div id="area-sidebar" class="w-full mb-2"></div>
           <p class="text-sm text-muted-foreground" id="travel-details">Loading travel position details</p>
           <div class="w-full flex justify-center">
             <div id="grid-container" class="grid grid-cols-9 gap-1" style="width: max-content;">
