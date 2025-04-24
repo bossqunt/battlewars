@@ -214,6 +214,7 @@ class Player
             $player['area'] = $this->getPlayerArea();
             $player['areaOwner'] = $this->getPlayerAreaOwner();
             $player['inventoryCount'] = $this->getPlayerInventoryCount();
+            $player['areasUnlocked'] = $this->getPlayerAreaUnlocked();
     
             return $player;
         }
@@ -243,6 +244,35 @@ class Player
         $params = [$this->id];
         return $this->fetchAllRows($sql, $params);
     }
+    public function getPlayerAreaId()
+    {
+        $sql = "SELECT area_id FROM player_position WHERE player_id = ?";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($sql, $params);
+        return $row ? (int)$row['area_id'] : null;
+    }
+
+    public function getPlayerAreaUnlocked() {
+        // Get the highest area_id where the boss is defeated
+        $sql = "SELECT MAX(area_id) AS max_defeated_area FROM player_area_boss WHERE player_id = ? AND boss_defeated = 1";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($sql, $params);
+        $maxDefeatedArea = isset($row['max_defeated_area']) ? (int)$row['max_defeated_area'] : null;
+
+        if ($maxDefeatedArea === null || $maxDefeatedArea === 0) {
+            return [];
+        }
+
+        // Get all areas with id < maxDefeatedArea + 1
+        $unlockUpTo = $maxDefeatedArea + 1;
+        $sql = "SELECT a.id as area_id, a.name, a.min_level, a.max_level
+                FROM areas a
+                WHERE a.id <= ?";
+        $params = [$unlockUpTo];
+        $areas = $this->fetchAllRows($sql, $params);
+
+        return $areas;
+    }
 
     // Retrieves details of the player owning the current area
     private function getPlayerAreaOwner()
@@ -268,7 +298,7 @@ class Player
         return $this->fetchAllRows($sql, $params);
     }
     // Used in battle.php to set the current area as the player's owned area
-    public function setCurrentAreaAsOwner($areaId, $x, $y)
+    public function setCurrentAreaOwnerAsPlayer($areaId, $x, $y)
     {
         $sql = "UPDATE area_owner SET player_id = ? WHERE area_id = ? AND x = ? AND y = ?";
         $params = [$this->id, $areaId, $x, $y];
@@ -624,4 +654,10 @@ class Player
         return $stmt->execute();
     }
 
+    public function setBossDefeated($area_id) {
+        $stmt = $this->conn->prepare("INSERT INTO player_area_boss (player_id, area_id, boss_defeated) VALUES (?, ?, 1)
+            ON DUPLICATE KEY UPDATE boss_defeated=1");
+        $stmt->bind_param('ii', $this->id, $area_id);
+        return $stmt->execute();
+    }
 }

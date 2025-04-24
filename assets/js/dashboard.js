@@ -23,6 +23,67 @@ async function updateOnlinePlayers() {
   }
 }
 
+// Render area sidebar
+function renderAreaSidebar(playerData) {
+  const sidebar = document.getElementById('area-sidebar');
+  if (!sidebar) return;
+
+  const currentAreaId = playerData.area[0].area_id;
+  const areasUnlocked = playerData.areasUnlocked || [];
+
+  sidebar.innerHTML = `
+    <div class="flex items-center justify-center gap-2 mb-1 w-full">
+      <span class="font-bold text-center">Current Area:</span>
+      <span class="text-blue-700 font-semibold mr-4">${playerData.area[0].name}</span>
+      ${
+        areasUnlocked.length > 0
+          ? `<label for="area-select" class="font-bold">Travel to:</label>
+             <select id="area-select" class="border rounded px-2 py-1 ml-2">
+               ${areasUnlocked.map(area => `
+                 <option value="${area.area_id}" ${area.area_id == currentAreaId ? 'selected' : ''}>
+                   ${area.name} (Lv. ${area.min_level}-${area.max_level})
+                 </option>
+               `).join('')}
+             </select>`
+          : ''
+      }
+    </div>
+  `;
+
+  // Add change listener to dropdown if present
+  const select = sidebar.querySelector('#area-select');
+  if (select) {
+    select.addEventListener('change', async (e) => {
+      const areaId = parseInt(select.value);
+      if (areaId !== currentAreaId) {
+        const response = await fetch('/bw2/api/updateLocation.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: playerId, x: 0, y: 0, area_id: areaId })
+        });
+        const data = await response.json();
+        if (!data.error) {
+          showToast(`Traveled to ${select.options[select.selectedIndex].text}`, 'success', 2000);
+          renderAreaSidebar(data);
+          updateGridLocation(data);
+          updatePlayerStats();
+        } else {
+          showToast(data.error, 'error', 3000);
+        }
+      }
+    });
+  }
+}
+
+// After fetching player data, render the area sidebar
+async function refreshDashboard() {
+  const playerData = await fetchPlayerData();
+  renderAreaSidebar(playerData);
+  updateGridLocation(playerData);
+  updatePlayerStats();
+  // ...other dashboard updates as needed...
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const travelBtn = document.getElementById('travel-button');
   if (travelBtn) travelBtn.addEventListener('click', travelPlayer);
@@ -55,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateOnlinePlayers();
   setInterval(updateOnlinePlayers, 15000); // update every 15s
 
+  refreshDashboard();
 });
 
 getBattleHistory(playerId);
