@@ -3,9 +3,13 @@ import { updatePlayerStats } from './playerStats.js';
 import { getBattleHistory } from './battle.js';
 
 
-export async function updateMonstersTable() {
+export async function updateMonstersTable(onBossTile = false) {
   try {
-    const response = await fetch('/bw2/api/GetMonsters.php');
+    let url = '/bw2/api/GetMonsters.php';
+    if (onBossTile) {
+      url += '?boss=1';
+    }
+    const response = await fetch(url);
     const monsters = await response.json();
 
     const container = document.getElementById('monsters-nearby');

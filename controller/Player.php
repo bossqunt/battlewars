@@ -236,7 +236,7 @@ class Player
     // Retrieves player's current area details
     private function getPlayerArea()
     {
-        $sql = "SELECT pa.player_id, a.name, pa.x, pa.y, pa.area_id
+        $sql = "SELECT pa.player_id, a.name, pa.x, pa.y, pa.area_id, a.boss_x, a.boss_y
                 FROM player_position pa
                 INNER JOIN areas a ON a.id = pa.area_id
                 WHERE pa.player_id = ?";

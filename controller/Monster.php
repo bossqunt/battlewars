@@ -69,7 +69,7 @@ class Monster {
                   FROM
                     player_position pa
                     INNER JOIN areas a ON a.id = pa.area_id
-                    LEFT JOIN monsters m ON m.level BETWEEN a.min_level AND a.max_level
+                    LEFT JOIN monsters m ON m.level BETWEEN a.min_level AND (a.max_level - 1)
                   WHERE
                     pa.player_id = ? ORDER BY RAND() LIMIT ?';
 
@@ -81,6 +81,44 @@ class Monster {
         $result = $stmt->get_result();
         $monsters = [];
         while ($row = $result->fetch_assoc()) {
+            $monsters[] = $row;
+        }
+
+        return $monsters;
+    }
+
+    public function getMonsterListwithBoss($playerId) {
+        // 1. Get the boss monster (max level for the area)
+        $bossQuery = 'SELECT 
+                        m.id,
+                        m.name,
+                        m.level,
+                        m.hp,
+                        m.attack,
+                        m.speed,
+                        m.on_death_exp,
+                        m.on_death_gold,
+                        m.defence,
+                        1 is_boss
+                      FROM
+                        player_position pa
+                        INNER JOIN areas a ON a.id = pa.area_id
+                        LEFT JOIN monsters m ON m.level = a.max_level
+                      WHERE
+                        pa.player_id = ? LIMIT 1';
+
+        $bossStmt = $this->conn->prepare($bossQuery);
+        $bossStmt->bind_param('i', $playerId);
+        $bossStmt->execute();
+        $bossResult = $bossStmt->get_result();
+        $monsters = [];
+        if ($bossRow = $bossResult->fetch_assoc()) {
+            $monsters[] = $bossRow;
+        }
+
+        // 2. Get other monsters using existing getMonsterList
+        $otherMonsters = $this->getMonsterList($playerId);
+        foreach ($otherMonsters as $row) {
             $monsters[] = $row;
         }
 
