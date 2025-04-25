@@ -8,13 +8,26 @@ include 'includes/sidebar.php';
 <!-- Include custom CSS for playerStats -->
 <link rel="stylesheet" href="assets/css/custom.css">
 
+<!-- Add this style block in the <head> or before </body> -->
+<style>
+  #grid-container {
+    /* Default fallback */
+    --grid-cell-size: 45px;
+  }
+  #grid-container .grid-cell {
+    width: var(--grid-cell-size);
+    height: var(--grid-cell-size);
+    /* ...other cell styles... */
+  }
+</style>
+
 <h1 class="text-x2 py-1 mb-1 flex items-center justify-between">
   <span>
     <span class="text-muted-foreground font-light">Battlewarz /</span>
     <span class="font-bold"> Overworld</span>
   </span>
   <!-- Online Players Button (inline, styled) -->
-  <button class="h-7 px-2 flex items-center gap-1 bg-sidebar text-sidebar-foreground border-sidebar-border border hover:bg-accent hover:text-accent-foreground rounded-md justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
+  <button id="online-players" class="h-7 px-2 flex items-center gap-1 bg-sidebar text-sidebar-foreground border-sidebar-border border hover:bg-accent hover:text-accent-foreground rounded-md justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
     <!-- Lucide Users Icon -->
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users h-3.5 w-3.5">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
@@ -27,72 +40,84 @@ include 'includes/sidebar.php';
   </button>
 </h1>
 
-<div id="main-container" class="grid grid-cols-12 gap-4">
-  <!-- Grid and controls (9 columns) -->
-  <div id="grid-controller" class="col-span-9 rpg-panel">
-    <main class="flex-1 overflow-auto p-0">
-      <div class="space-y-4 flex flex-col h-full">
-        <div class="rpg-panel space-y-4">
-          <div class="flex justify-between items-center">
-            <h1 class="text-lg font-bold"></h1>
-            <!-- Buttons aligned right -->
-            <div class="flex space-x-2 ml-auto">
-              <div id="owner-text" class="flex items-center gap-1 text-sm text-black"></div>
-              <div class="flex items-center gap-1 text-black bg-white border border-black px-3 py-1 rounded-md w-fit"
-                id="player-location-display">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-black" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0">
-                  </path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                <span id="location-text" class="text-sm">Loading...</span>
+<!-- Main Flex Container -->
+<div id="main-container" class="flex flex-col h-[80vh] gap-4">
+  <div class="flex flex-1 gap-4 min-h-0">
+    <!-- Main Area (was col-span-9) -->
+    <div id="grid-controller" class="flex-1 rpg-panel flex flex-col min-h-0 ">
+      <main class="flex-1 overflow-auto p-0 flex flex-col">
+        <div class="space-y-4 flex flex-col h-full">
+          <div class="rpg-panel space-y-4 flex flex-col h-full h-[80vh]">
+            <div class="flex justify-between items-center">
+              <h1 class="text-lg font-bold"></h1>
+              <!-- Buttons aligned right -->
+              <div class="flex space-x-2 ml-auto">
+                <div id="owner-text" class="flex items-center gap-1 text-sm text-black"></div>
+                <div class="flex items-center gap-1 text-black bg-white border border-black px-3 py-1 rounded-md w-fit"
+                  id="player-location-display">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-black" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0">
+                    </path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span id="location-text" class="text-sm">Loading...</span>
+                </div>
+                
+                <button class="rpg-button flex items-center gap-1 h-8 border border-black" id="take-ownership-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-flag h-3.5 w-3.5">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                    <line x1="4" x2="4" y1="22" y2="15"></line>
+                  </svg>
+                  <span class="text-sm">Claim Territory</span>
+                </button>
+                <button class="rpg-button rpg-button-primary h-8" id="travel-button">
+                  <span class="text-sm">Travel</span>
+                </button>
               </div>
-              
-              <button class="rpg-button flex items-center gap-1 h-8 border border-black" id="take-ownership-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  class="lucide lucide-flag h-3.5 w-3.5">
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                  <line x1="4" x2="4" y1="22" y2="15"></line>
-                </svg>
-                <span class="text-sm">Claim Territory</span>
-              </button>
-              <button class="rpg-button rpg-button-primary h-8" id="travel-button">
-                <span class="text-sm">Travel</span>
-              </button>
             </div>
-          </div>
-          <!-- Move area-sidebar here, below the flex row -->
-          <div id="area-sidebar" class="w-full mb-2"></div>
-          <p class="text-sm text-muted-foreground" id="travel-details">Loading travel position details</p>
-          <div class="w-full flex justify-center">
-            <div id="grid-container" class="grid grid-cols-9 gap-2" style="width: max-content;">
-              <!-- Grid will be dynamically populated here -->
+            <div id="area-sidebar" class="w-full mb-2 mt-2"></div>
+            <p class="text-sm text-muted-foreground mt-1" id="travel-details">Loading travel position details</p>
+            <div class="w-full flex justify-center flex-1 items-center mt-0">
+              <div id="grid-container" class="grid grid-cols-9 gap-2" style="width: max-content;">
+                <!-- Grid will be dynamically populated here -->
+                <!-- Make sure each cell has class="grid-cell" -->
+              </div>
             </div>
           </div>
         </div>
+      </main>
+    </div>
+    <!-- Monsters Nearby (was col-span-3) -->
+    <div class="flex flex-col w-[320px] min-w-[240px] max-w-[400px] h-full">
+      <div class="border rounded-md p-3 bg-card/50 flex-1 overflow-auto">
+        <h2 class="text-sm font-medium mb-2">Nearby Monsters</h2>
+        <div class="space-y-1" id="monsters-nearby">
+          <!-- Monsters will be dynamically populated here -->
+        </div>
       </div>
-    </main>
-  </div>
-  <!-- Monsters nearby (3 columns) -->
-  <div class="col-span-3 flex flex-col h-full">
-    <div class="border rounded-md p-3 bg-card/50">
-      <h2 class="text-sm font-medium mb-2">Nearby Monsters</h2>
-      <div class="space-y-1" id="monsters-nearby">
-        <!-- Monsters will be dynamically populated here -->
+    </div>
+    <!-- Online Players List Container (hidden by default, shown by JS) -->
+    <div id="online-players-list" class="flex flex-col w-[200px] min-w-[160px] max-w-[240px] h-full" style="display:none;">
+      <div class="border rounded-md p-3 bg-card/50 flex-1 overflow-auto">
+        <h2 class="text-sm font-medium mb-2">Online Players</h2>
+        <div class="space-y-1" id="online-players-cards">
+          <!-- Player cards will be dynamically populated here -->
+        </div>
       </div>
     </div>
   </div>
-  <!-- World Events as a new row at the bottom -->
-  <div class="col-span-12">
-    <div class="border rounded-md p-3 bg-card/50 mt-2 ">
+  <!-- World Events (was col-span-12) -->
+  <div>
+    <div class="border rounded-md p-3 bg-card/50 mt-2">
       <h2 class="text-sm font-medium mb-2">World Events</h2>
       <div>
         <div id="world-events" 
              class="overflow-y-auto overflow-x-hidden pr-2"
-             style="height:30vh; max-height:30vh;">
+             style="height:10vh; max-height:20vh;">
           <!-- world events should be populated here -->
           <p class="text-xs text-muted-foreground">Loading...</p>
         </div>
@@ -155,5 +180,6 @@ include 'includes/sidebar.php';
 <script type="module" src="assets/js/playerStats.js"></script>
 <script type="module" src="assets/js/dashboard.js"></script>
 <script src="assets/js/main.js"></script>
+
 </body>
 </html>

@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             //Deduct the cost of the stamina cost for battle from playe
             $staminaCost = 2;
             $player->updateStamina($staminaCost);
+            $player->setPlayerPveBattleCount();
         }
 
         $playerSpeed = $player->getSpeed();
@@ -221,6 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Check if player has leveled up
             $battleLog['levelup'] = $player->checkLevelUp($monster->getExp()) ? true : false;
             $player->updatePlayerBattleReward($playerCurrentHp, $goldReward, $expReward);
+            $player->setPlayerPveBattleWinCount();
 
             // Handle item drops
             $itemsDropped = handleItemDrops($conn, $playerId, $monsterId);
