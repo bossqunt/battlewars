@@ -3,12 +3,11 @@ import { updatePlayerStats } from './playerStats.js';
 import { getBattleHistory } from './battle.js';
 
 
-export async function updateMonstersTable(onBossTile = false) {
+export async function updateMonstersTable() {
   try {
+    console.log("Fetching nearby monsters..."); // Debug log
     let url = '/bw2/api/getMonsters.php';
-    if (onBossTile) {
-      url += '?boss=1';
-    }
+
     const response = await fetch(url);
     const monsters = await response.json();
 
@@ -37,20 +36,28 @@ export async function updateMonstersTable(onBossTile = false) {
 
 export function createMonsterCard(monster, index) {
   const monsterCard = document.createElement('div');
-  monsterCard.className = 'flex flex-row justify-between items-center border p-2 rounded-md monster-card';
+  monsterCard.className = 'flex flex-row justify-between items-center border p-2 rounded-md monster-card mb-2';
   monsterCard.id = `monster-${index}`;
+
+  console.log(monster.is_boss); // Debug log
+  // Highlight boss monster card with red border if monster.is_boss is true/1/"1"
+  let isBoss = (monster.is_boss === 1 || monster.is_boss === "1");
+  if (isBoss) {
+    monsterCard.style.setProperty('border', '2px solid rgb(29 78 216 / var(--tw-text-opacity, 1))', 'important');
+    monsterCard.classList.remove('border');
+  }
 
   // Left side: Name and HP
   const leftWrapper = document.createElement('div');
   leftWrapper.className = 'flex flex-col truncate max-w-[70%]';
 
   const nameDiv = document.createElement('div');
-  nameDiv.className = 'text-[12px] font-medium';
+  nameDiv.className = 'text-[12px] font-medium' + (isBoss ? ' text-blue-500' : '');
   nameDiv.textContent = `${monster.name} (Lv. ${monster.level})`;
 
   const hpDiv = document.createElement('div');
   hpDiv.className = 'text-[11px] text-muted-foreground';
-  hpDiv.textContent = `HP: ${monster.hp}`;
+  hpDiv.textContent = `HP: ${monster.hp} / SPD: ${monster.speed} `;
 
   leftWrapper.appendChild(nameDiv);
   leftWrapper.appendChild(hpDiv);

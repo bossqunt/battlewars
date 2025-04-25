@@ -226,12 +226,17 @@ if ($attacker['life_steal'] > 0) {
 - [ ] Passive Regeneration
 - [ ] Level-up Stats
 - [ ] Temporary stat buff consumables
-- [ ] Item Generation & Monster Loot Tables
+- [x] Item Generation & Monster Loot Tables
 - [ ] Classes (Wizard, Ranger)
 - [ ] Incorporate more item bonuses
 - [ ] Potential animations? (Player/Monster/Items?)
 - [ ] Guilds
 - [ ] Unique attributes (Attributes determine other attribute bonuses)
+- [ ] Placeholder Inventory Slots (So people know what can be equipped)
+- [x] Add monster attributes to battle
+- [ ] Add emphasis on nearby monsters border (to emphasize boss encounter)
+- [ ] Add x0 y0 as non-pvp/no ownership
+- [ ] Remove crit chance from armors.. (and scale for weapons)
 ## Known Issues / To-Do List
 
 - [x] Redirect after registration is not working

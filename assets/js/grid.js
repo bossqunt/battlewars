@@ -16,12 +16,11 @@ export async function updateGridLocation(playerData) {
 
   updateGridOwner(playerData);
 
-  console.log('Player Location:', playerLocation); // Debug log
-  console.log('Player Data:', playerData); // Debug log
+
   // Assume playerData.boss = { x, y, alive: true, image_path }
   const boss_x = playerData.area[0].boss_x;
   const boss_y = playerData.area[0].boss_y;
-  console.log('Boss Location:', boss_x, boss_y); // Debug log
+
 
   for (let row = 0; row < gridHeight; row++) {
     for (let col = 0; col < gridWidth; col++) {
@@ -55,6 +54,7 @@ export async function updateGridLocation(playerData) {
       gridContainer.appendChild(cell);
     }
   }
+
 
 
   // After rendering the grid, update monsters table with boss flag

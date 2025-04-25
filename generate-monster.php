@@ -3,6 +3,7 @@ ob_start();
 require './includes/sidebar.php';
 require_once './controller/Database.php';
 require_once './controller/AuthCheck.php';
+require_once './includes/item-generator.php'; // <-- NEW: shared item logic
 
 if ($isAdmin != 1) {
     exit;
@@ -150,14 +151,22 @@ function generateStats($level, $category, $multipliers) {
 <div class="main-content">
     <h1>Monster Generator</h1>
     <form method="POST">
-        <button type="submit" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mb-4">Generate All Monsters</button>
+        <button type="submit" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mb-4">Generate SQL Monsters</button>
     </form>
     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+    <form method="POST">
+        <input type="hidden" name="do_execute_sql" value="1">
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mb-4"
+            onclick="return confirm('Are you sure you want to execute all generated SQL statements? This will truncate and overwrite all monster/item/drop data!');">
+            Execute All SQL Statements
+        </button>
+    </form>
     <h2>Generated SQL:</h2>
     <pre>
 <?php
 $insertSQL = "INSERT INTO `monsters` (`name`, `level`, `hp`, `attack`, `speed`, `on_death_exp`, `on_death_gold`, `defence`) VALUES\n";
 $values = [];
+$monsterList = []; // Store monsters for table display
 
 function generateMonsterNameV2($baseName, $prefixesByCategory, $category, $isBoss, $bossSuffixes) {
     $prefixList = $prefixesByCategory[$category];
@@ -170,11 +179,14 @@ function getRandomLevelInRange($min, $max) {
     return rand($min, $max);
 }
 
+$monstersByRange = []; // For distributing items per range
+
 foreach ($levelRanges as $rangeKey => [$minLevel, $maxLevel]) {
     $baseNames = $monsterBaseNames[$rangeKey];
-    // Shuffle for random picks
     $shuffledNames = $baseNames;
     shuffle($shuffledNames);
+
+    $rangeMonsters = [];
 
     // 5 weak
     for ($i = 0; $i < 5; $i++) {
@@ -183,6 +195,18 @@ foreach ($levelRanges as $rangeKey => [$minLevel, $maxLevel]) {
         $stats = generateStats($level, 'weak', $categoryMultipliers);
         $name = addslashes(generateMonsterNameV2($baseName, $prefixes, 'weak', false, $bossSuffixes));
         $values[] = "('$name', $level, {$stats['hp']}, {$stats['attack']}, {$stats['speed']}, {$stats['exp']}, {$stats['gold']}, {$stats['defence']})";
+        $monsterList[] = [
+            'name' => stripslashes($name),
+            'level' => $level,
+            'hp' => $stats['hp'],
+            'attack' => $stats['attack'],
+            'defence' => $stats['defence'],
+            'speed' => $stats['speed'],
+            'exp' => $stats['exp'],
+            'gold' => $stats['gold'],
+            'rangeKey' => $rangeKey
+        ];
+        $rangeMonsters[] = count($monsterList) - 1;
     }
     // 5 mid
     for ($i = 0; $i < 5; $i++) {
@@ -193,6 +217,18 @@ foreach ($levelRanges as $rangeKey => [$minLevel, $maxLevel]) {
         $stats = generateStats($level, 'mid', $categoryMultipliers);
         $name = addslashes(generateMonsterNameV2($baseName, $prefixes, 'mid', false, $bossSuffixes));
         $values[] = "('$name', $level, {$stats['hp']}, {$stats['attack']}, {$stats['speed']}, {$stats['exp']}, {$stats['gold']}, {$stats['defence']})";
+        $monsterList[] = [
+            'name' => stripslashes($name),
+            'level' => $level,
+            'hp' => $stats['hp'],
+            'attack' => $stats['attack'],
+            'defence' => $stats['defence'],
+            'speed' => $stats['speed'],
+            'exp' => $stats['exp'],
+            'gold' => $stats['gold'],
+            'rangeKey' => $rangeKey
+        ];
+        $rangeMonsters[] = count($monsterList) - 1;
     }
     // 3 strong
     for ($i = 0; $i < 3; $i++) {
@@ -202,6 +238,18 @@ foreach ($levelRanges as $rangeKey => [$minLevel, $maxLevel]) {
         $stats = generateStats($level, 'strong', $categoryMultipliers);
         $name = addslashes(generateMonsterNameV2($baseName, $prefixes, 'strong', false, $bossSuffixes));
         $values[] = "('$name', $level, {$stats['hp']}, {$stats['attack']}, {$stats['speed']}, {$stats['exp']}, {$stats['gold']}, {$stats['defence']})";
+        $monsterList[] = [
+            'name' => stripslashes($name),
+            'level' => $level,
+            'hp' => $stats['hp'],
+            'attack' => $stats['attack'],
+            'defence' => $stats['defence'],
+            'speed' => $stats['speed'],
+            'exp' => $stats['exp'],
+            'gold' => $stats['gold'],
+            'rangeKey' => $rangeKey
+        ];
+        $rangeMonsters[] = count($monsterList) - 1;
     }
     // 1 boss
     $baseName = $shuffledNames[array_rand($shuffledNames)];
@@ -209,14 +257,222 @@ foreach ($levelRanges as $rangeKey => [$minLevel, $maxLevel]) {
     $stats = generateStats($level, 'boss', $categoryMultipliers);
     $name = addslashes(generateMonsterNameV2($baseName, $prefixes, 'boss', true, $bossSuffixes));
     $values[] = "('$name', $level, {$stats['hp']}, {$stats['attack']}, {$stats['speed']}, {$stats['exp']}, {$stats['gold']}, {$stats['defence']})";
+    $monsterList[] = [
+        'name' => stripslashes($name),
+        'level' => $level,
+        'hp' => $stats['hp'],
+        'attack' => $stats['attack'],
+        'defence' => $stats['defence'],
+        'speed' => $stats['speed'],
+        'exp' => $stats['exp'],
+        'gold' => $stats['gold'],
+        'rangeKey' => $rangeKey
+    ];
+    $rangeMonsters[] = count($monsterList) - 1;
+
+    $monstersByRange[$rangeKey] = $rangeMonsters;
 }
 
-echo $insertSQL . implode(",\n", $values) . ";";
+// Build items per range, and assign to monsters
+$monsterDrops = []; // monster index => array of items
+
+foreach ($levelRanges as $rangeKey => [$minLevel, $maxLevel]) {
+    $itemsInRange = [];
+    foreach ($prefixConfigs as $prefixConfig) {
+        // Only prefixes that match this range
+        if ($prefixConfig['level_range'][0] != $minLevel || $prefixConfig['level_range'][1] != $maxLevel) continue;
+        foreach ($itemTypes as $type) {
+            if ($type === 'Weapon') {
+                foreach ($itemNames['Weapon'] as $subtype) {
+                    $item = generateItem($type, $itemNames, $baseStats, $prefixConfig, $subtype);
+                    $itemsInRange[] = $item;
+                }
+            } else {
+                $item = generateItem($type, $itemNames, $baseStats, $prefixConfig);
+                $itemsInRange[] = $item;
+            }
+        }
+    }
+    // Distribute items among monsters in this range
+    $monsterIndexes = $monstersByRange[$rangeKey];
+    $numMonsters = count($monsterIndexes);
+    $numItems = count($itemsInRange);
+
+    // Assign each item to at least one monster, and higher-level monsters get more items
+    // Sort monsters by their level ascending
+    usort($monsterIndexes, function($a, $b) use ($monsterList) {
+        return $monsterList[$a]['level'] <=> $monsterList[$b]['level'];
+    });
+
+    // Assign each item to a monster, then assign remaining items to higher-level monsters
+    $itemAssignments = array_fill(0, $numMonsters, []);
+    for ($i = 0; $i < min($numItems, $numMonsters); $i++) {
+        $itemAssignments[$i][] = $itemsInRange[$i];
+    }
+    $remaining = array_slice($itemsInRange, $numMonsters);
+    $hi = $numMonsters - 1;
+    foreach ($remaining as $item) {
+        $itemAssignments[$hi][] = $item;
+        if ($hi > 0) $hi--;
+    }
+
+    // --- Assign drop chances ---
+    // Lower levels: higher drop chance, higher levels: lower drop chance
+    // No more than 10% total drop chance per monster (sum of all its items)
+    // We'll use a linear scale: minDrop = 1.5%, maxDrop = 10%, scale by level range
+    $minDrop = 1.5; // percent
+    $maxDrop = 10.0; // percent
+    $levelSpan = 200 - 1;
+    $rangeAvgLevel = ($minLevel + $maxLevel) / 2;
+    // Drop chance for this range (lower levels get higher chance)
+    $rangeDropChance = $maxDrop - (($rangeAvgLevel - 1) / $levelSpan) * ($maxDrop - $minDrop);
+    // Distribute drop chance among all items for this monster (per monster, sum <= $rangeDropChance)
+    foreach ($monsterIndexes as $idx => $monsterIdx) {
+        if (!isset($monsterDrops[$monsterIdx])) $monsterDrops[$monsterIdx] = [];
+        $items = $itemAssignments[$idx];
+        $num = count($items);
+        if ($num == 0) continue;
+        // Distribute drop chance, but never exceed $rangeDropChance per monster
+        $perItemChance = $rangeDropChance / $num;
+        // Cap per item at 5% (if only 1 item, still not more than 10%)
+        $perItemChance = min($perItemChance, 5.0);
+        foreach ($items as $item) {
+            $item['drop_chance'] = round($perItemChance, 2);
+            $monsterDrops[$monsterIdx][] = $item;
+        }
+    }
+}
+
+// --- MONSTER INSERTS ---
+echo "-- MONSTER TABLE (truncate, reset PK, insert)\n";
+echo "-- " . count($monsterList) . " records\n";
+echo "TRUNCATE TABLE monsters;\n";
+echo "ALTER TABLE monsters AUTO_INCREMENT = 1;\n";
+echo "INSERT INTO `monsters` (`name`, `level`, `hp`, `attack`, `speed`, `on_death_exp`, `on_death_gold`, `defence`) VALUES\n";
+echo implode(",\n", $values) . ";\n";
+
+// --- ITEM INSERTS ---
+// Build $itemInsertRows before using it
+$itemInsertRows = [];
+foreach ($prefixConfigs as $prefixConfig) {
+    foreach ($itemTypes as $type) {
+        if ($type === 'Weapon') {
+            foreach ($itemNames['Weapon'] as $subtype) {
+                $item = generateItem($type, $itemNames, $baseStats, $prefixConfig, $subtype);
+                $name = addslashes($item['name']);
+                $itemInsertRows[] = "('$name', '{$item['type']}', {$item['attack']}, {$item['defense']}, {$item['crit_chance']}, {$item['crit_multi']}, {$item['life_steal']}, {$item['armor']}, {$item['speed']}, {$item['health']}, {$item['stamina']}, {$item['gold']})";
+            }
+        } else {
+            $item = generateItem($type, $itemNames, $baseStats, $prefixConfig);
+            $name = addslashes($item['name']);
+            $itemInsertRows[] = "('$name', '{$item['type']}', {$item['attack']}, {$item['defense']}, {$item['crit_chance']}, {$item['crit_multi']}, {$item['life_steal']}, {$item['armor']}, {$item['speed']}, {$item['health']}, {$item['stamina']}, {$item['gold']})";
+        }
+    }
+}
+
+echo "\n-- ITEM TABLE (truncate, reset PK, insert)\n";
+echo "-- " . count($itemInsertRows) . " records\n";
+echo "TRUNCATE TABLE items;\n";
+echo "ALTER TABLE items AUTO_INCREMENT = 1;\n";
+echo "INSERT INTO `items` (`name`, `type`, `attack`, `defense`, `crit_chance`, `crit_multi`, `life_steal`, `armor`, `speed`, `health`, `stamina`, `gold`) VALUES\n";
+echo implode(",\n", $itemInsertRows) . ";\n";
+
+// --- MONSTER_ITEM_DROPS INSERTS ---
+// Build $dropRows before using it
+$dropRows = [];
+foreach ($monsterDrops as $monsterIdx => $items) {
+    // Monster PK is $monsterIdx+1 (since we reset auto_increment)
+    $monsterId = $monsterIdx + 1;
+    foreach ($items as $item) {
+        // Find item PK (row) by name and type (since we just generated them in order)
+        $itemId = null;
+        foreach ($itemInsertRows as $i => $row) {
+            // $row is like ('name', 'type', ...)
+            if (strpos($row, "('" . addslashes($item['name']) . "', '{$item['type']}'") === 0) {
+                $itemId = $i + 1;
+                break;
+            }
+        }
+        if ($itemId !== null) {
+            $dropRows[] = "($monsterId, $itemId, {$item['drop_chance']})";
+        }
+    }
+}
+
+echo "\n-- MONSTER_ITEM_DROPS TABLE (truncate, reset PK, insert)\n";
+echo "-- " . count($dropRows) . " records\n";
+echo "TRUNCATE TABLE monster_item_drops;\n";
+echo "ALTER TABLE monster_item_drops AUTO_INCREMENT = 1;\n";
+echo "INSERT INTO `monster_item_drops` (`monster_id`, `item_id`, `drop_chance`) VALUES\n";
+echo implode(",\n", $dropRows) . ";\n";
 ?>
-    </pre>
-    <h2>Monster Table</h2>
-    <div style="overflow-x:auto;">
-    <table border="1" cellpadding="4" cellspacing="0" style="min-width:900px;">
+</pre>
+<?php
+// --- EXECUTE SQL IF REQUESTED ---
+if (isset($_POST['do_execute_sql']) && $_POST['do_execute_sql'] == '1') {
+    $mysqli = new mysqli("localhost", "root", "", "battlewarz");
+    if ($mysqli->connect_errno) {
+        echo "<div style='color:red;'>DB Connection failed: " . $mysqli->connect_error . "</div>";
+    } else {
+        $errors = [];
+        // Monster table
+        $sqls = [
+            "TRUNCATE TABLE monsters",
+            "ALTER TABLE monsters AUTO_INCREMENT = 1",
+            "INSERT INTO `monsters` (`name`, `level`, `hp`, `attack`, `speed`, `on_death_exp`, `on_death_gold`, `defence`) VALUES " . implode(",\n", $values)
+        ];
+        // Items table
+        $sqls[] = "TRUNCATE TABLE items";
+        $sqls[] = "ALTER TABLE items AUTO_INCREMENT = 1";
+        if (count($itemInsertRows)) {
+            $sqls[] = "INSERT INTO `items` (`name`, `type`, `attack`, `defense`, `crit_chance`, `crit_multi`, `life_steal`, `armor`, `speed`, `health`, `stamina`, `gold`) VALUES " . implode(",\n", $itemInsertRows);
+        }
+        // Monster item drops
+        $sqls[] = "TRUNCATE TABLE monster_item_drops";
+        $sqls[] = "ALTER TABLE monster_item_drops AUTO_INCREMENT = 1";
+        if (count($dropRows)) {
+            $sqls[] = "INSERT INTO `monster_item_drops` (`monster_id`, `item_id`, `drop_chance`) VALUES " . implode(",\n", $dropRows);
+        }
+        foreach ($sqls as $sql) {
+            // Split multi-line INSERTs into single queries if needed
+            if (preg_match('/^INSERT INTO/i', $sql) && strpos($sql, "),") !== false) {
+                // MySQLi may not allow multi-row INSERTs with multi_query, so split
+                $matches = [];
+                if (preg_match('/^(INSERT INTO [^(]+ \([^)]+\) VALUES )(.+);?$/is', $sql, $matches)) {
+                    $prefix = $matches[1];
+                    $rows = explode("),", $matches[2]);
+                    foreach ($rows as $row) {
+                        $row = trim($row);
+                        if ($row === "") continue;
+                        if (substr($row, -1) !== ")") $row .= ")";
+                        $single = $prefix . $row;
+                        if (!$mysqli->query($single)) {
+                            $errors[] = $mysqli->error;
+                        }
+                    }
+                    continue;
+                }
+            }
+            if (!$mysqli->query($sql)) {
+                $errors[] = $mysqli->error;
+            }
+        }
+        if (empty($errors)) {
+            echo "<div style='color:green;font-weight:bold;'>All SQL statements executed successfully.</div>";
+        } else {
+            echo "<div style='color:red;'><b>SQL Errors:</b><br>" . implode("<br>", $errors) . "</div>";
+        }
+        $mysqli->close();
+    }
+}
+?>
+    <?php endif; ?>
+<h1 class="text-x2 py-1 mb-1">
+  <span class="text-muted-foreground font-light">Battlewarz /</span>
+  <span class="font-bold"> Generate Monsters</span>
+</h1>
+<div class="w-full overflow-x-auto rpg-panel space-y-4">
+  <table class="min-w-full divide-y divide-gray-200 border border-gray-300 rounded-lg shadow-sm bg-white">
         <thead>
         <tr style="background:#f0f0f0;">
             <th>#</th>
@@ -228,30 +484,48 @@ echo $insertSQL . implode(",\n", $values) . ";";
             <th>Speed</th>
             <th>EXP</th>
             <th>Gold</th>
+            <th>Possible Drops</th>
         </tr>
         </thead>
         <tbody>
 <?php
 $idx = 1;
-foreach ($values as $row) {
-    preg_match("/\('(.*?)',\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)/", $row, $matches);
-    if ($matches) {
-        echo "<tr>";
-        echo "<td>" . $idx++ . "</td>";
-        echo "<td>" . htmlspecialchars(stripslashes($matches[1])) . "</td>";
-        echo "<td>" . $matches[2] . "</td>";
-        echo "<td>" . $matches[3] . "</td>";
-        echo "<td>" . $matches[4] . "</td>";
-        echo "<td>" . $matches[8] . "</td>"; // defence
-        echo "<td>" . $matches[5] . "</td>";
-        echo "<td>" . $matches[6] . "</td>";
-        echo "<td>" . $matches[7] . "</td>";
-        echo "</tr>";
+foreach ($monsterList as $mIdx => $monster) {
+    echo "<tr>";
+    echo "<td>" . $idx . "</td>";
+    echo "<td>" . htmlspecialchars($monster['name']) . "</td>";
+    echo "<td>" . $monster['level'] . "</td>";
+    echo "<td>" . $monster['hp'] . "</td>";
+    echo "<td>" . $monster['attack'] . "</td>";
+    echo "<td>" . $monster['defence'] . "</td>";
+    echo "<td>" . $monster['speed'] . "</td>";
+    echo "<td>" . $monster['exp'] . "</td>";
+    echo "<td>" . $monster['gold'] . "</td>";
+    echo "<td></td>";
+    echo "</tr>";
+
+    // Subrows: show only items assigned to this monster (no rarity)
+    if (!empty($monsterDrops[$mIdx])) {
+        foreach ($monsterDrops[$mIdx] as $item) {
+            echo '<tr class="monster-item-subrow" style="font-size:11px;background:#f9f9ff;">';
+            echo '<td colspan="2"></td>';
+            echo '<td colspan="2"><b>' . htmlspecialchars($item['name']) . '</b> (' . htmlspecialchars($item['type']) . ')</td>';
+            echo '<td>' . $item['attack'] . '</td>';
+            echo '<td>' . $item['defense'] . '</td>';
+            echo '<td>' . $item['speed'] . '</td>';
+            echo '<td>' . $item['crit_chance'] . '</td>';
+            echo '<td>' . $item['gold'] . '</td>';
+            echo '<td><span style="color:#007700;">Drop: ' . $item['drop_chance'] . '%</span></td>';
+            echo '</tr>';
+        }
     }
+    $idx++;
 }
 ?>
         </tbody>
     </table>
     </div>
-<?php endif; ?>
 </div>
+<?php
+// ...no extra endif here...
+?>

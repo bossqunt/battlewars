@@ -46,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $bossDefeated = $row['boss_defeated'] == 1;
         }
 
-        // Generate random x and y coordinates (within a 9x9 grid)
-        $x = rand(0, 8);
-        $y = rand(0, 8);
+            $x = rand(0, 8);
+            $y = rand(0, 8);
+
 
         // Update the player's location
         $updateSuccess = $player->updateLocation($x, $y, $area_id);

@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $battleLog['victory'] = 1;
             $battleLog['battle'] = "The tile is yours for the taking..";
             echo json_encode($battleLog);
+            $player->setCurrentAreaOwnerAsPlayer($areaid, $x, $y);
             exit();
         }
         if($player->getStamina() <= 0) {
@@ -60,14 +61,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $playerSpeed = $player->getSpeed();
         $opponentSpeed = $opponent->getSpeed();
 
-        $firstTurn = $playerSpeed >= $opponentSpeed ? $player : $opponent;
-        $secondTurn = $firstTurn === $player ? $opponent : $opponent;
-               
+        // Fix turn order assignment
+        if ($playerSpeed >= $opponentSpeed) {
+            $firstTurn = $player;
+            $secondTurn = $opponent;
+        } else {
+            $firstTurn = $opponent;
+            $secondTurn = $player;
+        }
 
         while ($playerCurrentHp > 0 && $opponentCurrentHp > 0) {
-           
+            // First attacker's turn
             $attacker = $firstTurn;
-            $target = $firstTurn === $player ? $opponent : $player;
+            $target = $secondTurn;
 
             // Miss logic: 5% chance if attacker has less speed than target
             $attackerSpeed = $attacker->getSpeed();
@@ -92,10 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($playerCurrentHp <= 0 || $opponentCurrentHp <= 0) break;
 
-            if (rollDice(6) > 4 && $firstTurn === $player) continue; // Player's chance to attack consecutively
+            // Optional: Player's chance to attack consecutively (if player is firstTurn)
+            if ($firstTurn === $player && rollDice(6) > 4) {
+                continue;
+            }
 
+            // Second attacker's turn
             $attacker = $secondTurn;
-            $target = $secondTurn === $player ? $opponent : $player;
+            $target = $firstTurn;
 
             // Miss logic for second turn
             $attackerSpeed = $attacker->getSpeed();
@@ -115,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $playerCurrentHp -= $damage;
                 }
 
-                $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, opponent: {$opponentCurrentHp}/{$opponentMaxHp} HP)";
+                $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Opponent: {$opponentCurrentHp}/{$opponentMaxHp} HP)";
             }
         }
 
@@ -126,6 +136,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $playerWon = 0;
             updateBattleHistory($conn, $playerId, $opponentId, null, $battleLog['result'], $battleLog['outcome'], 0, 0, $battleLog['victory'] = 0);
             $player->updatePlayerBattleReward($playerCurrentHp, 0, 0);
+            // comment this line for player testing.. this will update opponents HP to 0
+            //$opponent->updatePlayerBattleReward($playerCurrentHp,0,0);
         } elseif ($opponentCurrentHp <= 0) {
             $battleLog['outcome'] = json_encode($battleLog['battle']);
             $battleLog['result'] = "{$player->getName()} wins the battle against " . $opponent->getName();
@@ -134,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $battleLog['gold'] = 'you received no gold';
             $battleLog['loot_message'] = "You own ($x, $y) in area $areaid!";
             updateBattleHistory($conn, $playerId, $opponentId, null, $battleLog['result'], $battleLog['outcome'], $battleLog['victory']);
-            $battleLog['world_event'] = "{$player->getName()} has taken ownership from {$opponent->getName()} at ($x, $y) in area $areaid!";
+            $battleLog['world_event'] = "{$player->getName()} has killed {$opponent->getName()} and taken ownership of grid ($x, $y) in area $areaid!";
             updateWorldEvent($conn, $playerId, $battleLog['world_event']);
             //takeOwnership($conn, $playerId, $opponentId, $areaid, $x, $y);
             // adjust players final HP

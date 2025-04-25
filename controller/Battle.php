@@ -141,7 +141,6 @@ function handleItemDrops($conn, $playerId, $monsterId)
 
             $modifiedStats = applyModifiers($item, $mods);
 
-
             // Insert into inventory
             $insertStmt = $conn->prepare(
                 'INSERT INTO player_inventory 
@@ -178,18 +177,22 @@ function handleItemDrops($conn, $playerId, $monsterId)
 
 function rollRarity($rarities)
 {
-    $roll = rand(1, 100);
-    $cumulative = 0;
-
+    // Support float chances (e.g., 0.1) by multiplying by 10 for 0.1% precision
+    $totalChance = 0;
     foreach ($rarities as $rarity) {
-        $cumulative += $rarity['chance'];
+        $totalChance += floatval($rarity['chance']);
+    }
+    $roll = rand(1, intval($totalChance * 10));
+    $cumulative = 0;
+    foreach ($rarities as $rarity) {
+        $cumulative += floatval($rarity['chance']) * 10;
         if ($roll <= $cumulative) {
             return $rarity;
         }
     }
-
     return end($rarities); // fallback
 }
+
 function applyModifiers($baseItem, $modifiers)
 {
     $stats = [
@@ -204,24 +207,44 @@ function applyModifiers($baseItem, $modifiers)
         'stamina'
     ];
 
+    // Start with base stats
+    $modified = [];
     foreach ($stats as $stat) {
-        $baseItem[$stat] = (int) $baseItem[$stat]; // ensure numeric
+        $modified[$stat] = isset($baseItem[$stat]) ? (int)$baseItem[$stat] : 0;
     }
 
+    // Apply modifiers if any
     while ($mod = $modifiers->fetch_assoc()) {
         $stat = $mod['stat_name'];
-        // Get random value between min_value and max_value
         $value = rand($mod['min_value'], $mod['max_value']);
-
-        if (!isset($baseItem[$stat]))
-            continue;
+        if (!isset($modified[$stat])) continue;
 
         if ($mod['modifier_type'] === 'percent') {
-            $baseItem[$stat] += floor($baseItem[$stat] * ($value / 100));
+            $modified[$stat] += floor($modified[$stat] * ($value / 100));
         } elseif ($mod['modifier_type'] === 'fixed') {
-            $baseItem[$stat] += $value;
+            $modified[$stat] += $value;
         }
     }
 
-    return $baseItem;
+    return $modified;
+}
+
+// Test function for rarity distribution (for debugging)
+function testRarityDistribution($rarities, $iterations = 100000) {
+    $results = [];
+    for ($i = 0; $i < $iterations; $i++) {
+        $rarity = rollRarity($rarities);
+        $id = $rarity['id'];
+        if (!isset($results[$id])) $results[$id] = 0;
+        $results[$id]++;
+    }
+    // Output results
+    echo "<table border='1'><tr><th>Rarity ID</th><th>Name</th><th>Chance</th><th>Rolls</th><th>Rate (%)</th></tr>";
+    foreach ($rarities as $rarity) {
+        $id = $rarity['id'];
+        $rolls = isset($results[$id]) ? $results[$id] : 0;
+        $rate = number_format(($rolls / $iterations) * 100, 3);
+        echo "<tr><td>{$id}</td><td>{$rarity['name']}</td><td>{$rarity['chance']}</td><td>{$rolls}</td><td>{$rate}</td></tr>";
+    }
+    echo "</table>";
 }
