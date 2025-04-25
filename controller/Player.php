@@ -235,6 +235,18 @@ class Player
         return null;
     }
     
+    public function getProfile()
+    {
+        $player = $this->fetchProfileDetails();
+        $player['stats'] = $this->getPlayerStats();
+        return $player;
+    }
+    public function getPlayerStats()
+    {
+        $sql = "SELECT travel_count, pvp_battles, pvp_kills, pve_battles, pve_kills FROM player_stats WHERE player_id = ?";
+        $params = [$this->id];
+        return $this->fetchSingleRow($sql, $params);
+    }
 
     public function checkLevelUp($newExp) {
         $currentExp = $this->getExp();
@@ -327,6 +339,53 @@ class Player
         $params = [$x, $y, $area_id, $this->id];
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("iiii", ...$params);
+        $result = $stmt->execute();
+
+        if ($result) {
+            $this->setPlayerTravelCount();
+        }
+        return $result;
+        
+    }
+    public function setPlayerTravelCount() {
+        $sql = "INSERT INTO player_stats (player_id, travel_count) VALUES (?, 1)
+                ON DUPLICATE KEY UPDATE travel_count = travel_count + 1";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
+    }
+    
+    public function setPlayerPvpBattleCount() {
+        $sql = "INSERT INTO player_stats (player_id, pvp_battles) VALUES (?, 1)
+                ON DUPLICATE KEY UPDATE pvp_battles = pvp_battles + 1";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
+    }
+    public function setPlayerPvpBattleWinCount() {
+        $sql = "INSERT INTO player_stats (player_id, pvp_kills) VALUES (?, 1)
+                ON DUPLICATE KEY UPDATE pvp_kills = pvp_kills + 1";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
+    }
+    public function setPlayerPveBattleWinCount() {
+        $sql = "INSERT INTO player_stats (player_id, pve_kills) VALUES (?, 1)
+                ON DUPLICATE KEY UPDATE pve_kills = pve_kills + 1";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
+    }
+    public function setPlayerPveBattleCount() {
+        $sql = "INSERT INTO player_stats (player_id, pve_battles) VALUES (?, 1)
+                ON DUPLICATE KEY UPDATE pve_battles = pve_battles + 1";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
         return $stmt->execute();
     }
 

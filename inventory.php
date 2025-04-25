@@ -48,6 +48,24 @@ function compareStat($invValue, $eqValue) {
 <script src="assets/js/main.js"></script>
 <!-- / Core JS -->
 
+<script>
+function updateInventoryGridCols() {
+  const section = document.getElementById('inventorySection');
+  if (!section) return;
+  const width = section.parentElement.clientWidth || window.innerWidth;
+  let cols = 2;
+  if (width >= 1200) {
+    cols = 4;
+  } else if (width >= 700) {
+    cols = 3;
+  }
+  section.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+}
+
+window.addEventListener('resize', updateInventoryGridCols);
+window.addEventListener('DOMContentLoaded', updateInventoryGridCols);
+$(document).ready(updateInventoryGridCols);
+</script>
 
 </body>
 

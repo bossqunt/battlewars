@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $player = $result->fetch_assoc();
         if (password_verify($password, $player['password'])) {
             // Set player as online and update last_active
-            $updateStmt = $conn->prepare("UPDATE players SET online = 1, online_last = NOW() WHERE id = ?");
+            $updateStmt = $conn->prepare("UPDATE players SET online = 1, token_expire = NOW() + 3600 WHERE id = ?");
             $updateStmt->bind_param("i", $player['id']);
             $updateStmt->execute();
             $updateStmt->close();

@@ -3,8 +3,8 @@ require_once('../controller/Database.php');
 require_once('../controller/Battle.php');
 
 // Set your test player and monster IDs here
-$testPlayerId = 67;
-$testMonsterId = 55;
+$testPlayerId = 1;
+$testMonsterId = 9;
 
 // Setup DB connection
 $database = new Database();
@@ -12,7 +12,7 @@ $conn = $database->getConnection();
 
 // Run the drop logic multiple times to see distribution
 $dropResults = [];
-$iterations = 10000;
+$iterations = 100;
 
 // Track win/loss
 $winCount = 0;

@@ -15,43 +15,30 @@ async function updateOnlinePlayers() {
     const onlineCountElem = document.getElementById('online-player-count');
     if (onlineCountElem) {
       onlineCountElem.textContent = data.count;
-    }
 
-    // Attach click handler to the button (not the count span)
-    const onlineBtn = document.getElementById('online-players');
-    if (onlineBtn) {
-      onlineBtn.onclick = () => {
-        const listContainer = document.getElementById('online-players-list');
-        const cardsContainer = document.getElementById('online-players-cards');
-        if (!listContainer || !cardsContainer) return;
-
-        // Toggle visibility
-        if (listContainer.style.display === 'none' || listContainer.style.display === '') {
-          // Show and populate
-          listContainer.style.display = 'flex';
-          // Optionally reduce grid width
-          const gridController = document.getElementById('grid-controller');
-          if (gridController) gridController.style.width = 'calc(100% - 660px)';
-          // Build player cards
-          cardsContainer.innerHTML = '';
-          if (data.players && data.players.length > 0) {
-            data.players.forEach(p => {
-              const card = document.createElement('div');
-              card.className = 'online-player-card flex items-center gap-2 p-2 border rounded bg-white mb-1';
-              card.innerHTML = `<span class="text-xs font-bold text-blue-700">${p.name}</span>
-                                <span class="text-xs text-gray-600">Lv.${p.level}</span>`;
-              cardsContainer.appendChild(card);
-            });
-          } else {
-            cardsContainer.innerHTML = '<div class="text-xs text-gray-500">No players online.</div>';
-          }
+      // Add click event to show player list in a modal or alert
+      onlineCountElem.onclick = () => {
+        if (data.players && data.players.length > 0) {
+          const list = data.players.map(p => `${p.name} (Lv.${p.level})`).join('<br>');
+          // Simple modal or alert, replace with your own modal if desired
+          const modal = document.createElement('div');
+          modal.style.position = 'fixed';
+          modal.style.top = '50%';
+          modal.style.left = '50%';
+          modal.style.transform = 'translate(-50%, -50%)';
+          modal.style.background = '#fff';
+          modal.style.padding = '20px';
+          modal.style.border = '1px solid #888';
+          modal.style.zIndex = 10000;
+          modal.innerHTML = `<h3>Online Players (${data.count})</h3><div style="max-height:300px;overflow:auto;">${list}</div><button id="close-online-modal" style="margin-top:10px;">Close</button>`;
+          document.body.appendChild(modal);
+          document.getElementById('close-online-modal').onclick = () => modal.remove();
         } else {
-          // Hide
-          listContainer.style.display = 'none';
-          const gridController = document.getElementById('grid-controller');
-          if (gridController) gridController.style.width = '';
+          alert('No players online.');
         }
       };
+    } else {
+      console.log('Element #online-player-count not found');
     }
   } catch (e) {
     console.error('Error fetching online players:', e);

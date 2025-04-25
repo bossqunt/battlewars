@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $x = rand(0, 8);
             $y = rand(0, 8);
-
+ 
 
         // Update the player's location
         $updateSuccess = $player->updateLocation($x, $y, $area_id);

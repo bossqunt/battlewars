@@ -89,3 +89,25 @@ export function updateGridOwner(playerData) {
     }
   }
 }
+
+export function updateGridCellSize() {
+  const gridCols = 9;
+  const gridRows = 9;
+  const gridContainer = document.getElementById('grid-container');
+  if (!gridContainer) return;
+  const parent = gridContainer.parentElement;
+  if (!parent) return;
+
+  const style = window.getComputedStyle(parent);
+  const parentWidth = parent.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 18;
+  const parentHeight = parent.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - 18 - 64;
+
+  const cellWidth = Math.floor(parentWidth / gridCols);
+  const cellHeight = Math.floor(parentHeight / gridRows);
+  const size = Math.max(24, Math.min(cellWidth, cellHeight, 64));
+
+  gridContainer.style.setProperty('--grid-cell-size', size + 'px');
+}
+
+window.addEventListener('resize', updateGridCellSize);
+window.addEventListener('DOMContentLoaded', updateGridCellSize);

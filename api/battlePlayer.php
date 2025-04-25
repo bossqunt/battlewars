@@ -40,11 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
         if($opponentCurrentHp <= 0) {
+            $player->setPlayerPvpBattleCount();
+            $player->setPlayerPvpBattleWinCount();
             $battleLog['result'] = "You're lucky, your opponent is already dead.. ";
             $battleLog['victory'] = 1;
             $battleLog['battle'] = "The tile is yours for the taking..";
             echo json_encode($battleLog);
-            $player->setCurrentAreaOwnerAsPlayer($areaid, $x, $y);
+            $player->setCurrentAreaOwnerAsPlayer($areaid, $x, $y);         
+            $battleLog['world_event'] = "{$player->getName()} has killed {$opponent->getName()} and taken ownership of grid ($x, $y) in area $areaid!";
+            updateWorldEvent($conn, $playerId, $battleLog['world_event']);
             exit();
         }
         if($player->getStamina() <= 0) {
@@ -134,10 +138,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $battleLog['result'] = "{$player->getName()} has been defeated...";
             $battleLog['victory'] = 0;
             $playerWon = 0;
-            updateBattleHistory($conn, $playerId, $opponentId, null, $battleLog['result'], $battleLog['outcome'], 0, 0, $battleLog['victory'] = 0);
             $player->updatePlayerBattleReward($playerCurrentHp, 0, 0);
-            // comment this line for player testing.. this will update opponents HP to 0
-            //$opponent->updatePlayerBattleReward($playerCurrentHp,0,0);
+            $player->setPlayerPvpBattleCount();
+            $opponent->updatePlayerBattleReward($playerCurrentHp,0,0);
+
+            updateBattleHistory($conn, $playerId, $opponentId, null, $battleLog['result'], $battleLog['outcome'], 0, 0, $battleLog['victory'] = 0);
+
         } elseif ($opponentCurrentHp <= 0) {
             $battleLog['outcome'] = json_encode($battleLog['battle']);
             $battleLog['result'] = "{$player->getName()} wins the battle against " . $opponent->getName();
@@ -145,17 +151,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $battleLog['exp'] = 'you received no exp';
             $battleLog['gold'] = 'you received no gold';
             $battleLog['loot_message'] = "You own ($x, $y) in area $areaid!";
-            updateBattleHistory($conn, $playerId, $opponentId, null, $battleLog['result'], $battleLog['outcome'], $battleLog['victory']);
             $battleLog['world_event'] = "{$player->getName()} has killed {$opponent->getName()} and taken ownership of grid ($x, $y) in area $areaid!";
-            updateWorldEvent($conn, $playerId, $battleLog['world_event']);
-            //takeOwnership($conn, $playerId, $opponentId, $areaid, $x, $y);
-            // adjust players final HP
+            $player->setPlayerPvpBattleCount();
+            $player->setPlayerPvpBattleWinCount();
             $player->updatePlayerBattleReward($playerCurrentHp);
             $player->setCurrentAreaOwnerAsPlayer($areaid, $x, $y);
-            // comment this line for player testing.. this will update opponents HP to 0
-            //$opponent->updatePlayerBattleReward($opponentCurrentHp);
-        }
+            $opponent->updatePlayerBattleReward($opponentCurrentHp);
 
+            updateBattleHistory($conn, $playerId, $opponentId, null, $battleLog['result'], $battleLog['outcome'], $battleLog['victory']);
+            updateWorldEvent($conn, $playerId, $battleLog['world_event']);
+        }
         echo json_encode($battleLog);
     } else {
         echo json_encode(array("status" => "error", "message" => "Error: You are unauthorised :)" ));
