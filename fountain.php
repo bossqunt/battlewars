@@ -21,14 +21,14 @@ $player = new Player($conn, $playerId);
 $playerDetails = $player->getDetails();
 
 // Default healing cost
-$healing_cost = 10 * 5;
+$healing_cost = ($playerDetails['level'] + 10) * 5;
 
 // Prepare toast message and type for JS
 $toastMsg = null;
 $toastType = null;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $healing_cost = 10 + $playerDetails['level'] * 5; // Calculate the cost based on the player's level
+    $healing_cost = ($playerDetails['level'] + 10) * 5; 
 
     if ($playerDetails['c_hp'] == $playerDetails['max_hp']) {
         $toastMsg = 'You are already at full health.';

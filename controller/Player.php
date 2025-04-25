@@ -9,10 +9,7 @@ class Player
     {
         return $this->getAttribute('id');
     }
-    public function getSpeed()
-    {
-        return $this->getAttribute('speed');
-    }
+
     public function getLevel()
     {
         return $this->getAttribute('level');
@@ -77,6 +74,12 @@ class Player
 
         return $playerAttack + $itemAttack;
     }
+    public function getSpeed()
+    {
+        $playerSpeed = $this->getPlayerAttribute('speed');
+        $itemSpeed = $this->getPlayerItemSpeed();
+        return $playerSpeed + $itemSpeed;
+    }
 
     // Fetches a single attribute for the player from the players table
     private function getPlayerAttribute($attributeName)
@@ -92,6 +95,16 @@ class Player
     public function getPlayerItemAttack()
     {
         $query = "SELECT SUM(pi.attack + i.attack) AS total_attack 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
+                WHERE pi.player_id = ? AND pi.equipped = 1";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($query, $params);
+
+        return $row ? (int)$row['total_attack'] : 0;
+    }
+    public function getPlayerItemSpeed()
+    {
+        $query = "SELECT SUM(pi.speed + i.speed) AS total_attack 
                 FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
                 WHERE pi.player_id = ? AND pi.equipped = 1";
         $params = [$this->id];

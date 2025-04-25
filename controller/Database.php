@@ -24,4 +24,5 @@ class Database {
     //     $this->conn->close();
     // }
 }
+
 ?>

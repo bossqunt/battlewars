@@ -93,7 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $critMulti  = $isPlayer && method_exists($attacker, 'getPlayerItemCritMulti') ? $attacker->getPlayerItemCritMulti() : 1;
             $isCrit = false;
             if ($critChance > 0 && rand(1, 100) <= $critChance) {
-                $finalDamage = intval($finalDamage * $critMulti);
+                if($critMulti = 0) {
+                    $critMulti = 1.5; // Default crit multiplier if not set
+                    $finalDamage = intval($finalDamage * $critMulti);
+                }
+                $finalDamage = intval($finalDamage * 1.5);
                 $isCrit = true;
             }
 
@@ -153,11 +157,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 break;
 
             // Speed-based consecutive attack: 10% chance if faster
-            if ($playerSpeed > $monsterSpeed && $firstTurn === $player && rand(1, 100) <= 10) {
+            if ($playerSpeed > $monsterSpeed && $firstTurn === $player && rand(1, 100) <= 2) {
                 $battleLog['battle'][] = "{$player->getName()} attacks consecutively due to speed advantage!";
                 continue;
             }
-            if ($monsterSpeed > $playerSpeed && $firstTurn === $monster && rand(1, 100) <= 10) {
+            if ($monsterSpeed > $playerSpeed && $firstTurn === $monster && rand(1, 100) <= 2) {
                 $battleLog['battle'][] = "{$monster->getName()} attacks consecutively due to speed advantage!";
                 continue;
             }
@@ -231,13 +235,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     if ($item) {
                         $lootMessage .= "{$item['name']} (x{$item['quantity']}), ";
 
-                        // Trigger world event if rarity >= 1
-                        if (!$worldEventTriggered && isset($item['rarity']) && $item['rarity'] >= 1) {
-                 
-                            $rarity_name = $player->getItemRarity($item['rarity']);
-                            $worldEvent = "{$player->getName()} has looted a {$rarity_name} {$item['name']}!";
-                            updateWorldEvent($conn, $playerId, $worldEvent);
-                            $worldEventTriggered = true;
+                        // Trigger world event if rarity >= 0.1 (0.1%)
+                        if (
+                            !$worldEventTriggered &&
+                            isset($item['rarity']) &&
+                            is_numeric($item['rarity']) &&
+                            floatval($item['rarity']) >= 0.1
+                        ) {
+                            // Always treat rarity as float, e.g. 90 = 90%, 0.1 = 0.1%
+                            $rarityFloat = floatval($item['rarity']);
+                            // Roll out of 1000 for 0.1% precision
+                            if (mt_rand(1, 1000) <= ($rarityFloat * 10)) {
+                                $rarity_name = $player->getItemRarity($item['rarity']);
+                                $worldEvent = "{$player->getName()} has looted a {$rarity_name} {$item['name']}!";
+                                updateWorldEvent($conn, $playerId, $worldEvent);
+                                $worldEventTriggered = true;
+                            }
                         }
                     }
                 }

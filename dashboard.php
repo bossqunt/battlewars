@@ -87,7 +87,7 @@ include 'includes/sidebar.php';
   </div>
   <!-- World Events as a new row at the bottom -->
   <div class="col-span-12">
-    <div class="border rounded-md p-3 bg-card/50 mt-2">
+    <div class="border rounded-md p-3 bg-card/50 mt-2 ">
       <h2 class="text-sm font-medium mb-2">World Events</h2>
       <div>
         <div id="world-events" 
