@@ -73,11 +73,16 @@ $(document).ready(updateInventoryGridCols);
 
 <script type="module">
 import { showToast } from './assets/js/ui.js';
+
+// Add a list of all equipment types
+const EQUIP_TYPES = ['Weapon', 'Shield', 'Helmet', 'Armor', 'Legs', 'Boots', 'Amulet', 'Ring'];
+
 function renderItemCard(item, isEquipped = false, equippedItems = {}) {
-  const stats = ['attack', 'defense', 'crit_multi', 'crit_chance', 'speed', 'health', 'stamina', 'life_steal'];
+  const stats = ['attack', 'defence', 'crit_multi', 'crit_chance', 'speed', 'health', 'stamina', 'life_steal'];
 
   const equippedItem = equippedItems[item.type]; // Match equipped item by type
 
+  console.log('Equipped Item:', equippedItem); // Debugging line
   const statHtml = stats.map(stat => {
   const value = item[stat];
   if (value != 0) {
@@ -200,7 +205,22 @@ function getRarityLabel(rarity) {
       }
     }
 
-    function loadInventory() {
+// Add a function to render an empty placeholder card for a given type
+function renderEmptyEquipCard(type) {
+  return `
+    <div class="bg-white/60 rounded-xl p-3 text-sm space-y-2 border-2 border-dotted border-gray-400 flex flex-col justify-between min-h-[140px]">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="font-semibold text-gray-400">Empty</div>
+          <div class="text-xs text-muted-foreground capitalize">${type}</div>
+        </div>
+      </div>
+      <div class="text-xs text-gray-300 italic pt-4">No item equipped</div>
+    </div>
+  `;
+}
+
+function loadInventory() {
   $.get('api/getPlayerInventory.php', data => {
     $('#equippedSection').html('');
     $('#inventorySection').html('');
@@ -209,7 +229,15 @@ function getRarityLabel(rarity) {
     data.equipped.forEach(item => {
       item.rarity_text = getRarityLabel(item.rarity);
       equippedItems[item.type] = item;
-      $('#equippedSection').append(renderItemCard(item, true));
+    });
+
+    // Render equipped items or empty slots for each type
+    EQUIP_TYPES.forEach(type => {
+      if (equippedItems.hasOwnProperty(type)) {
+        $('#equippedSection').append(renderItemCard(equippedItems[type], true));
+      } else {
+        $('#equippedSection').append(renderEmptyEquipCard(type));
+      }
     });
 
     data.inventory.forEach(item => {
@@ -218,8 +246,6 @@ function getRarityLabel(rarity) {
     });
   });
 }
-
-
 
 $(document).ready(function () {
   loadInventory();

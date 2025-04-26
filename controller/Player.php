@@ -1,5 +1,12 @@
 <?php
 
+
+// TODO:
+// - Fix methods for all base attributes, they are currently derived from the player table instead of items/inventory_items
+// - Fix method namming... getPlayerItemAttack() should be getEquippedItemAttack() - There should only be 1 attack method.. getAttack()
+// - Find duplicate/overlapping methods and consolidate
+// - Get should be used instead of fetch 
+
 class Player
 {
     private $conn;
@@ -16,7 +23,18 @@ class Player
     }
     public function getDefence()
     {
-        return $this->getAttribute('defence');
+        $playerDefence = $this->getPlayerAttribute('defence');
+        $playerItemDefence = $this->getPlayerItemDefence();
+        return $playerDefence + $playerItemDefence;
+    }
+    public function getPlayerItemDefence() {
+        $query = "SELECT SUM(pi.defence + i.defence) AS total_defence 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
+                WHERE pi.player_id = ? AND pi.equipped = 1";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($query, $params);
+
+        return $row ? (int)$row['total_defence'] : 0;
     }
     public function getMagicLevel()
     {
@@ -32,8 +50,21 @@ class Player
     }
     public function getMaxHp()
     {
-        return $this->getAttribute('max_hp');
+        $playerMaxHp = $this->getAttribute('max_hp');
+        $playerItemHp = $this->getPlayerItemHealth();
+         
+        return $playerMaxHp + $playerItemHp;
     }
+    function getPlayerItemHealth() {
+        $query = "SELECT SUM(pi.health + i.health) AS total_health 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
+                WHERE pi.player_id = ? AND pi.equipped = 1";
+        $params = [$this->id];
+        $row = $this->fetchSingleRow($query, $params);
+
+        return $row ? (int)$row['total_health'] : 0;
+    }
+        
     public function getName()
     {
         $name = $this->getAttribute('name');
@@ -64,7 +95,6 @@ class Player
         $this->conn = $conn;
         $this->id = $id;
     }
-
 
     // Fetches the attack attribute from multiple sources
     public function getAttack()
@@ -125,8 +155,8 @@ class Player
     }
     public function getPlayerItemCritMulti()
     {
-        $query = "SELECT SUM(pi.crit_multi) AS crit_multi 
-                FROM player_inventory pi 
+        $query = "SELECT SUM(pi.crit_multi + i.crit_multi) AS crit_multi 
+                FROM player_inventory pi INNER JOIN items i ON i.id = pi.item_id
                 WHERE pi.player_id = ? AND pi.equipped = 1";
         $params = [$this->id];
         $row = $this->fetchSingleRow($query, $params);
@@ -206,8 +236,7 @@ class Player
       {
           $query = "
               SELECT p.id, p.level, p.name, p.image_path, p.exp, e.exp_req, p.gold, p.max_hp, p.max_mp,
-                     p.c_hp, p.c_mp, p.attack, p.speed, p.magic_level, p.defence, p.skill_points,
-                     p.sword, p.axe, p.distance, p.club, p.shielding, p.fist, p.stamina,
+                     p.c_hp, p.c_mp, p.attack, p.speed, p.defence, p.stamina,
                      pc.name AS class
               FROM players p
               LEFT JOIN exp_table e ON e.level = p.level
@@ -238,8 +267,31 @@ class Player
     public function getProfile()
     {
         $player = $this->fetchProfileDetails();
-        $player['stats'] = $this->getPlayerStats();
-        return $player;
+
+        // Build the response using getter methods for calculated stats
+        $profile = [
+            'id'         => $this->getId(),
+            'name'       => $this->getName(),
+            'level'      => $this->getLevel(),
+            'image_path' => $player['image_path'] ?? null,
+            'exp'        => $this->getExp(),
+            'exp_req'    => $this->getRequiredExp(),
+            'class'      => $player['class'] ?? null,
+            'attack'     => $this->getAttack(),
+            'defence'    => $this->getDefence(),
+            'speed'      => $this->getSpeed(),
+            'max_hp'     => $this->getMaxHp(),
+            'c_hp'       => $this->getCurrentHp(),
+            'stamina'    => $this->getStamina(),
+            // Add more calculated stats as needed:
+            'crit_chance'   => $this->getPlayerItemCritChance(),
+            'crit_multi'    => $this->getPlayerItemCritMulti(),
+            'life_steal'    => $this->getPlayerItemLifesteal(),
+            // Add health_regen, etc. if you have methods for them
+            'stats'      => $this->getPlayerStats(),
+        ];
+
+        return $profile;
     }
     public function getPlayerStats()
     {
@@ -399,7 +451,7 @@ class Player
         i.name, 
         i.type, 
         i.life_steal + pi.life_steal as life_steal, 
-        i.defense + pi.defense as defense, 
+        i.defence + pi.defence as defence, 
         i.speed + pi.speed as speed, 
         i.stamina + pi.stamina as stamina, 
         i.health + pi.health as health, 
@@ -422,7 +474,7 @@ class Player
         i.name, 
         i.type, 
         i.life_steal + pi.life_steal as life_steal,
-        i.defense + pi.defense as defense,
+        i.defence + pi.defence as defence,
         i.speed + pi.speed as speed, 
         i.stamina + pi.stamina as stamina, 
         i.health + pi.health as health, 

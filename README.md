@@ -93,7 +93,7 @@ CREATE TABLE items (
     type VARCHAR(32) NOT NULL,
     rarity_id INT NOT NULL,
     attack INT DEFAULT 0,
-    defense INT DEFAULT 0,
+    defence INT DEFAULT 0,
     crit_multi INT DEFAULT 0,
     crit_chance INT DEFAULT 0,
     speed INT DEFAULT 0,
@@ -131,7 +131,7 @@ CREATE TABLE market_listings (
 -- Uncommon
 INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_value, max_value) VALUES
 (2, 'attack', 'percent', 3, 6),
-(2, 'defense', 'percent', 3, 6),
+(2, 'defence', 'percent', 3, 6),
 (2, 'crit_chance', 'percent', 2, 4),
 (2, 'health', 'percent', 3, 5),
 (2, 'stamina', 'percent', 3, 5);
@@ -139,7 +139,7 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 -- Rare
 INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_value, max_value) VALUES
 (3, 'attack', 'percent', 8, 12),
-(3, 'defense', 'percent', 8, 12),
+(3, 'defence', 'percent', 8, 12),
 (3, 'crit_chance', 'percent', 5, 8),
 (3, 'crit_multi', 'percent', 8, 12),
 (3, 'health', 'percent', 8, 12),
@@ -149,7 +149,7 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 -- Epic
 INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_value, max_value) VALUES
 (4, 'attack', 'percent', 12, 18),
-(4, 'defense', 'percent', 12, 18),
+(4, 'defence', 'percent', 12, 18),
 (4, 'crit_chance', 'percent', 8, 12),
 (4, 'crit_multi', 'fixed', 4, 7),
 (4, 'life_steal', 'fixed', 2, 4),
@@ -159,7 +159,7 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 -- Legendary
 INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_value, max_value) VALUES
 (5, 'attack', 'fixed', 20, 30),
-(5, 'defense', 'fixed', 20, 30),
+(5, 'defence', 'fixed', 20, 30),
 (5, 'crit_chance', 'fixed', 8, 12),
 (5, 'crit_multi', 'fixed', 10, 20),
 (5, 'life_steal', 'fixed', 6, 10),
@@ -191,7 +191,7 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 
 ### Damage Calculation
 - **Base Damage:**  
-  `damage = attacker.attack - defender.defense`
+  `damage = attacker.attack - defender.defence`
 - If `damage < 1`, set `damage = 1` (minimum damage).
 - **Critical Hit:**  
   - Each attack has a chance to crit:  
@@ -206,7 +206,7 @@ INSERT INTO item_rarity_modifiers (rarity_id, stat_name, modifier_type, min_valu
 
 ### Example (Pseudo-PHP)
 ```php
-$damage = max(1, $attacker['attack'] - $defender['defense']);
+$damage = max(1, $attacker['attack'] - $defender['defence']);
 if (rand(0, 100) < $attacker['crit_chance']) {
     $damage *= $attacker['crit_multi'];
 }
@@ -222,8 +222,8 @@ if ($attacker['life_steal'] > 0) {
 ---
 
 ## Big Features to Build
-- [ ] Online player list display
-- [ ] Passive Regeneration
+- [x] Online player list display
+- [x] Passive Regeneration
 - [ ] Level-up Stats
 - [ ] Temporary stat buff consumables
 - [x] Item Generation & Monster Loot Tables
@@ -232,11 +232,12 @@ if ($attacker['life_steal'] > 0) {
 - [ ] Potential animations? (Player/Monster/Items?)
 - [ ] Guilds
 - [ ] Unique attributes (Attributes determine other attribute bonuses)
-- [ ] Placeholder Inventory Slots (So people know what can be equipped)
+- [x] Placeholder Inventory Slots (So players know what can be equipped)
 - [x] Add monster attributes to battle
-- [ ] Add emphasis on nearby monsters border (to emphasize boss encounter)
+- [x] Add emphasis on nearby monsters border (to emphasize boss encounter)
 - [ ] Add x0 y0 as non-pvp/no ownership
 - [ ] Remove crit chance from armors.. (and scale for weapons)
+- [ ] Home page and UI Refactoring
 ## Known Issues / To-Do List
 
 - [x] Redirect after registration is not working
@@ -251,6 +252,7 @@ if ($attacker['life_steal'] > 0) {
 - [ ] Consolidate rarity classes (**NOT FIXED FOR BE**)
 - [x] Move inventory count outside of dashboard into playerStats class (**FIXED**)
 - [x] Display level of monster
+- [ ] Introduce item drop from global drop pool (< item_id dropped by current monster drop-pool)
 
 ---
 

@@ -35,10 +35,10 @@ function getPrefixConfig($name, $prefixConfigs) {
 
 // Weapon subtype base stats config (per subtype)
 $weaponSubtypeBaseStats = [
-    'Sword' => ['attack' => 6, 'defense' => 4, 'speed' => 4, 'crit_chance' => 1, 'crit_multi' => 1],
-    'Axe'   => ['attack' => 8, 'defense' => 1, 'speed' => 2, 'crit_chance' => 1, 'crit_multi' => 0],
-    'Dagger'=> ['attack' => 4, 'defense' => 1, 'speed' => 7, 'crit_chance' => 2, 'crit_multi' => 2],
-    'Spear' => ['attack' => 7, 'defense' => 3, 'speed' => 5, 'crit_chance' => 1, 'crit_multi' => 1],
+    'Sword' => ['attack' => 6, 'defence' => 4, 'speed' => 4, 'crit_chance' => 1, 'crit_multi' => 1],
+    'Axe'   => ['attack' => 8, 'defence' => 1, 'speed' => 2, 'crit_chance' => 1, 'crit_multi' => 0],
+    'Dagger'=> ['attack' => 4, 'defence' => 1, 'speed' => 7, 'crit_chance' => 2, 'crit_multi' => 2],
+    'Spear' => ['attack' => 7, 'defence' => 3, 'speed' => 5, 'crit_chance' => 1, 'crit_multi' => 1],
 ];
 
 $itemTypes = ['Weapon', 'Helmet', 'Armor', 'Boots', 'Shield', 'Amulet', 'Ring', 'Legs'];
@@ -65,7 +65,7 @@ $itemNames = [
         'Ring of CritMulti',
         'Ring of Lifesteal',
         'Ring of Health',
-        'Ring of Defense',
+        'Ring of Defence',
         'Ring of Stamina'
     ],
     'Legs' => ['Legs']
@@ -78,7 +78,7 @@ $amuletSubtypeBaseStats = [
     'Amulet of CritMulti'  => ['crit_multi' => 2],
     'Amulet of Lifesteal'  => ['life_steal' => 2],
     'Amulet of Health'     => ['health' => 10],
-    'Amulet of Defense'    => ['defense' => 2],
+    'Amulet of Defense'    => ['defence' => 2],
     'Amulet of Stamina'    => ['stamina' => 5],
 ];
 $ringSubtypeBaseStats = [
@@ -87,20 +87,20 @@ $ringSubtypeBaseStats = [
     'Ring of CritMulti'  => ['crit_multi' => 1],
     'Ring of Lifesteal'  => ['life_steal' => 1],
     'Ring of Health'     => ['health' => 5],
-    'Ring of Defense'    => ['defense' => 1],
+    'Ring of Defence'    => ['defence' => 1],
     'Ring of Stamina'    => ['stamina' => 3],
 ];
 
 // Define stat categories for each item type (all integer ranges)
 $baseStats = [
-    'Weapon' => ['attack' => [5, 5], 'defense' => [0, 5], 'crit_chance' => [2, 15], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
-    'Helmet' => ['attack' => [0, 0], 'defense' => [1, 1], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
-    'Armor' => ['attack' => [1, 1], 'defense' => [1, 1], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [5, 10], 'stamina' => [0, 0]],
-    'Boots' => ['attack' => [1, 1], 'defense' => [0, 5], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [1, 1], 'health' => [0, 0], 'stamina' => [0, 0]],
-    'Shield' => ['attack' => [1, 1], 'defense' => [5, 10], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
-    'Amulet' => ['attack' => [0, 0], 'defense' => [0, 0], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
-    'Ring' => ['attack' => [0, 0], 'defense' => [0, 0], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
-    'Legs' => ['attack' => [1, 1], 'defense' => [5, 10], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [8, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Weapon' => ['attack' => [5, 5], 'defence' => [0, 5], 'crit_chance' => [2, 15], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Helmet' => ['attack' => [0, 0], 'defence' => [1, 1], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Armor' => ['attack' => [1, 1], 'defence' => [1, 1], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [5, 10], 'stamina' => [0, 0]],
+    'Boots' => ['attack' => [1, 1], 'defence' => [0, 5], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [1, 1], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Shield' => ['attack' => [1, 1], 'defence' => [5, 10], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Amulet' => ['attack' => [0, 0], 'defence' => [0, 0], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Ring' => ['attack' => [0, 0], 'defence' => [0, 0], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [0, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
+    'Legs' => ['attack' => [1, 1], 'defence' => [5, 10], 'crit_chance' => [0, 0], 'crit_multi' => [0, 0], 'life_steal' => [0, 0], 'armor' => [8, 0], 'speed' => [0, 0], 'health' => [0, 0], 'stamina' => [0, 0]],
 ];
 
 // Function to generate random stats within the specified ranges (always integer)
@@ -209,7 +209,7 @@ function generateItem($type, $itemNames, $baseStats, $prefixConfig, $subtype = n
         'type' => $type,
         'level_range' => $prefixConfig['level_range'],
         'attack' => $stats['attack'],
-        'defense' => $stats['defense'],
+        'defence' => $stats['defence'],
         'crit_chance' => $stats['crit_chance'],
         'crit_multi' => $stats['crit_multi'],
         'life_steal' => $stats['life_steal'],
@@ -317,7 +317,7 @@ function generateItemTable($types, $itemNames, $baseStats, $prefixConfigs, $grou
                         <td class="px-3 py-2">' . $item['type'] . '</td>
                         <td class="px-3 py-2">' . $levelRange . '</td>
                         <td class="px-3 py-2">' . $item['attack'] . '</td>
-                        <td class="px-3 py-2">' . $item['defense'] . '</td>
+                        <td class="px-3 py-2">' . $item['defence'] . '</td>
                         <td class="px-3 py-2">' . $item['crit_chance'] . '</td>
                         <td class="px-3 py-2">' . $item['crit_multi'] . '</td>
                         <td class="px-3 py-2">' . $item['life_steal'] . '</td>
@@ -332,7 +332,7 @@ function generateItemTable($types, $itemNames, $baseStats, $prefixConfigs, $grou
             foreach ($rarities as $rid => $rname) {
                 $subrow = '<tr class="rarity-subrow" style="font-size:11px;">';
                 $subrow .= '<td colspan="3"></td>'; // skip name, type, level range
-                foreach (['attack', 'defense', 'crit_chance', 'crit_multi', 'life_steal', 'armor', 'speed', 'health', 'stamina', 'gold'] as $stat) {
+                foreach (['attack', 'defence', 'crit_chance', 'crit_multi', 'life_steal', 'armor', 'speed', 'health', 'stamina', 'gold'] as $stat) {
                     $base = $item[$stat];
                     $mod = null;
                     if (isset($modifiers[$rid])) {

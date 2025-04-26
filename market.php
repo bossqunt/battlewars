@@ -84,10 +84,10 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
         <span class="text-foreground font-medium"><?= (int)$listing['attack'] ?></span>
       </div>
     <?php endif; ?>
-    <?php if ($listing['defense'] ?? 0): ?>
+    <?php if ($listing['defence'] ?? 0): ?>
       <div class="flex justify-start gap-1">
-        <span class="text-muted-foreground ">Defense</span>
-        <span class="text-foreground font-medium "><?= (int)$listing['defense'] ?></span>
+        <span class="text-muted-foreground ">defence</span>
+        <span class="text-foreground font-medium "><?= (int)$listing['defence'] ?></span>
       </div>
     <?php endif; ?>
     <?php if ($listing['speed'] ?? 0): ?>

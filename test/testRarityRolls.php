@@ -82,10 +82,10 @@ foreach ($rolls as $i => $roll) {
     echo "<td>" . htmlspecialchars($roll['rarity_chance']) . "</td>";
     echo "<td>" . htmlspecialchars($roll['base']['attack']) . "</td>";
     echo "<td>" . htmlspecialchars($roll['base']['crit_chance']) . "</td>";
-    echo "<td>" . htmlspecialchars($roll['base']['defense']) . "</td>";
+    echo "<td>" . htmlspecialchars($roll['base']['defence']) . "</td>";
     echo "<td>" . htmlspecialchars($roll['modified']['attack']) . "</td>";
     echo "<td>" . htmlspecialchars($roll['modified']['crit_chance']) . "</td>";
-    echo "<td>" . htmlspecialchars($roll['modified']['defense']) . "</td>";
+    echo "<td>" . htmlspecialchars($roll['modified']['defence']) . "</td>";
     echo "<td><small>" . htmlspecialchars(json_encode($roll['base'])) . "</small></td>";
     echo "<td><small>" . htmlspecialchars(json_encode($roll['modified'])) . "</small></td>";
     echo "</tr>";

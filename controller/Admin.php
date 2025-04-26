@@ -52,9 +52,9 @@ class SaveHandler {
   public function saveItem($data) {
     if (!isset($data['id'])) return $this->errorResponse('Missing ID');
 
-    $stmt = $this->conn->prepare("UPDATE items SET name=?, type=?, attack=?, defense=?, crit_chance=?, crit_multi=?, life_steal=?, armor=?, speed=?, health=?, stamina=?, quantity=? WHERE id=?");
+    $stmt = $this->conn->prepare("UPDATE items SET name=?, type=?, attack=?, defence=?, crit_chance=?, crit_multi=?, life_steal=?, armor=?, speed=?, health=?, stamina=?, quantity=? WHERE id=?");
     $stmt->bind_param("ssiiiiiiiiiii",
-      $data['name'], $data['type'], $data['attack'], $data['defense'],
+      $data['name'], $data['type'], $data['attack'], $data['defence'],
       $data['crit_chance'], $data['crit_multi'], $data['life_steal'],
       $data['armor'], $data['speed'], $data['health'],
       $data['stamina'], $data['quantity'], $data['id']
@@ -70,9 +70,9 @@ class SaveHandler {
   }
 
   public function addItem($data) {
-    $stmt = $this->conn->prepare("INSERT INTO items (name, type, attack, defense, crit_chance, crit_multi, life_steal, armor, speed, health, stamina, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $this->conn->prepare("INSERT INTO items (name, type, attack, defence, crit_chance, crit_multi, life_steal, armor, speed, health, stamina, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssiiiiiiiiii",
-      $data['name'], $data['type'], $data['attack'], $data['defense'],
+      $data['name'], $data['type'], $data['attack'], $data['defence'],
       $data['crit_chance'], $data['crit_multi'], $data['life_steal'],
       $data['armor'], $data['speed'], $data['health'],
       $data['stamina'], $data['quantity']

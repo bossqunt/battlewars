@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['item_name'];
     $type = $_POST['item_type'];
     $attack = $_POST['attack'];
-    $defense = $_POST['defense'];
+    $defence = $_POST['defence'];
     $critChance = $_POST['crit_chance'];
     $critMulti = $_POST['crit_multi'];
     $lifeSteal = $_POST['life_steal'];
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         name='$name', 
         type='$type', 
         attack=$attack, 
-        defense=$defense, 
+        defence=$defence, 
         crit_chance=$critChance, 
         crit_multi=$critMulti, 
         life_steal=$lifeSteal, 
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } elseif (isset($_POST['add_item'])) {
     $name = $_POST['item_name'];
     $type = $_POST['item_type'];
-    $conn->getConnection()->query("INSERT INTO items (name, type, attack, defense, crit_chance, crit_multi, life_steal, armor, speed, health, stamina, quantity) VALUES 
+    $conn->getConnection()->query("INSERT INTO items (name, type, attack, defence, crit_chance, crit_multi, life_steal, armor, speed, health, stamina, quantity) VALUES 
         ('$name', '$type', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)");
     header("Location: " . $_SERVER['REQUEST_URI']);
     exit;
@@ -241,7 +241,7 @@ $itemTypes = ['weapon', 'helmet', 'accessory', 'legs', 'ring', 'shield', 'boots'
             <td class="p-2"><input type="text" name="item_name" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['name'] ?>"></td>
             <td class="p-2"><input type="text" name="item_type" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['type'] ?>"></td>
             <td class="p-2"><input type="number" name="attack" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['attack'] ?>"></td>
-            <td class="p-2"><input type="number" name="defense" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['defense'] ?>"></td>
+            <td class="p-2"><input type="number" name="defence" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['defence'] ?>"></td>
             <td class="p-2"><input type="number" name="crit_chance" step="0.1" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['crit_chance'] ?>"></td>
             <td class="p-2"><input type="number" name="crit_multi" step="0.1" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['crit_multi'] ?>"></td>
             <td class="p-2"><input type="number" name="life_steal" step="0.1" class="w-full bg-gray-100 p-1 border rounded" value="<?= $item['life_steal'] ?>"></td>
