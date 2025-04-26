@@ -68,11 +68,11 @@ function updateBattleHistory(
 function calculateDamage($attacker, $target) {
     // Base attack and defense
     $baseAttack = $attacker->getAttack();
-    $baseDefense = $target->getDefence();
+    $baseDefence = $target->getDefence();
 
     // Random modifiers
     $attackModifier = rollDice(6); // Roll a 6-sided die for the attack modifier
-    $defenseModifier = rollDice(6); // Roll a 6-sided die for the defense modifier
+    $defenceModifier = rollDice(6); // Roll a 6-sided die for the defence modifier
 
     // Factor in levels
     $levelDifference = $attacker->getLevel() - $target->getLevel();
@@ -85,16 +85,11 @@ function calculateDamage($attacker, $target) {
     // Calculate final attack value
     $finalAttack = $baseAttack + (6 / 5 * $weaponAttack) * $skill + (4 / 28) + $attackModifier;
 
-    // Calculate final defense value
-    $finalDefense = $baseDefense + $defenseModifier;
+    // Calculate final defence value
+    $finalDefence = $baseDefence + $defenceModifier;
 
     // Calculate damage
-    $damage = max(0, ($finalAttack + $attackModifier) - $finalDefense);
-
-    // // Print debug information
-    // echo "Base Attack: $baseAttack, Weapon Attack: $weaponAttack, Skill: $skill, Attack Modifier: $attackModifier, Final Attack: $finalAttack<br>";
-    // echo "Base Defense: $baseDefense, Defense Modifier: $defenseModifier, Final Defense: $finalDefense<br>";
-    // echo "Level Factor: $levelFactor, Calculated Damage: $damage<br>";
+    $damage = max(0, ($finalAttack + $attackModifier) - $finalDefence);
 
     return round($damage);
 }
@@ -144,7 +139,7 @@ function handleItemDrops($conn, $playerId, $monsterId)
             // Insert into inventory
             $insertStmt = $conn->prepare(
                 'INSERT INTO player_inventory 
-                (player_id, item_id, quantity, rarity, attack, defense, crit_chance, crit_multi, life_steal, armor, speed, health, stamina) 
+                (player_id, item_id, quantity, rarity, attack, defence, crit_chance, crit_multi, life_steal, armor, speed, health, stamina) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
 
@@ -155,7 +150,7 @@ function handleItemDrops($conn, $playerId, $monsterId)
                 $item['quantity'],
                 $rolledRarity['id'],
                 $modifiedStats['attack'],
-                $modifiedStats['defense'],
+                $modifiedStats['defence'],
                 $modifiedStats['crit_chance'],
                 $modifiedStats['crit_multi'],
                 $modifiedStats['life_steal'],
@@ -197,7 +192,7 @@ function applyModifiers($baseItem, $modifiers)
 {
     $stats = [
         'attack',
-        'defense',
+        'defence',
         'crit_chance',
         'crit_multi',
         'life_steal',

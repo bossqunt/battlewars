@@ -360,12 +360,12 @@ foreach ($prefixConfigs as $prefixConfig) {
             foreach ($itemNames['Weapon'] as $subtype) {
                 $item = generateItem($type, $itemNames, $baseStats, $prefixConfig, $subtype);
                 $name = addslashes($item['name']);
-                $itemInsertRows[] = "('$name', '{$item['type']}', {$item['attack']}, {$item['defense']}, {$item['crit_chance']}, {$item['crit_multi']}, {$item['life_steal']}, {$item['armor']}, {$item['speed']}, {$item['health']}, {$item['stamina']}, {$item['gold']})";
+                $itemInsertRows[] = "('$name', '{$item['type']}', {$item['attack']}, {$item['defence']}, {$item['crit_chance']}, {$item['crit_multi']}, {$item['life_steal']}, {$item['armor']}, {$item['speed']}, {$item['health']}, {$item['stamina']}, {$item['gold']})";
             }
         } else {
             $item = generateItem($type, $itemNames, $baseStats, $prefixConfig);
             $name = addslashes($item['name']);
-            $itemInsertRows[] = "('$name', '{$item['type']}', {$item['attack']}, {$item['defense']}, {$item['crit_chance']}, {$item['crit_multi']}, {$item['life_steal']}, {$item['armor']}, {$item['speed']}, {$item['health']}, {$item['stamina']}, {$item['gold']})";
+            $itemInsertRows[] = "('$name', '{$item['type']}', {$item['attack']}, {$item['defence']}, {$item['crit_chance']}, {$item['crit_multi']}, {$item['life_steal']}, {$item['armor']}, {$item['speed']}, {$item['health']}, {$item['stamina']}, {$item['gold']})";
         }
     }
 }
@@ -374,7 +374,7 @@ echo "\n-- ITEM TABLE (truncate, reset PK, insert)\n";
 echo "-- " . count($itemInsertRows) . " records\n";
 echo "TRUNCATE TABLE items;\n";
 echo "ALTER TABLE items AUTO_INCREMENT = 1;\n";
-echo "INSERT INTO `items` (`name`, `type`, `attack`, `defense`, `crit_chance`, `crit_multi`, `life_steal`, `armor`, `speed`, `health`, `stamina`, `gold`) VALUES\n";
+echo "INSERT INTO `items` (`name`, `type`, `attack`, `defence`, `crit_chance`, `crit_multi`, `life_steal`, `armor`, `speed`, `health`, `stamina`, `gold`) VALUES\n";
 echo implode(",\n", $itemInsertRows) . ";\n";
 
 // --- MONSTER_ITEM_DROPS INSERTS ---
@@ -425,7 +425,7 @@ if (isset($_POST['do_execute_sql']) && $_POST['do_execute_sql'] == '1') {
         $sqls[] = "TRUNCATE TABLE items";
         $sqls[] = "ALTER TABLE items AUTO_INCREMENT = 1";
         if (count($itemInsertRows)) {
-            $sqls[] = "INSERT INTO `items` (`name`, `type`, `attack`, `defense`, `crit_chance`, `crit_multi`, `life_steal`, `armor`, `speed`, `health`, `stamina`, `gold`) VALUES " . implode(",\n", $itemInsertRows);
+            $sqls[] = "INSERT INTO `items` (`name`, `type`, `attack`, `defence`, `crit_chance`, `crit_multi`, `life_steal`, `armor`, `speed`, `health`, `stamina`, `gold`) VALUES " . implode(",\n", $itemInsertRows);
         }
         // Monster item drops
         $sqls[] = "TRUNCATE TABLE monster_item_drops";
@@ -511,7 +511,7 @@ foreach ($monsterList as $mIdx => $monster) {
             echo '<td colspan="2"></td>';
             echo '<td colspan="2"><b>' . htmlspecialchars($item['name']) . '</b> (' . htmlspecialchars($item['type']) . ')</td>';
             echo '<td>' . $item['attack'] . '</td>';
-            echo '<td>' . $item['defense'] . '</td>';
+            echo '<td>' . $item['defence'] . '</td>';
             echo '<td>' . $item['speed'] . '</td>';
             echo '<td>' . $item['crit_chance'] . '</td>';
             echo '<td>' . $item['gold'] . '</td>';

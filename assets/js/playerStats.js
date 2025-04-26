@@ -11,8 +11,8 @@ async function updatePlayerStats() {
   if (playerData) {
     //console.log("Player data:", playerData); // Debug log
     document.getElementById('player-name').textContent = playerData.name;
-    document.getElementById('player-level').textContent = playerData.level;
-    // document.getElementById('player-image').src = playerData.image_path;
+    document.getElementById('player-level').textContent = 'Level ' + playerData.level;
+    //  document.getElementById('player-image').src = playerData.image_path;
 
     updateProgressBar(document.getElementById('exp-bar'), document.getElementById('exp-value'), playerData.exp, playerData.exp_req);
     updateProgressBar(document.getElementById('hp-bar'), document.getElementById('hp-value'), playerData.c_hp, playerData.max_hp);

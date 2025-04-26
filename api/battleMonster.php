@@ -66,9 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $baseDamage = calculateDamage($attacker, $target);
             }
 
-            // Defense scaling: diminishing returns
-            $defense = method_exists($target, 'getDefense') ? $target->getDefense() : 0;
-            $damageAfterDefense = $baseDamage * (100 / (100 + max(0, $defense)));
+            // defence scaling: diminishing returns
+            $defence = method_exists($target, 'getDefence') ? $target->getDefence() : 0;
+            $damageAfterDefence = $baseDamage * (100 / (100 + max(0, $defence)));
 
             // Level difference factor
             $attackerLevel = method_exists($attacker, 'getLevel') ? $attacker->getLevel() : 1;
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $levelFactor = 1 - 0.02 * max(0, $levelDiff); // Each level higher reduces damage by 2%
             $levelFactor = max(0, $levelFactor); // Clamp to 0 minimum
 
-            $finalDamage = intval(max(0, $damageAfterDefense * $levelFactor));
+            $finalDamage = intval(max(0, $damageAfterDefence * $levelFactor));
 
             // Flat random adjustment: -2 to +2
             $flatVariance = mt_rand(-2, 2);
