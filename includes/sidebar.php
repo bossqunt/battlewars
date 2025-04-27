@@ -36,8 +36,26 @@
 <?php
 require_once 'controller/authCheck.php';
 
+// Main container helpers for consistent layout
+if (!function_exists('mainContainer')) {
+    function mainContainer($id = 'main-container', $class = 'max-w-6xl mx-auto', $attrs = '', $withBody = false, $bodyClass = 'bg-gray-100 p-6')
+    {
+        if ($withBody) {
+            echo "<body class=\"" . htmlspecialchars($bodyClass) . "\">";
+        }
+        echo "<div id=\"" . htmlspecialchars($id) . "\" class=\"" . htmlspecialchars($class) . "\" $attrs>";
+    }
+}
 
-
+if (!function_exists('mainContainerClose')) {
+    function mainContainerClose($withBody = false)
+    {
+        echo "</div>";
+        if ($withBody) {
+            echo "</body>";
+        }
+    }
+}
 
 ?>
 <script>
@@ -80,12 +98,12 @@ function isActivePage($page)
       <!-- HP -->
       <div class="flex flex-col items-start space-y-1 w-36">
         <div class="flex justify-between w-full text-xs">
-          <span class="font-medium text-destructive">HP</span>
-          <span class="font-medium text-destructive" id="hp-value">Loading...</span>
+          <span class="font-medium text-green-600">HP</span>
+          <span class="font-medium text-green-600" id="hp-value">Loading...</span>
         </div>
-        <div class="relative w-full overflow-hidden rounded-full h-3 bg-red-100/20">
+        <div class="relative w-full overflow-hidden rounded-full h-3 bg-green-100/20">
           <div
-            class="h-full w-full flex-1 bg-primary transition-all bg-gradient-to-r from-red-500 to-red-400 animate-pulse"
+            class="h-full w-full flex-1 transition-all"
             id="hp-bar"></div>
         </div>
       </div>
@@ -93,7 +111,7 @@ function isActivePage($page)
       <!-- Stamina -->
       <div class="flex flex-col items-start space-y-1 w-36">
         <div class="flex justify-between w-full text-xs">
-          <span class="font-medium text-blue-500">Stamina</span>
+          <span class="font-medium text-blue-500">STAMINA</span>
           <span class="font-medium text-blue-500" id="st-value">Loading...</span>
         </div>
         <div class="relative w-full overflow-hidden rounded-full h-3 bg-blue-100/20">
@@ -127,7 +145,17 @@ function isActivePage($page)
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <span class="text-[14px]">Overworld</span>
         </a>
+        <a href="dashboard-v2.php" class="rpg-sidebar-nav-item <?php echo isActivePage('dashboard-v2.php'); ?>">
+          <i class="menu-icon tf-icons bx bx-home-circle"></i>
+          <span class="text-[14px]">Overworld V2</span>
+        </a>
+        <!-- Guilds Navigation -->
+        <a href="guilds.php" class="rpg-sidebar-nav-item <?php echo isActivePage('guilds.php'); ?>">
+          <i class="menu-icon tf-icons bx bx-group"></i>
+          <span class="text-[14px]">Guilds</span>
+        </a>
 
+        <!-- End Guilds Navigation -->
         <a href="Fountain.php" class="rpg-sidebar-nav-item <?php echo isActivePage('Fountain.php'); ?>">
           <i class="menu-icon tf-icons bx bx-bible"></i>
           <span class="text-[14px]">Fountain</span>
@@ -201,4 +229,41 @@ function isActivePage($page)
             <!-- Replace this with your actual page content -->
             <div class="flex-1 overflow-auto p-0">
                 <!-- Your content goes here -->
+<script>
+// Dynamic HP bar color based on percentage
+function setHpBarColor(current, max) {
+  const bar = document.getElementById('hp-bar');
+  if (!bar) return;
+  const percent = max > 0 ? (current / max) : 0;
+  if (percent > 0.5) {
+    // Green
+    bar.style.background = 'linear-gradient(to right, #22c55e, #16a34a)'; // green-500 to green-600
+  } else if (percent > 0.2) {
+    // Yellow
+    bar.style.background = 'linear-gradient(to right, #facc15, #eab308)'; // yellow-400 to yellow-500
+  } else {
+    // Red
+    bar.style.background = 'linear-gradient(to right, #ef4444, #dc2626)'; // red-500 to red-600
+  }
+}
+
+// Patch updatePlayerStats to call setHpBarColor
+window.updatePlayerStats = window.updatePlayerStats || function() {};
+const origUpdatePlayerStats = window.updatePlayerStats;
+window.updatePlayerStats = async function() {
+  if (typeof origUpdatePlayerStats === 'function') await origUpdatePlayerStats();
+  // After updating HP value/bar, set color:
+  const hpValue = document.getElementById('hp-value');
+  const hpBar = document.getElementById('hp-bar');
+  if (hpValue && hpBar) {
+    // Try to extract current/max from text like "90 / 1250"
+    const match = hpValue.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+    if (match) {
+      setHpBarColor(parseInt(match[1]), parseInt(match[2]));
+    }
+  }
+};
+
+// If updatePlayerStats is called elsewhere, this will override and add color logic.
+</script>
 

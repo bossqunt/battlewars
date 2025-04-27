@@ -60,15 +60,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Helper function for critical and lifesteal
         function calculateAttack($attacker, $target) {
             $isPlayer = get_class($attacker) === 'Player';
-            if ($isPlayer && method_exists($attacker, 'getPlayerItemAttack')) {
+            // Always use getAttack for both Player and Monster
+            if (method_exists($attacker, 'getAttack')) {
                 $baseDamage = $attacker->getAttack($target);
             } else {
-                $baseDamage = calculateDamage($attacker, $target);
+                $baseDamage = 0;
             }
 
-            // defence scaling: diminishing returns
+            // defence scaling: diminishing returns, but never 0 damage
+            // New formula: max 50% reduction, always at least 50% of baseDamage gets through
             $defence = method_exists($target, 'getDefence') ? $target->getDefence() : 0;
-            $damageAfterDefence = $baseDamage * (100 / (100 + max(0, $defence)));
+            $defenceFactor = min($defence / ($defence + 100), 0.5); // max 50% reduction
+            $damageAfterDefence = $baseDamage * (1 - $defenceFactor);
 
             // Level difference factor
             $attackerLevel = method_exists($attacker, 'getLevel') ? $attacker->getLevel() : 1;
@@ -77,43 +80,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $levelFactor = 1 - 0.02 * max(0, $levelDiff); // Each level higher reduces damage by 2%
             $levelFactor = max(0, $levelFactor); // Clamp to 0 minimum
 
-            $finalDamage = intval(max(0, $damageAfterDefence * $levelFactor));
+            $finalDamage = $damageAfterDefence * $levelFactor;
 
             // Flat random adjustment: -2 to +2
             $flatVariance = mt_rand(-2, 2);
-            $finalDamage += $flatVariance;
-            // Minimum 1 if baseDamage > 0
-            if ($baseDamage > 0) {
-                $finalDamage = max(1, $finalDamage);
-            } else {
-                $finalDamage = 0;
-            }
+            $finalDamageWithVariance = $finalDamage + $flatVariance;
 
             // Only apply crit if attacker is a Player
             $critChance = $isPlayer && method_exists($attacker, 'getPlayerItemCritChance') ? $attacker->getPlayerItemCritChance() : 0;
             $critMulti  = $isPlayer && method_exists($attacker, 'getPlayerItemCritMulti') ? $attacker->getPlayerItemCritMulti() : 1;
             $isCrit = false;
+            $critApplied = 1;
+            $finalCritDamage = $finalDamageWithVariance;
             if ($critChance > 0 && rand(1, 100) <= $critChance) {
-                if($critMulti = 0) {
-                    $critMulti = 1.5; // Default crit multiplier if not set
-                    $finalDamage = intval($finalDamage * $critMulti);
+                if($critMulti == 0) {
+                    $critMulti = 10; // Default crit percent if not set (10%)
                 }
-                $finalDamage = intval($finalDamage * 1.5);
+                $finalCritDamage = $finalDamageWithVariance * (1 + ($critMulti / 100));
                 $isCrit = true;
+                $critApplied = $critMulti;
             }
 
             // Life steal: applies to all hits, but only a chance to leech (10% flat chance)
             $lifeSteal = $isPlayer && method_exists($attacker, 'getPlayerItemLifesteal') ? $attacker->getPlayerItemLifesteal() : 0;
             $lifeStealChance = 10; // Flat 10% chance
             $lifeStealAmount = 0;
-            if ($lifeSteal > 0 && $finalDamage > 0 && rand(1, 100) <= $lifeStealChance) {
-                $lifeStealAmount = intval($finalDamage * ($lifeSteal / 100));
+            if ($lifeSteal > 0 && $finalCritDamage > 0 && rand(1, 100) <= $lifeStealChance) {
+                $lifeStealAmount = intval($finalCritDamage * ($lifeSteal / 100));
             }
 
+            // Guarantee minimum 1 damage if baseDamage > 0, after all modifiers
+            if ($baseDamage > 0) {
+                $finalCritDamage = max(1, intval(ceil($finalCritDamage)));
+            } else {
+                $finalCritDamage = 0;
+            }
+
+            // Calculation details string
+            $calculation_details = 
+                "Calculation: Base={$baseDamage}, Defence={$defence}, DefenceFactor=" . round($defenceFactor, 3) .
+                ", AfterDefence=" . round($damageAfterDefence, 2) .
+                ", LevelFactor=" . round($levelFactor, 3) .
+                ", AfterLevel=" . round($finalDamage, 2) .
+                ", Variance={$flatVariance}, AfterVariance=" . round($finalDamageWithVariance, 2) .
+                ", CritMulti=" . round($critApplied, 2) .
+                ", AfterCrit=" . round($finalCritDamage, 2) .
+                ", Lifesteal={$lifeSteal}%, LifestealAmt={$lifeStealAmount}";
+
             return [
-                'damage' => $finalDamage,
+                'damage' => $finalCritDamage,
                 'isCrit' => $isCrit,
-                'lifeSteal' => $lifeStealAmount
+                'lifeSteal' => $lifeStealAmount,
+                'calculation_details' => $calculation_details
             ];
         }
 
@@ -132,6 +150,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
             if (!$missed) {
+                // Debug: log monster/player base attack before calculation
+                if ($attacker instanceof Monster) {
+                    $battleLog['battle'][] = "[DEBUG] Monster base attack: " . $attacker->getAttack($target);
+                } elseif ($attacker instanceof Player) {
+                    $battleLog['battle'][] = "[DEBUG] Player base attack: " . $attacker->getAttack($target);
+                }
+
                 $result = calculateAttack($attacker, $target);
                 $damage = $result['damage'];
 
@@ -152,6 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
                 $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
                 $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+                $battleLog['battle'][] = "[DEBUG] " . $result['calculation_details'];
             }
 
             if ($playerCurrentHp <= 0 || $monsterCurrentHp <= 0)
@@ -198,6 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $critMsg = $result['isCrit'] ? " (CRITICAL HIT!)" : "";
                 $lsMsg = $result['lifeSteal'] > 0 ? " (Life Steal: +{$result['lifeSteal']} HP)" : "";
                 $battleLog['battle'][] = "{$attacker->getName()} does {$damage} damage to {$target->getName()}{$critMsg}{$lsMsg} (Player: {$playerCurrentHp}/{$player->getMaxHp()} HP, Monster: {$monsterCurrentHp}/{$monsterMaxHp} HP)";
+                $battleLog['battle'][] = "[DEBUG] " . $result['calculation_details'];
             }
         }
 

@@ -264,8 +264,11 @@ class Player
         return null;
     }
     
-    public function getProfile()
+    public function getProfile($playerId = null)
     {
+        // Use $this->id for the player id
+        $playerId = $this->id;
+
         $player = $this->fetchProfileDetails();
 
         // Build the response using getter methods for calculated stats
@@ -283,11 +286,9 @@ class Player
             'max_hp'     => $this->getMaxHp(),
             'c_hp'       => $this->getCurrentHp(),
             'stamina'    => $this->getStamina(),
-            // Add more calculated stats as needed:
             'crit_chance'   => $this->getPlayerItemCritChance(),
             'crit_multi'    => $this->getPlayerItemCritMulti(),
             'life_steal'    => $this->getPlayerItemLifesteal(),
-            // Add health_regen, etc. if you have methods for them
             'stats'      => $this->getPlayerStats(),
         ];
 
