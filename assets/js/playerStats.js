@@ -51,11 +51,23 @@ async function fetchPlayerData() {
   }
 }
 
-function updateProgressBar(barElement, valueElement, value, maxValue, type = null) {
-  const percentage = (value / maxValue) * 100;
+function updateProgressBar(barElement, valueElement, value, maxValue) {
+  // Prevent division by zero and negative values
+  let percentage = 0;
+  if (maxValue > 0) {
+    percentage = Math.max(0, Math.min(100, (value / maxValue) * 100));
+  }
   barElement.style.width = percentage + '%';
   barElement.setAttribute('aria-valuenow', percentage);
   valueElement.textContent = `${value} / ${maxValue}`;
+
+  // Remove Bootstrap color classes if present
+  barElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
+
+  // Ensure Tailwind green class is present
+  if (!barElement.classList.contains('bg-green-500')) {
+    barElement.classList.add('bg-green-500');
+  }
 }
 
 export { updatePlayerStats, fetchPlayerData };

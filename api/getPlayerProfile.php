@@ -10,21 +10,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Read the raw POST body and decode it from JSON to an associative array
     $input = json_decode(file_get_contents('php://input'), true);
 
-        // Create a new database connection
-        $database = new Database();
-        $conn = $database->getConnection();
+    // Use provided id if set and numeric, otherwise fallback to session playerId
+    $targetPlayerId = isset($input['id']) && is_numeric($input['id']) ? intval($input['id']) : $playerId;
 
-        // Create a new Player object with the connection and player ID
-        $player = new Player($conn, $playerId);
+    // Create a new database connection
+    $database = new Database();
+    $conn = $database->getConnection();
 
-        // Fetch player details using the Player object
-        $playerDetails = $player->getProfile();
+    // Create a new Player object with the connection and player ID
+    $player = new Player($conn, $targetPlayerId);
 
-        // If player details are found, return them as JSON
-        if ($playerDetails) {
-            echo json_encode($playerDetails);
-        } else {
-            // If not found, return an error message
-            echo json_encode(['error' => 'Player not found']);
-        }
-    } 
+    // Fetch player details using the Player object
+    $playerDetails = $player->getProfile();
+
+    // If player details are found, return them as JSON
+    if ($playerDetails) {
+        echo json_encode($playerDetails);
+    } else {
+        // If not found, return an error message
+        echo json_encode(['error' => 'Player not found']);
+    }
+}
