@@ -4,14 +4,17 @@ import { getBattleHistory } from './battle.js';
 
 
 export async function updateMonstersTable() {
-  try {
-    console.log("Fetching nearby monsters..."); // Debug log
-    let url = '/bw2/api/getMonsters.php';
+  const container = document.getElementById('monsters-nearby');
+  // Always show the empty state by default on first load
+  if (container && container.children.length === 0) {
+    container.innerHTML = '<div class="text-center text-sm text-muted-foreground py-4">🧭 There are no nearby monsters.</div>';
+  }
 
+  try {
+    let url = '/bw2/api/getMonsters.php';
     const response = await fetch(url);
     const monsters = await response.json();
 
-    const container = document.getElementById('monsters-nearby');
     container.innerHTML = '';
 
     if (response.ok && !monsters.error) {
@@ -39,7 +42,7 @@ export function createMonsterCard(monster, index) {
   monsterCard.className = 'flex flex-row justify-between items-center border p-2 rounded-md monster-card mb-2';
   monsterCard.id = `monster-${index}`;
 
-  console.log(monster.is_boss); // Debug log
+  // console.log(monster.is_boss); // Debug log
   // Highlight boss monster card with red border if monster.is_boss is true/1/"1"
   let isBoss = (monster.is_boss === 1 || monster.is_boss === "1");
   if (isBoss) {

@@ -257,11 +257,17 @@ class Player
             $player['areaOwner'] = $this->getPlayerAreaOwner();
             $player['inventoryCount'] = $this->getPlayerInventoryCount();
             $player['areasUnlocked'] = $this->getPlayerAreaUnlocked();
+            $player['guild'] = $this->getPlayerGuild();
     
             return $player;
         }
     
         return null;
+    }
+    public function getPlayerGuild() {
+        $sql = "SELECT g.id, g.name FROM guilds g INNER JOIN guild_members gm ON gm.guild_id = g.id WHERE gm.player_id = ?";
+        $params = [$this->id];
+        return $this->fetchSingleRow($sql, $params);
     }
     
     public function getProfile($playerId = null)
@@ -373,8 +379,15 @@ class Player
                     players po ON po.id = ao.player_id
                 WHERE p.id = ?";
         $params = [$this->id];
-        return $this->fetchAllRows($sql, $params);
+        $owners = $this->fetchAllRows($sql, $params);
+
+        // Add guild details for each owner
+        foreach ($owners as &$owner) {
+            $owner['guild'] = $this->getPlayerGuildById($owner['player_id']);
+        }
+        return $owners;
     }
+
     // Used in battle.php to set the current area as the player's owned area
     public function setCurrentAreaOwnerAsPlayer($areaId, $x, $y)
     {
@@ -784,5 +797,12 @@ class Player
             ON DUPLICATE KEY UPDATE boss_defeated=1");
         $stmt->bind_param('ii', $this->id, $area_id);
         return $stmt->execute();
+    }
+
+    // Helper to get guild info for a specific player id
+    private function getPlayerGuildById($playerId) {
+        $sql = "SELECT g.id, g.name, g.tag FROM guilds g INNER JOIN guild_members gm ON gm.guild_id = g.id WHERE gm.player_id = ?";
+        $params = [$playerId];
+        return $this->fetchSingleRow($sql, $params);
     }
 }

@@ -18,7 +18,7 @@ $myGuild = $conn->fetch("
     SELECT g.*, gm.is_officer
     FROM guild_members gm
     JOIN guilds g ON gm.guild_id = g.id
-    WHERE gm.user_id = ?
+    WHERE gm.player_id = ?
     LIMIT 1
 ", [$playerId]);
 
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_guild'])) {
         $createError = "Name and 4-letter tag are required.";
     } else {
         // Check if already in a guild
-        $inGuild = $conn->fetch("SELECT 1 FROM guild_members WHERE user_id = ?", [$playerId]);
+        $inGuild = $conn->fetch("SELECT 1 FROM guild_members WHERE player_id = ?", [$playerId]);
         if ($inGuild) {
             $createError = "You are already in a guild.";
         } else {
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_guild'])) {
                 $conn->beginTransaction();
                 $conn->execute("INSERT INTO guilds (name, tag, description, owner_id) VALUES (?, ?, ?, ?)", [$name, $tag, $desc, $playerId]);
                 $guildId = $conn->lastInsertId();
-                $conn->execute("INSERT INTO guild_members (guild_id, user_id, is_officer) VALUES (?, ?, 1)", [$guildId, $playerId]);
+                $conn->execute("INSERT INTO guild_members (guild_id, player_id, is_officer) VALUES (?, ?, 1)", [$guildId, $playerId]);
                 $conn->commit();
                 header("Location: guilds.php");
                 exit;
@@ -58,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_guild'])) {
 if (isset($_GET['join'])) {
     $guildId = intval($_GET['join']);
     // Only join if not already in a guild
-    $inGuild = $conn->fetch("SELECT 1 FROM guild_members WHERE user_id = ?", [$playerId]);
+    $inGuild = $conn->fetch("SELECT 1 FROM guild_members WHERE player_id = ?", [$playerId]);
     if (!$inGuild) {
-        $conn->execute("INSERT INTO guild_members (guild_id, user_id) VALUES (?, ?)", [$guildId, $playerId]);
+        $conn->execute("INSERT INTO guild_members (guild_id, player_id) VALUES (?, ?)", [$guildId, $playerId]);
         header("Location: guilds.php");
         exit;
     }
@@ -68,7 +68,7 @@ if (isset($_GET['join'])) {
 if (isset($_GET['leave'])) {
     // Only allow leave if not owner
     if ($myGuild && $myGuild['owner_id'] != $playerId) {
-        $conn->execute("DELETE FROM guild_members WHERE user_id = ?", [$playerId]);
+        $conn->execute("DELETE FROM guild_members WHERE player_id = ?", [$playerId]);
         header("Location: guilds.php");
         exit;
     }
