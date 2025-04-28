@@ -29,21 +29,21 @@ if ($isOwner && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     // Kick member
-    if (isset($_POST['kick_user_id'])) {
-        $kickId = intval($_POST['kick_user_id']);
+    if (isset($_POST['kick_player_id'])) {
+        $kickId = intval($_POST['kick_player_id']);
         if ($kickId !== $playerId) { // Can't kick self
-            $conn->execute("DELETE FROM guild_members WHERE guild_id = ? AND user_id = ?", [$guildId, $kickId]);
+            $conn->execute("DELETE FROM guild_members WHERE guild_id = ? AND player_id = ?", [$guildId, $kickId]);
         }
     }
     // Accept join request
-    if (isset($_POST['accept_user_id'])) {
-        $acceptId = intval($_POST['accept_user_id']);
-        $conn->execute("UPDATE guild_members SET is_pending = 0 WHERE guild_id = ? AND user_id = ?", [$guildId, $acceptId]);
+    if (isset($_POST['accept_player_id'])) {
+        $acceptId = intval($_POST['accept_player_id']);
+        $conn->execute("UPDATE guild_members SET is_pending = 0 WHERE guild_id = ? AND player_id = ?", [$guildId, $acceptId]);
     }
     // Reject join request
-    if (isset($_POST['reject_user_id'])) {
-        $rejectId = intval($_POST['reject_user_id']);
-        $conn->execute("DELETE FROM guild_members WHERE guild_id = ? AND user_id = ? AND is_pending = 1", [$guildId, $rejectId]);
+    if (isset($_POST['reject_player_id'])) {
+        $rejectId = intval($_POST['reject_player_id']);
+        $conn->execute("DELETE FROM guild_members WHERE guild_id = ? AND player_id = ? AND is_pending = 1", [$guildId, $rejectId]);
     }
     // Refresh after action
     header("Location: view-guild.php?id=$guildId");
@@ -52,9 +52,9 @@ if ($isOwner && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch guild members (not pending)
 $members = $conn->fetchAll("
-    SELECT gm.*, p.name, p.level, p.image_path, p.id as user_id
+    SELECT gm.*, p.name, p.level, p.image_path, p.id as player_id
     FROM guild_members gm
-    JOIN players p ON gm.user_id = p.id
+    JOIN players p ON gm.player_id = p.id
     WHERE gm.guild_id = ? AND (gm.is_pending IS NULL OR gm.is_pending = 0)
     ORDER BY gm.is_officer DESC, p.level DESC, p.name ASC
 ", [$guildId]);
@@ -63,9 +63,9 @@ $members = $conn->fetchAll("
 $pending = [];
 if ($isOwner) {
     $pending = $conn->fetchAll("
-        SELECT gm.*, p.name, p.level, p.image_path, p.id as user_id
+        SELECT gm.*, p.name, p.level, p.image_path, p.id as player_id
         FROM guild_members gm
-        JOIN players p ON gm.user_id = p.id
+        JOIN players p ON gm.player_id = p.id
         WHERE gm.guild_id = ? AND gm.is_pending = 1
         ORDER BY p.level DESC, p.name ASC
     ", [$guildId]);
@@ -151,16 +151,16 @@ include 'includes/sidebar.php';
                             <?php if (!empty($p['image_path'])): ?>
                                 <img src="<?=htmlspecialchars($p['image_path'])?>" alt="avatar" class="w-6 h-6 rounded-full border border-gray-300">
                             <?php endif; ?>
-                            <a href="profile.php?id=<?=$p['user_id']?>" class="hover:underline"><?=htmlspecialchars($p['name'])?></a>
+                            <a href="profile.php?id=<?=$p['player_id']?>" class="hover:underline"><?=htmlspecialchars($p['name'])?></a>
                         </td>
                         <td class="py-2 pr-3 text-sm text-gray-700"><?=$p['level']?></td>
                         <td class="py-2 pr-3 text-sm text-gray-700">
                             <form method="post" class="inline">
-                                <input type="hidden" name="accept_user_id" value="<?=$p['user_id']?>">
+                                <input type="hidden" name="accept_player_id" value="<?=$p['player_id']?>">
                                 <button type="submit" class="px-2 py-1 bg-green-600 text-white rounded text-xs">Accept</button>
                             </form>
                             <form method="post" class="inline ml-1">
-                                <input type="hidden" name="reject_user_id" value="<?=$p['user_id']?>">
+                                <input type="hidden" name="reject_player_id" value="<?=$p['player_id']?>">
                                 <button type="submit" class="px-2 py-1 bg-red-600 text-white rounded text-xs">Reject</button>
                             </form>
                         </td>
@@ -191,12 +191,12 @@ include 'includes/sidebar.php';
                             <?php if (!empty($m['image_path'])): ?>
                                 <img src="<?=htmlspecialchars($m['image_path'])?>" alt="avatar" class="w-6 h-6 rounded-full border border-gray-300">
                             <?php endif; ?>
-                            <a href="profile.php?id=<?=$m['user_id']?>" class="hover:underline"><?=htmlspecialchars($m['name'])?></a>
+                            <a href="profile.php?id=<?=$m['player_id']?>" class="hover:underline"><?=htmlspecialchars($m['name'])?></a>
                         </td>
                         <td class="py-2 pr-3 text-sm text-gray-700"><?=$m['level']?></td>
                         <td class="py-2 pr-3 text-sm text-gray-700">
                             <?php
-                                if ($guild['owner_id'] == $m['user_id']) {
+                                if ($guild['owner_id'] == $m['player_id']) {
                                     echo '<span class="text-indigo-700 font-semibold">Owner</span>';
                                 } elseif ($m['is_officer']) {
                                     echo '<span class="text-green-700 font-semibold">Officer</span>';
@@ -207,9 +207,9 @@ include 'includes/sidebar.php';
                         </td>
                         <?php if ($isOwner): ?>
                         <td class="py-2 pr-3 text-sm text-gray-700">
-                            <?php if ($m['user_id'] != $playerId): ?>
+                            <?php if ($m['player_id'] != $playerId): ?>
                             <form method="post" onsubmit="return confirm('Kick this member?');">
-                                <input type="hidden" name="kick_user_id" value="<?=$m['user_id']?>">
+                                <input type="hidden" name="kick_player_id" value="<?=$m['player_id']?>">
                                 <button type="submit" class="px-2 py-1 bg-red-600 text-white rounded text-xs">Kick</button>
                             </form>
                             <?php endif; ?>

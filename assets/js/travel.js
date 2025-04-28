@@ -16,7 +16,6 @@ export async function travelPlayer() {
     const data = await response.json();
 
     if (response.ok && !data.error) {
-      updateGridLocation(data);
       startCooldown(travelButton, data.remainingCooldown || 10);
       updateMonstersTable();
       showToast('You have successfully traveled!', 'success', 3000);
