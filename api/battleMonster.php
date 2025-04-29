@@ -242,6 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $battleLog['victory'] = 1;
             $battleLog['exp'] = $monster->getExp();
             $battleLog['gold'] = $monster->getGold();
+            
 
             updateBattleHistory($conn, $playerId, null, $monsterId, $battleLog['result'], $battleLog['outcome'], $battleLog['victory'], $expReward, $goldReward);
             // this must occur before update player, as this will update player exp first.
@@ -250,6 +251,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $battleLog['levelup'] = $player->checkLevelUp($monster->getExp()) ? true : false;
             $player->updatePlayerBattleReward($playerCurrentHp, $goldReward, $expReward);
             $player->setPlayerPveBattleWinCount();
+            $player->setPlayerGoldSum((int)$monster->getGold());
+            
+   
 
             // Handle item drops
             $itemsDropped = handleItemDrops($conn, $playerId, $monsterId);
@@ -285,6 +289,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 }
             }
 
+            
+
             // --- Boss defeat tracking ---
             $area_id = $player->getPlayerAreaId(); // or getAreaId()
             $areaQuery = $conn->prepare("SELECT max_level FROM areas WHERE id = ?");
@@ -298,6 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $player->setBossDefeated($area_id);
                 $battleLog['boss_defeated'] = true;
                 $worldEvent = "{$player->getName()} has defeated the boss {$monster->getName()}!";
+                $player->setPlayerBossKillCount();
                 updateWorldEvent($conn, $playerId, $worldEvent);
             }
             

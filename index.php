@@ -41,7 +41,7 @@
   <img src="images/logo.png" alt="Logo" class="img-fluid mb-4" style="width: 400px;" />
 </div>
           <!-- Login Form -->
-            <form id="formLogin" class="auth-form" action="/bw2/api/login.php" method="POST">
+            <form id="formLogin" class="auth-form" action="/api/login.php" method="POST">
               <div class="mb-3">
                 <label for="loginName" class="form-label">Username</label>
                 <input type="text" class="form-control" id="loginName" name="name" placeholder="Enter your username"
@@ -57,7 +57,7 @@
             <!-- End Login Form -->
 
             <!-- Registration Form -->
-            <form id="formRegister" class="auth-form d-none" action="/bw2/api/registerPlayer.php" method="POST">
+            <form id="formRegister" class="auth-form d-none" action="/api/registerPlayer.php" method="POST">
               <div class="mb-3">
                 <label for="registerName" class="form-label">Username</label>
                 <input type="text" class="form-control" id="registerName" name="name" placeholder="Enter your username"
@@ -143,7 +143,7 @@
 
       $.ajax({
         type: 'POST',
-        url: '/bw2/api/loginPlayer.php',
+        url: '/api/loginPlayer.php',
         data: $(this).serialize(),
         success: function (response) {
           console.log(response); // Debug response
@@ -179,7 +179,7 @@
 
       $.ajax({
         type: 'POST',
-        url: '/bw2/api/registerPlayer.php',
+        url: '/api/registerPlayer.php',
         data: $(this).serialize(),
         success: function (response) {
           console.log(response); // Debug response

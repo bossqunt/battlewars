@@ -4,8 +4,8 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 // Dynamically determine app root for redirect
-$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
-$redirectPath = rtrim($scriptDir, '/\\') . '/index.php';
+//$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+$redirectPath = '/index.php';
 
 $decodedUser = authenticateOrRedirect($redirectPath); // dynamic redirect
 $playerId = $decodedUser->id;

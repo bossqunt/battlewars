@@ -302,7 +302,7 @@ class Player
     }
     public function getPlayerStats()
     {
-        $sql = "SELECT travel_count, pvp_battles, pvp_kills, pve_battles, pve_kills FROM player_stats WHERE player_id = ?";
+        $sql = "SELECT travel_count, pvp_battles, pvp_kills, pve_battles, pve_kills, gold_sum, boss_kills FROM player_stats WHERE player_id = ?";
         $params = [$this->id];
         return $this->fetchSingleRow($sql, $params);
     }
@@ -413,6 +413,7 @@ class Player
         return $result;
         
     }
+    // Stats used for displaying in the user profile
     public function setPlayerTravelCount() {
         $sql = "INSERT INTO player_stats (player_id, travel_count) VALUES (?, 1)
                 ON DUPLICATE KEY UPDATE travel_count = travel_count + 1";
@@ -449,6 +450,23 @@ class Player
     public function setPlayerPveBattleCount() {
         $sql = "INSERT INTO player_stats (player_id, pve_battles) VALUES (?, 1)
                 ON DUPLICATE KEY UPDATE pve_battles = pve_battles + 1";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
+    }
+    public function setPlayerGoldSum($gold) {
+        $gold = (int)$gold; // Ensure integer value
+        $sql = "INSERT INTO player_stats (player_id, gold_sum) VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE gold_sum = gold_sum + ?";
+        $params = [$this->id, $gold, $gold];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("iii", ...$params);
+        return $stmt->execute();
+    }
+    public function setPlayerBossKillCount() {
+        $sql = "INSERT INTO player_stats (player_id, boss_kills) VALUES (?, 1)
+                ON DUPLICATE KEY UPDATE boss_kills = boss_kills + 1";
         $params = [$this->id];
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", ...$params);
@@ -540,7 +558,7 @@ class Player
         $this->updateExp($expChange);
 
         // Check for level up
-        $currentLevel = $this->getLevel();
+
         $newExp = $this->getExp() + $expChange;
         $nextLevelExp = $this->getRequiredExp();
 

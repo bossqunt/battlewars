@@ -141,13 +141,13 @@ function isActivePage($page)
       </div>
 
       <nav class="space-y-1">
-        <a href="dashboard.php" class="rpg-sidebar-nav-item <?php echo isActivePage('dashboard.php'); ?>">
+        <a href="home.php" class="rpg-sidebar-nav-item <?php echo isActivePage('home.php'); ?>">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
-          <span class="text-[14px]">Overworld</span>
+          <span class="text-[14px]">Home</span>
         </a>
         <a href="dashboard-v2.php" class="rpg-sidebar-nav-item <?php echo isActivePage('dashboard-v2.php'); ?>">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
-          <span class="text-[14px]">Overworld V2</span>
+          <span class="text-[14px]">Overworld</span>
         </a>
         <!-- Guilds Navigation -->
         <a href="guilds.php" class="rpg-sidebar-nav-item <?php echo isActivePage('guilds.php'); ?>">

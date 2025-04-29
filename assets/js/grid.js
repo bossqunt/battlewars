@@ -1,3 +1,6 @@
+// TODO: When taking ownership, update playerData.areaOwner in JS with the new owner info and call updateGridOwner(playerData) (and updateGridLocation(playerData) if needed) so the UI updates without a page reload.
+
+
 // Set this variable to control the grid gap size (in px)
 const GRID_GAP_SIZE = 4; // Change this value to set the gap between cells
 
@@ -30,6 +33,8 @@ export async function updateGridLocation(playerData) {
 
   // Required for V2 Dashboard
   if (playerGridLocation && playerLocation) {
+    playerGridLocation.classList.add('text-xs');
+
     playerGridLocation.textContent = `X: ${playerLocation.x} Y: ${playerLocation.y} Z: ${playerLocation.area_id}`;
   }
 
@@ -89,12 +94,8 @@ export function updateGridOwner(playerData) {
   const ownerImage = document.getElementById('owner-image') || null;
   const ownerGuildDisplay = document.getElementById('owner-guild-text') || null;
   const ownershipButton = document.getElementById('take-ownership-button') || null;
-  console.log('Grid Owner:', gridOwner);
-  console.log('Player Location:', playerLocation);
-  console.log('Owner Display:', ownerDisplay);
-  console.log('Owner Image:', ownerImage);
-  console.log('Owner Guild Display:', ownerGuildDisplay);
-  console.log('Ownership Button:', ownershipButton);
+  const ownerProfileButton = document.getElementById('owner-profile-button') || null;
+
 
 
   if (ownerDisplay && gridOwner) {
@@ -118,10 +119,13 @@ export function updateGridOwner(playerData) {
         ownerImage.classList.add('w-10', 'h-10', 'rounded-full', 'mr-1');
       }
       
+      // Fix: Only show guild display if owner has a guild, otherwise hide and clear it
       if (owner.guild && ownerGuildDisplay) {
         ownerGuildDisplay.classList.remove('hidden');
-        // Smaller badge to fit with font-size
         ownerGuildDisplay.innerHTML = `Guild: ${owner.guild.name} <span class="inline-block bg-blue-600 text-white text-[10px] font-bold px-1 py-0 rounded ml-1 align-middle">${owner.guild.tag}</span>`;
+      } else if (ownerGuildDisplay) {
+        ownerGuildDisplay.classList.add('hidden');
+        ownerGuildDisplay.innerHTML = '';
       }
 
       // Show ownership button if player is not the owner
@@ -129,13 +133,29 @@ export function updateGridOwner(playerData) {
         ownershipButton.classList.add('hidden');
       } else {
         ownershipButton.classList.remove('hidden');
-      }
+        ownerProfileButton.classList.remove('hidden');
+        ownerProfileButton.onclick = () => {
+          window.location.href = `/profile.php?id=${owner.player_id}`;
+        };
 
+      }
       ownerDisplay.appendChild(nameSpan);
       ownerDisplay.appendChild(levelSpan);
+      
+
     } else {
-      ownerImage.classList.add('hidden');
+      if (ownerGuildDisplay) {
+        ownerGuildDisplay.classList.add('hidden');
+        ownerGuildDisplay.innerHTML = '';
+      }
+      if (ownerImage) {
+        ownerImage.classList.add('hidden');
+      }
       ownerDisplay.textContent = 'Nobody owns this tile.';
+      if (ownershipButton) {
+        ownershipButton.classList.remove('hidden');
+      }
+
     }
   }
 }

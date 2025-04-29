@@ -264,7 +264,7 @@ function pageInfoBox($message, $linkText = null, $linkHref = null)
   // Add a function to render an empty placeholder card for a given type
   function renderEmptyEquipCard(type) {
     return `
-    <div class="bg-white/60 rounded-xl p-3 text-sm space-y-2 border-2 border-dotted border-gray-400 flex flex-col justify-between min-h-[140px]">
+    <div class="bg-white/60 rounded-xl p-3 text-sm space-y-2 border-2 border-dotted border-gray-200 flex flex-col justify-between min-h-[140px]">
       <div class="flex justify-between items-start">
         <div>
           <div class="font-semibold text-gray-400">Empty</div>

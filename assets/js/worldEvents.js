@@ -1,6 +1,6 @@
 export async function loadWorldEvents() {
   try {
-    const response = await fetch('/bw2/api/getWorldEvents.php', {
+    const response = await fetch('api/getWorldEvents.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
