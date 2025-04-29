@@ -7,7 +7,7 @@ export async function travelPlayer() {
   travelButton.disabled = true;
 
   try {
-    const response = await fetch('/bw2/api/travelPlayer.php', {
+    const response = await fetch('api/travelPlayer.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: playerId })

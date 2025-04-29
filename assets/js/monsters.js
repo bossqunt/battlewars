@@ -11,7 +11,7 @@ export async function updateMonstersTable() {
   }
 
   try {
-    let url = '/bw2/api/getMonsters.php';
+    let url = 'api/getMonsters.php';
     const response = await fetch(url);
     const monsters = await response.json();
 
@@ -160,7 +160,7 @@ export async function battleMonster(event) {
   const lootList = document.getElementById("loot-list");
 
   try {
-    const response = await fetch(`/bw2/api/battleMonster.php?playerId=${playerId}&monsterId=${monsterId}`);
+    const response = await fetch(`api/battleMonster.php?playerId=${playerId}&monsterId=${monsterId}`);
     const result = await response.json();
 
     // Populate combat log

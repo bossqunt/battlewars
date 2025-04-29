@@ -34,7 +34,7 @@ function renderAreaSidebar(playerData) {
       ${
         areasUnlocked.length > 0
           ? `<label for="area-select" class="font-semibold text-sm">Travel to:</label>
-             <select id="area-select" class="border rounded px-2 py-1 ml-2 text-xs">
+             <select id="area-select" class="border rounded px-2 py-1  text-xs">
                ${areasUnlocked.map(area => `
                  <option value="${area.area_id}" ${area.area_id == currentAreaId ? 'selected' : ''}>
                    ${area.name} (Lv. ${area.min_level}-${area.max_level})
@@ -52,7 +52,7 @@ function renderAreaSidebar(playerData) {
     select.addEventListener('change', async (e) => {
       const areaId = parseInt(select.value);
       if (areaId !== currentAreaId) {
-        const response = await fetch('/bw2/api/updateLocation.php', {
+        const response = await fetch('/api/updateLocation.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: playerId, x: 0, y: 0, area_id: areaId })
@@ -64,11 +64,8 @@ function renderAreaSidebar(playerData) {
           const monstersContainer = document.getElementById('monsters-nearby');
           if (monstersContainer) monstersContainer.innerHTML = '';
           // Refresh sidebar and grid with new data
-          renderAreaSidebar(data);
-          renderLocationBreadcrumbs(data);
-          updateGridLocation(data);
-          updatePlayerStats();
-          startCooldown(); // Show the countdown after traveling
+          refreshDashboard();
+
         } else {
           showToast(data.error, 'error', 3000);
         }
@@ -95,10 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const ownershipBtn = document.getElementById('take-ownership-button');
-  if (ownershipBtn) ownershipBtn.addEventListener('click', () => {
+  if (ownershipBtn) ownershipBtn.addEventListener('click', async () => {
     clearBattleModalRewards();
-    takeOwnership();
-    refreshDashboard();
+    await takeOwnership();
+    refreshDashboard(); // <-- Add this line to update the UI after taking ownership
   });
 
   const closeBattleBtn = document.getElementById('close-battle');

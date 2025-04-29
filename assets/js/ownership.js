@@ -1,6 +1,7 @@
 import { fetchPlayerData, updatePlayerStats } from './playerStats.js';
 import { showToast } from './ui.js';
 import { clearBattleModalRewards } from './battle.js';
+import { updateGridOwner } from './grid.js';
 
 export async function takeOwnership() {
   // --- Clear loot section and loot list before showing PvP modal ---
@@ -24,7 +25,7 @@ export async function takeOwnership() {
 
     // If the tile is unowned
     if (!areaOwner) {
-      const response = await fetch('/bw2/api/takeOwnership.php', {
+      const response = await fetch('api/takeOwnership.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -78,7 +79,7 @@ export async function takeOwnership() {
         
         // Trigger the battle
         try {
-          const battleResponse = await fetch('/bw2/api/BattlePlayer.php', {
+          const battleResponse = await fetch('/api/BattlePlayer.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -135,6 +136,13 @@ export async function takeOwnership() {
           // Show result modal (reuse the existing one)
           document.getElementById('battle-modal').classList.remove('hidden');
           updatePlayerStats();
+
+          // Fetch latest player data and update grid owner display
+          const updatedPlayerData = await fetchPlayerData();
+          console.log('Updated Player Data:', updatedPlayerData);
+          console.log('Ownership Result:', result);
+          updateGridOwner(updatedPlayerData);
+
     
         } catch (error) {
           console.error('Error in BattlePlayer API:', error);

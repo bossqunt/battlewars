@@ -35,7 +35,7 @@ async function updatePlayerStats() {
 
 async function fetchPlayerData() {
   try {
-    const response = await fetch('/bw2/api/getPlayer.php', {
+    const response = await fetch('/api/getPlayer.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

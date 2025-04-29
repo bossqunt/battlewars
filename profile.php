@@ -272,7 +272,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                     </div>
                   </div>
                   <div class="text-gray-500 font-semibold mr-4 text-xs sm:text-sm">
-                    ${data.stats?.bosses_defeated ?? 0}
+                    ${data.stats?.boss_kills ?? 0}
                   </div>
                 </div>
                 <!-- PvP Wins -->
@@ -359,7 +359,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                     </div>
                   </div>
                   <div class="text-gray-500 font-semibold mr-4 text-xs sm:text-sm">
-                    ${data.stats?.gold_earned ?? 0}
+                    ${data.stats?.gold_sum ?? 0}
                   </div>
                 </div>
                 <!-- Items Sold -->

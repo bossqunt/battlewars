@@ -9,7 +9,7 @@ class Database {
         $user = 'root';
         $pass = '';
         $dbname = 'battlewarz';
-        $this->conn = new mysqli($host, $user, $pass, $dbname);
+        $this->conn = new mysqli($host, $user, $pass, $dbname, 3306);
 
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
