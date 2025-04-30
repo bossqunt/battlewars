@@ -11,15 +11,20 @@ function sanitize($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
-// Your secret key for signing JWTs
-$secretKey = 'fuckoffdog'; // Keep this safe and consistent
+$secretKey = 'fuckoffdog'; // Replace with a secure value in production
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    http_response_code(405); // Method Not Allowed
+    echo json_encode(["status" => "error", "message" => "Only POST method is allowed"]);
+    exit;
+}
+
+try {
     $database = new Database();
     $conn = $database->getConnection();
 
-    $name = sanitize($_POST["name"]);
-    $password = $_POST["password"];
+    $name = sanitize($_POST["name"] ?? '');
+    $password = $_POST["password"] ?? '';
 
     if (empty($name) || empty($password)) {
         echo json_encode(["status" => "error", "message" => "Please enter both username and password"]);
@@ -27,27 +32,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt = $conn->prepare("SELECT * FROM players WHERE name = ?");
+    if (!$stmt) {
+        throw new Exception("Table or query error: " . $conn->error);
+    }
+
     $stmt->bind_param("s", $name);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result->num_rows == 1) {
+    if ($result && $result->num_rows === 1) {
         $player = $result->fetch_assoc();
         if (password_verify($password, $player['password'])) {
-            // Set player as online and update last_active
-            $updateStmt = $conn->prepare("UPDATE players SET online = 1, token_expire = DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL 3600 SECOND) WHERE id = ?");
+            // Update player status
+            $updateStmt = $conn->prepare("UPDATE players SET online = 1, token_expire = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = ?");
             $updateStmt->bind_param("i", $player['id']);
             $updateStmt->execute();
             $updateStmt->close();
 
-            // Create the JWT payload
             $payload = [
                 'id' => $player['id'],
                 'name' => $player['name'],
                 'admin' => $player['admin'],
-                'exp' => time() + 3600 // Token valid for 1 hour
+                'exp' => time() + 3600
             ];
-            
 
             $jwt = JWT::encode($payload, $secretKey, 'HS256');
 
@@ -56,14 +63,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "message" => "Login successful",
                 "token" => $jwt
             ]);
-            exit;
         } else {
             echo json_encode(["status" => "error", "message" => "Incorrect password"]);
-            exit;
         }
     } else {
         echo json_encode(["status" => "error", "message" => "User not found"]);
-        exit;
     }
 
+    $stmt->close();
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(["status" => "error", "message" => "Server error", "details" => $e->getMessage()]);
 }

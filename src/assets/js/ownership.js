@@ -79,7 +79,7 @@ export async function takeOwnership() {
         
         // Trigger the battle
         try {
-          const battleResponse = await fetch('/api/BattlePlayer.php', {
+          const battleResponse = await fetch('api/BattlePlayer.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

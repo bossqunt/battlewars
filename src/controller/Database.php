@@ -4,18 +4,18 @@ class Database {
     private $conn;
 
     public function __construct() {
-        // db configuration can live here for now
-        $host = 'localhost';
-        $user = 'root';
-        $pass = '';
-        $dbname = 'battlewarz';
-        $this->conn = new mysqli($host, $user, $pass, $dbname, 3306);
+        $host = getenv('DB_HOST');
+        $user = getenv('DB_USER');
+        $pass = getenv('DB_PASS');
+        $dbname = getenv('DB_NAME');
+        $port = getenv('DB_PORT');
+
+        $this->conn = new mysqli($host, $user, $pass, $dbname, $port);
 
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
         }
     }
-
     public function getConnection() {
         return $this->conn;
     }

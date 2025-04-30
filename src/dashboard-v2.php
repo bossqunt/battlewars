@@ -9,7 +9,7 @@
       <a href="dashboard.php" class="text-gray-500 hover:text-gray-700 flex items-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd"
-            d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z"
+            d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a 1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z"
             clip-rule="evenodd"></path>
         </svg>
         <span class="sr-only">Home</span>
@@ -129,6 +129,7 @@
         <!-- Monsters will be dynamically populated here -->
       </div>
     </div>
+
 
 <!-- Player Battle Modal -->
 <div id="player-battle-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
