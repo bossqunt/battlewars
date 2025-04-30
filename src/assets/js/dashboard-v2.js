@@ -52,7 +52,7 @@ function renderAreaSidebar(playerData) {
     select.addEventListener('change', async (e) => {
       const areaId = parseInt(select.value);
       if (areaId !== currentAreaId) {
-        const response = await fetch('/api/updateLocation.php', {
+        const response = await fetch('api/updateLocation.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: playerId, x: 0, y: 0, area_id: areaId })

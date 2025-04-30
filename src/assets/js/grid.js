@@ -2,24 +2,39 @@
 
 
 // Set this variable to control the grid gap size (in px)
-const GRID_GAP_SIZE = 4; // Change this value to set the gap between cells
+const GRID_GAP_SIZE = 6; // Change this value to set the gap between cells
 
 export async function updateGridLocation(playerData) {
   const gridContainer = document.getElementById('grid-container');
+  const parentContainer = gridContainer?.parentElement; // Get parent container
   const travelDetails = document.getElementById('travel-details');
   if (gridContainer) gridContainer.innerHTML = '';
   if (travelDetails) travelDetails.innerHTML = '';
 
   // Responsive grid: fill parent, fixed gap
+
   if (gridContainer) {
     gridContainer.style.display = 'grid';
     gridContainer.style.gridTemplateColumns = 'repeat(9, 1fr)';
     gridContainer.style.gridTemplateRows = 'repeat(9, 1fr)';
     gridContainer.style.gap = `${GRID_GAP_SIZE}px`;
-    // Remove fixed width/height
-    gridContainer.style.width = '';
-    gridContainer.style.height = '';
+    gridContainer.style.width = '100%';
+    gridContainer.style.height = '100%';
     gridContainer.style.setProperty('--grid-cell-size', '');
+
+    // Make parent container responsive as well
+    if (parentContainer) {
+      // parentContainer.style.width = '100%';    // Remove this
+      // parentContainer.style.height = '100%';   // Remove this
+      parentContainer.style.maxWidth = 'min(70vw, 70vh)';
+      parentContainer.style.maxHeight = 'min(70vw, 70vh)';
+      parentContainer.style.minWidth = '500px';    // Prevents grid from becoming too small
+      parentContainer.style.minHeight = '500px';   // Prevents grid from becoming too small
+      parentContainer.style.aspectRatio = '1 / 1';
+      parentContainer.style.display = 'flex';
+      parentContainer.style.alignItems = 'center';
+      parentContainer.style.justifyContent = 'center';
+    }
   }
 
   const gridWidth = 9;

@@ -3885,9 +3885,7 @@ body {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(9, 45px) !important;
-  /* Adjust the size as needed */
-  grid-template-rows: repeat(9, 45px) !important;  
+
   /* Adjust the size as needed */
   gap: 5px;
   /* Adjust the gap between cells */

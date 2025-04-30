@@ -37,6 +37,11 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
             </ol>
         </nav>
         <!-- End Breadcrumb -->
+
+        
+
+
+
         <div class="bg-white border border-slate-200 rounded-lg w-full mb-6">
       <div class="p-6">
         <div class="w-full overflow-x-hidden space-y-4">

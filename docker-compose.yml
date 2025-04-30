@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+    container_name: battlewarz-app
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"  # Limit to 0.5 CPU (50% of one core)
+          memory: 512M  # Limit to 512MB of RAM
+        reservations:
+          cpus: "0.2"  # Reserve 0.2 CPU (20% of one core)
+          memory: 256M  # Reserve 256MB of RAM
+
+  db:
+    image: mysql:8.0
+    restart: always
+    container_name: battlewarz-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - bw_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+
+    deploy:
+      resources:
+        limits:
+          cpus: "1"  # Limit to 1 CPU
+          memory: 1G  # Limit to 1GB of RAM
+        reservations:
+          cpus: "0.5"  # Reserve 0.5 CPU (50% of one core)
+          memory: 512M  # Reserve 512MB of RAM
+  
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Mount the local prometheus.yml to the container
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana  # Persist Grafana data across restarts
+
+volumes:
+  bw_data:
+  grafana_data:  # Define the grafana_data volume to persist Grafana data

@@ -9,7 +9,7 @@ import { loadWorldEvents } from './worldEvents.js';
 
 async function updateOnlinePlayers() {
   try {
-    const response = await fetch('/bw2/api/getOnlinePlayers.php');
+    const response = await fetch('api/getOnlinePlayers.php');
     const data = await response.json();
 
     const onlineCountElem = document.getElementById('online-player-count');
@@ -91,7 +91,7 @@ function renderAreaSidebar(playerData) {
     select.addEventListener('change', async (e) => {
       const areaId = parseInt(select.value);
       if (areaId !== currentAreaId) {
-        const response = await fetch('/bw2/api/updateLocation.php', {
+        const response = await fetch('api/updateLocation.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: playerId, x: 0, y: 0, area_id: areaId })

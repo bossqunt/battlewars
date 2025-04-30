@@ -2,7 +2,7 @@ import { updatePlayerStats } from './playerStats.js';
 
 
 export function getBattleHistory(playerId) {
-  const endpoint = `/api/getPlayerBattleHistory.php`;
+  const endpoint = `api/getPlayerBattleHistory.php`;
   updatePlayerStats();
 
   fetch(`${endpoint}?id=${playerId}`)
