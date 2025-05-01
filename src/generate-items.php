@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'includes/sidebar.php';
-require_once './includes/item-generator.php'; // <-- shared item logic
+require_once 'includes/item-generator.php'; // <-- shared item logic
 
 // Get the selected group-by option from the dropdown
 $groupBy = isset($_POST['groupBy']) ? $_POST['groupBy'] : 'type';

@@ -48,7 +48,6 @@
 
 <!-- TESTING -->
 <div class="relative mx-auto w-full max-w-8xl mb-3 rounded-lg border-gray-200 border">
-
   <div class="flex flex-col bg-white rounded-md p-4">
 
     <!-- Top row: Location + Owner -->
@@ -99,7 +98,7 @@
       <button id="take-ownership-button" class="rpg-button border border-yellow-400 bg-white-200 text-black-800 h-7 px-3 text-xs">
         Take Ownership
       </button>
-      <button id="travel-button" class="rpg-button rpg-button-primary h-7 px-3 text-xs ">
+      <button id="travel-button" class="rpg-button rpg-button-primary h-7 px-3 text-xs animate-bounce ease-linear">
         Travel
       </button>
     </div>
@@ -107,28 +106,20 @@
   </div>
 </div>
 
-
-<!-- Main Game Content -->
-<div class="flex-grow flex overflow-hidden ">
-  <!-- Game Main Area -->
-  <div class="game-container flex-grow p-0 bg-white border border-gray-200 rounded-lg p-4 flex-1 flex flex-col w-full max-w-4xl">
-    <!-- Grid Container with auto-sizing tiles -->
-    <div class="grid-container" id="grid-container">
-      <!-- Grid will be dynamically populated here -->
-      <!-- Make sure each cell has class="grid-cell" -->
-
-    </div>
+<div class="flex flex-col md:flex-row w-full gap-5">
+  <!-- Grid Area -->
+  <div class="flex-[3] bg-white border border-gray-200 rounded-lg p-4 flex flex-col min-w-0">
+    <div class="grid-container flex-grow" id="grid-container"></div>
   </div>
 
-  <!-- Right Sidebar (Fixed Width) -->
-  <aside class="xl:w-80 w-full mt-0 flex-shrink-0 flex flex-col overflow-hidden ml-5">
-    <!-- Nearby Monsters Card -->
-    <div class="bg-white rounded-lg mb-3 flex flex-col border border-gray-200 w-full xl:w-80">
+  <!-- Sidebar -->
+  <aside class="flex-[1] min-w-0 flex-shrink flex flex-col">
+    <div class="bg-white rounded-lg border border-gray-200 w-full">
       <h2 class="text-sm font-medium mb-2 p-4 !pb-0">Nearby Monsters</h2>
-      <div class="space-y-1 p-4 !pt-0" id="monsters-nearby">
-        <!-- Monsters will be dynamically populated here -->
-      </div>
+      <div class="space-y-1 p-4 !pt-0" id="monsters-nearby"></div>
     </div>
+  </aside>
+</div>
 
 
 <!-- Player Battle Modal -->

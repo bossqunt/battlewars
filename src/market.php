@@ -233,4 +233,3 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
   });
 </script>
 <script type="module" src="assets/js/playerStats.js"></script>
-<?php include 'includes/footer.php'; ?>

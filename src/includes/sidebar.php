@@ -132,45 +132,49 @@ if (!function_exists('mainContainerClose')) {
             </button>
         </div>
 
-        <!-- Navigation Section -->
-        <div class="p-3">
-            <h2 class="font-medium text-xs text-sidebar-foreground uppercase nav-section-title">Navigation</h2>
-            <nav class="space-y-1 mt-2">
-                <a href="home.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('home.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-home-circle mr-3"></i>
-                    <span class="text-[14px] nav-text">Home</span>
-                </a>
-                <a href="dashboard.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('dashboard.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-home-circle mr-3"></i>
-                    <span class="text-[14px] nav-text">Overworld</span>
-                </a>
-                <a href="guilds.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('guilds.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-group mr-3"></i>
-                    <span class="text-[14px] nav-text">Guilds</span>
-                </a>
-                <a href="Fountain.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('Fountain.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-bible mr-3"></i>
-                    <span class="text-[14px] nav-text">Fountain</span>
-                </a>
-                <a href="inventory.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('inventory.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-archive mr-3"></i>
-                    <span class="text-[14px] nav-text">Inventory</span>
-                    <span class="inventory-badge text-[9px] bg-primary px-1.5 py-0.5 rounded-full text-white ml-auto" id="inventorycount">0</span>
-                </a>
-                <a href="market.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('market.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-cart mr-3"></i>
-                    <span class="text-[14px] nav-text">Market</span>
-                </a>
-                <a href="profile.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('Profile.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-id-card mr-3"></i>
-                    <span class="text-[14px] nav-text">Profile</span>
-                </a>
-                <a href="logout.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('Logout.php'); ?>">
-                    <i class="sidebar-icon menu-icon tf-icons bx bx-log-out mr-3"></i>
-                    <span class="text-[14px] nav-text">Logout</span>
-                </a>
-            </nav>
-        </div>
+    <!-- Navigation Section -->
+<div class="p-3">
+    <h2 class="font-medium text-xs text-sidebar-foreground uppercase nav-section-title">Navigation</h2>
+    <nav class="space-y-1 mt-2">
+        <a href="home.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('home.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-home-alt mr-3"></i>
+            <span class="text-[14px] nav-text">Home</span>
+        </a>
+        <a href="dashboard.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('dashboard.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-map mr-3"></i>
+            <span class="text-[14px] nav-text">Overworld</span>
+        </a>
+        <a href="guilds.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('guilds.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-group mr-3"></i>
+            <span class="text-[14px] nav-text">Guilds</span>
+        </a>
+        <a href="fountain.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('fountain.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-book-open mr-3"></i>
+            <span class="text-[14px] nav-text">Fountain</span>
+        </a>
+        <a href="inventory.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('inventory.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-box mr-3"></i>
+            <span class="text-[14px] nav-text">Inventory</span>
+            <span class="inventory-badge text-[9px] bg-primary px-1.5 py-0.5 rounded-full text-white ml-auto" id="inventorycount">0</span>
+        </a>
+        <a href="market.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('market.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-store mr-3"></i>
+            <span class="text-[14px] nav-text">Market</span>
+        </a>
+        <a href="profile.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('Profile.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-user mr-3"></i>
+            <span class="text-[14px] nav-text">Profile</span>
+        </a>
+        <a href="players.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('players.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-user-circle mr-3"></i>
+            <span class="text-[14px] nav-text">Players</span>
+        </a>
+        <a href="logout.php" class="rpg-sidebar-nav-item flex items-center relative <?php echo isActivePage('logout.php'); ?>">
+            <i class="sidebar-icon menu-icon tf-icons bx bx-log-out mr-3"></i>
+            <span class="text-[14px] nav-text">Logout</span>
+        </a>
+    </nav>
+</div>
 
         <!-- Admin Tools (if admin) -->
         <?php if ($isAdmin == 1) { ?>

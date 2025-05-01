@@ -5,6 +5,7 @@ import { showToast } from './ui.js';
 export async function travelPlayer() {
   const travelButton = document.getElementById('travel-button');
   travelButton.disabled = true;
+  travelButton.classList.remove('animate-bounce', 'ease-linear')
 
   try {
     const response = await fetch('api/travelPlayer.php', {
@@ -26,6 +27,7 @@ export async function travelPlayer() {
   } catch (error) {
     console.error('Error:', error);
     travelButton.disabled = false;
+    travelButton.classList.add('animate-bounce', 'ease-linear')
   }
 }
 
@@ -34,11 +36,13 @@ export function startCooldown(button, countdown) {
   const countdownInterval = setInterval(() => {
     countdown--;
     button.textContent = `Travel (${countdown})`;
+    
 
     if (countdown <= 0) {
       clearInterval(countdownInterval);
       button.textContent = 'Travel';
       button.disabled = false;
+      button.classList.add('animate-bounce', 'ease-linear')
     }
   }, 1000);
 }
