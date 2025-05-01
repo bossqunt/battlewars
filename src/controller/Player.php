@@ -16,6 +16,10 @@ class Player
     {
         return $this->getAttribute('id');
     }
+    public function getImage()
+    {
+        return $this->getAttribute('image_path');
+    }
 
     public function getLevel()
     {
@@ -84,6 +88,10 @@ class Player
     public function getClass()
     {
         return $this->getAttribute('class_id');
+    }
+    public function getGold()
+    {
+        return $this->getAttribute('gold');
     }
     public function getAdmin()
     {
@@ -234,17 +242,29 @@ class Player
       }
       public function fetchProfileDetails()
       {
-          $query = "
-              SELECT p.id, p.level, p.name, p.image_path, p.exp, e.exp_req, p.gold, p.max_hp, p.max_mp,
-                     p.c_hp, p.c_mp, p.attack, p.speed, p.defence, p.stamina,
-                     pc.name AS class
-              FROM players p
-              LEFT JOIN exp_table e ON e.level = p.level
-              INNER JOIN player_classes pc ON pc.id = p.class_id
-              WHERE p.id = ?
-          ";
-      
-          return $this->fetchSingleRow($query, [$this->id]);
+        $profile = [
+            'id'         => $this->getId(),
+            'name'       => $this->getName(),
+            'level'      => $this->getLevel(),
+            'image_path' => $this->getImage(),
+            'exp'        => $this->getExp(),
+            'exp_req'    => $this->getRequiredExp(),
+            'class'      => $player['class'] ?? null,
+            'attack'     => $this->getAttack(),
+            'defence'    => $this->getDefence(),
+            'speed'      => $this->getSpeed(),
+            'gold'       => $this->getGold(),
+            'max_hp'     => $this->getMaxHp(),
+            'c_hp'       => $this->getCurrentHp(),
+            'stamina'    => $this->getStamina(),
+            'crit_chance'   => $this->getPlayerItemCritChance(),
+            'crit_multi'    => $this->getPlayerItemCritMulti(),
+            'life_steal'    => $this->getPlayerItemLifesteal(),
+            'stats'      => $this->getPlayerStats(),
+        ];
+
+        
+        return $profile;
       }
 
     // Retrieves player details including attributes and related data
@@ -275,14 +295,12 @@ class Player
         // Use $this->id for the player id
         $playerId = $this->id;
 
-        $player = $this->fetchProfileDetails();
-
         // Build the response using getter methods for calculated stats
         $profile = [
             'id'         => $this->getId(),
             'name'       => $this->getName(),
             'level'      => $this->getLevel(),
-            'image_path' => $player['image_path'] ?? null,
+            'image_path' => $this->getImage(),
             'exp'        => $this->getExp(),
             'exp_req'    => $this->getRequiredExp(),
             'class'      => $player['class'] ?? null,

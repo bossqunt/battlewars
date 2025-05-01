@@ -1,4 +1,7 @@
+
 <?php
+include_once './controller/Database.php';
+
 // Prefix configs, itemTypes, itemNames, baseStats, etc.
 $prefixConfigs = [
     ['name' => 'Starter',    'multiplier' => 0.7, 'level_range' => [1, 10]],
@@ -222,15 +225,19 @@ function generateItem($type, $itemNames, $baseStats, $prefixConfig, $subtype = n
 }
 
 // Fetch rarities and modifiers from DB (for rarity preview)
-$mysqli = new mysqli("localhost", "root", "", "battlewarz");
+$mysqli = new Database();
+
+// Fetch rarities
 $rarities = [];
-$rarityRes = $mysqli->query("SELECT * FROM item_rarities ORDER BY id ASC");
-while ($row = $rarityRes->fetch_assoc()) {
+$rarityRes = $mysqli->fetchAll("SELECT * FROM item_rarities ORDER BY id ASC");
+foreach ($rarityRes as $row) {
     $rarities[$row['id']] = $row['name'];
 }
+
+// Fetch modifiers
 $modifiers = [];
-$modRes = $mysqli->query("SELECT * FROM item_rarity_modifiers ORDER BY rarity_id ASC");
-while ($modRes && $row = $modRes->fetch_assoc()) {
+$modRes = $mysqli->fetchAll("SELECT * FROM item_rarity_modifiers ORDER BY rarity_id ASC");
+foreach ($modRes as $row) {
     $modifiers[$row['rarity_id']][] = $row;
 }
 
