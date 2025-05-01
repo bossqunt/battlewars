@@ -41,10 +41,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Hash the password securely
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $gold = 150;
+    $gold = 250;
+    $class_id = 1;
     // Insert the new player into the database
-    $stmt = $conn->prepare("INSERT INTO players (name, password, gold) VALUES (?, ?, ?)");
-    $stmt->bind_param("ssi", $name,  $hashed_password, $gold);
+    $stmt = $conn->prepare("INSERT INTO players (name, password, gold, class_id) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssii", $name,  $hashed_password, $gold, $class_id);
     
     if ($stmt->execute()) {
         // Get the ID of the new player
@@ -58,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $area_id = 1; // Starter area ID
         $x = 0; // Example starting X coordinate
         $y = 0; // Example starting Y coordinate
+  
 
         // Set the player's starting area and position
         $stmt = $conn->prepare("INSERT INTO player_position (area_id, x, y, player_id) VALUES (?, ?, ?, ?)");
@@ -65,11 +67,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
 
         // Insert the starter item into the player's inventory
-        $stmt2 = $conn->prepare("INSERT INTO player_inventory (player_id, item_id, rarity, equipped) VALUES (?, ?, ?, ?)");
-        $stmt2->bind_param("iiii", $player_id, $starter_item, $rarity, $equipped);  
+        $stmt2 = $conn->prepare("INSERT INTO player_inventory (player_id, item_id, rarity, equipped) VALUES (?, ?, ?, ?, ?)");
+        $stmt2->bind_param("iiii", $player_id, $starter_item, $rarity, $equipped, $quantity);  
         $equipped = 1; // Item is equipped at the start
         $rarity = 1; // Common rarity item
         $starter_item = 1; // Assuming the starter item ID is 1
+        $quantity = 1;
         $stmt2->execute();
 
         //

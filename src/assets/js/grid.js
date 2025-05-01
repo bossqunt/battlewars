@@ -26,10 +26,10 @@ export async function updateGridLocation(playerData) {
     if (parentContainer) {
       // parentContainer.style.width = '100%';    // Remove this
       // parentContainer.style.height = '100%';   // Remove this
-      parentContainer.style.maxWidth = 'min(70vw, 70vh)';
-      parentContainer.style.maxHeight = 'min(70vw, 70vh)';
-      parentContainer.style.minWidth = '500px';    // Prevents grid from becoming too small
-      parentContainer.style.minHeight = '500px';   // Prevents grid from becoming too small
+      parentContainer.style.maxWidth = 'min(60vw, 60vh)';
+      parentContainer.style.maxHeight = 'min(60vw, 60vh)';
+      parentContainer.style.minWidth = '400px';    // Prevents grid from becoming too small
+      parentContainer.style.minHeight = '400px';   // Prevents grid from becoming too small
       parentContainer.style.aspectRatio = '1 / 1';
       parentContainer.style.display = 'flex';
       parentContainer.style.alignItems = 'center';

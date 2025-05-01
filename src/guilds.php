@@ -112,7 +112,7 @@ include 'includes/sidebar.php'; // Sidebar HTML
 
         <!-- My Guild Section -->
         <?php if ($myGuild): ?>
-            <div class="bg-white border border-slate-200 rounded-lg w-full mb-6">
+            <div class="relative mx-auto w-full max-w-8xl mb-3 rounded-lg border-gray-200 border">
       <div class="p-6">
         <div class="w-full overflow-x-hidden space-y-4">
                 <h2 class="text-lg font-semibold mb-2">My Guild</h2>
