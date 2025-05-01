@@ -29,7 +29,6 @@ Battlewarz is a browser-based RPG set in a dynamic grid-based world. Players eng
 ```
 
 ## 📈 Development Features
-- ✅ Live online player list
 - ✅ Passive regeneration for stamina/health
 - ✅ Real-time inventory management
 - ✅ PVP with stat-based combat
@@ -40,6 +39,7 @@ Battlewarz is a browser-based RPG set in a dynamic grid-based world. Players eng
 - 🔜 Guilds and World Events
 - 🔜 Buffs, consumables, and status effects
 - 🔜 Animated battles and effects
+- 🔜 Live online player list
 
 ## 🪪 License
 Open source under the MIT license.
