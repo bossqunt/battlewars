@@ -119,8 +119,8 @@ $name = $player->getName();
           <path d="M2 12l10-8 10 8-10 8-10-8z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
-        <div class="font-semibold text-gray-800 text-xs">World Map</div>
-        <div class="text-[10px] text-gray-500 mt-0.5">Conquer tiles</div>
+        <div class="font-semibold text-gray-800 text-xs">Overworld</div>
+        <div class="text-[10px] text-gray-500 mt-0.5">Conquer the world</div>
       </div>
     </a>
     <!-- Guilds -->
@@ -146,7 +146,7 @@ $name = $player->getName();
       </div>
     </a>
     <!-- Change Password -->
-    <a href="/changepassword.php" class="block bg-white border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition group text-center">
+    <a href="/profile.php" class="block bg-white border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition group text-center">
       <div class="flex flex-col items-center">
         <svg class="h-6 w-6 text-gray-500 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <rect x="3" y="11" width="18" height="10" rx="2" />

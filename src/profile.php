@@ -15,71 +15,77 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css">
 </head>
 <?php mainContainer('main-container', 'max-w-6xl mx-auto', '', true); ?>
-        <!-- Breadcrumb -->
-        <nav class="flex mb-4 text-sm text-gray-500" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-2">
-                <li class="inline-flex items-center">
-                    <a href="dashboard.php" class="text-gray-500 hover:text-gray-700 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="sr-only">Home</span>
-                    </a>
-                </li>
-                <li>
-                    <span class="mx-2 text-gray-400 flex items-center" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path></svg>
-                    </span>
-                </li>
-                <li class="inline-flex items-center">
-                    <span class="text-gray-700 font-semibold">Profile</span>
-                </li>
-            </ol>
-        </nav>
-        <!-- End Breadcrumb -->
+<!-- Breadcrumb -->
+<nav class="flex mb-4 text-sm text-gray-500" aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2">
+    <li class="inline-flex items-center">
+      <a href="dashboard.php" class="text-gray-500 hover:text-gray-700 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z"
+            clip-rule="evenodd"></path>
+        </svg>
+        <span class="sr-only">Home</span>
+      </a>
+    </li>
+    <li>
+      <span class="mx-2 text-gray-400 flex items-center" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+          <path fill-rule="evenodd"
+            d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </span>
+    </li>
+    <li class="inline-flex items-center">
+      <span class="text-gray-700 font-semibold">Profile</span>
+    </li>
+  </ol>
+</nav>
+<!-- End Breadcrumb -->
 
-        
 
 
 
-        <div class="bg-white border border-slate-200 rounded-lg w-full mb-6">
-      <div class="p-6">
-        <div class="w-full overflow-x-hidden space-y-4">
-    <div id="profile-content">
-      <div class="text-center text-gray-500">Loading...</div>
+
+<div class="bg-white border border-slate-200 rounded-lg w-full mb-6">
+  <div class="p-6">
+    <div class="w-full overflow-x-hidden space-y-4">
+      <div id="profile-content">
+        <div class="text-center text-gray-500">Loading...</div>
+      </div>
     </div>
-  </div>
-  <script>
-    // Pass PHP variables to JS
-    const CURRENT_PLAYER_ID = <?php echo json_encode($playerId); ?>;
-    const VIEW_PLAYER_ID = <?php echo json_encode($viewId); ?>;
+    <script>
+      // Pass PHP variables to JS
+      const CURRENT_PLAYER_ID = <?php echo json_encode($playerId); ?>;
+      const VIEW_PLAYER_ID = <?php echo json_encode($viewId); ?>;
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const profileContent = document.getElementById('profile-content');
-      try {
-        // Pass id to API
-        const res = await fetch('api/getPlayerProfile.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: VIEW_PLAYER_ID })
-        });
-        const data = await res.json();
-        console.log(data); // Debugging line
-        if (!data || data.status === 'error' || data.error) {
-          profileContent.innerHTML = `<div class="text-red-600 text-center">Failed to load profile.</div>`;
-          return;
-        }
+      document.addEventListener('DOMContentLoaded', async () => {
+        const profileContent = document.getElementById('profile-content');
+        try {
+          // Pass id to API
+          const res = await fetch('api/getPlayerProfile.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: VIEW_PLAYER_ID })
+          });
+          const data = await res.json();
+          console.log(data); // Debugging line
+          if (!data || data.status === 'error' || data.error) {
+            profileContent.innerHTML = `<div class="text-red-600 text-center">Failed to load profile.</div>`;
+            return;
+          }
 
-        // Calculate progress percentages
-        const expPercent = data.exp_req && data.exp ? Math.min(100, Math.round((data.exp / data.exp_req) * 100)) : 0;
-        const hpPercent = data.max_hp && data.c_hp ? Math.min(100, Math.round((data.c_hp / data.max_hp) * 100)) : 0;
-        const staminaPercent = data.max_stamina && data.stamina ? Math.min(100, Math.round((data.stamina / data.max_stamina) * 100)) : 0;
+          // Calculate progress percentages
+          const expPercent = data.exp_req && data.exp ? Math.min(100, Math.round((data.exp / data.exp_req) * 100)) : 0;
+          const hpPercent = data.max_hp && data.c_hp ? Math.min(100, Math.round((data.c_hp / data.max_hp) * 100)) : 0;
+          const staminaPercent = data.max_stamina && data.stamina ? Math.min(100, Math.round((data.stamina / data.max_stamina) * 100)) : 0;
 
-        // Fix: Use loose comparison for isOwnProfile
-        const isOwnProfile = (data.id == CURRENT_PLAYER_ID);
+          // Fix: Use loose comparison for isOwnProfile
+          const isOwnProfile = (data.id == CURRENT_PLAYER_ID);
 
-        // Main profile card
-        let html = `
+          // Main profile card
+          let html = `
     <div class="flex flex-col md:flex-row gap-6">
       <!-- Left Column: Profile & Combat Stats -->
       <div class="w-full md:w-1/2 space-y-6">
@@ -113,7 +119,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                   <span>${data.exp ?? 0} / ${data.exp_req ?? 0}</span>
                 </div>
                 <div class="relative w-full overflow-hidden rounded-full bg-secondary h-2">
-                  <div class="h-full flex-1 bg-primary transition-all" style="width:${expPercent}%;"></div>
+                  <div class="h-full transition-all bg-gradient-to-r from-amber-400 to-amber-300 bg-green-500" style="width:${expPercent}%;"></div>
                 </div>
               </div>
               <!-- HP Progress -->
@@ -123,10 +129,10 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
 
                     Health
                   </span>
-                  <span>${data.c_hp ?? 0} / ${data.max_hp ?? 0}</span>
+                  <span >${data.c_hp ?? 0} / ${data.max_hp ?? 0}</span>
                 </div>
                 <div class="relative w-full overflow-hidden rounded-full h-2 bg-red-100">
-                  <div class="h-full flex-1 bg-primary transition-all" style="width:${hpPercent}%;"></div>
+                  <div class="h-full w-full flex-1 transition-all bg-green-500" style="width:${hpPercent}%;"></div>
                 </div>
               </div>
               <!-- Stamina Progress -->
@@ -136,10 +142,10 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
 
                     Stamina
                   </span>
-                  <span>${data.stamina ?? 0}${data.max_stamina ? ' / ' + data.max_stamina : ''}</span>
+                  <span>${data.stamina ?? 0}${60 ? ' / ' + 60 : ''}</span>
                 </div>
                 <div class="relative w-full overflow-hidden rounded-full h-2 bg-amber-100">
-                  <div class="h-full flex-1 bg-primary transition-all" style="width:${staminaPercent}%;"></div>
+                  <div class="h-full w-full flex-1 bg-primary transition-all bg-gradient-to-r from-blue-500 to-blue-400 bg-green-500" style="width:${staminaPercent}%;"></div>
                 </div>
               </div>
             </div>
@@ -215,9 +221,12 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
       <!-- Right Column: Statistics (Wider) -->
       <div class="w-full md:w-1/2">
       ${isOwnProfile ? `
-        <div role="tablist" class="mb-2 h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground grid w-full grid-cols-2">
+        <div role="tablist" class="mb-2 h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground grid w-full grid-cols-3">
           <button id="statistics-tab" data-state="active" class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:">
             Statistics
+          </button>
+          <button id="achievments-tab" class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:">
+            Achievments
           </button>
           <button id="settings-tab" class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:">
             Settings
@@ -237,7 +246,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                 <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
                 <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
               </svg>
-              Achievements &amp; Stats
+              Gameplay Stats
             </h3>
           </div>
           
@@ -314,9 +323,9 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                   </div>
                   <div class="text-gray-500 font-semibold mr-4 text-xs sm:text-sm">
                     ${data.stats?.pvp_battles
-                      ? ((data.stats.pvp_kills ?? 0) / data.stats.pvp_battles * 100).toFixed(2) + '%'
-                      : '—'
-                    }
+              ? ((data.stats.pvp_kills ?? 0) / data.stats.pvp_battles * 100).toFixed(2) + '%'
+              : '—'
+            }
                   </div>
                 </div>
                 <!-- Quests Completed -->
@@ -435,6 +444,13 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
             </div>
           </div>
         </div>
+        <!-- achievments panel -->
+        <div id="achievments-panel" class="hidden flex-1 overflow-visible">
+        <div class="flex flex-col space-y-1.5 p-6">
+        <p> Coming soon</p>  
+        </div>
+        </div>
+
         <!-- Settings Panel (hidden by default) -->
         ${isOwnProfile ? `
         <div id="settings-panel" class="hidden flex-1 overflow-visible">
@@ -475,141 +491,164 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
     </div>
     `;
 
-        profileContent.innerHTML = html;
+          profileContent.innerHTML = html;
 
-        // Tab switching logic (must be here, after HTML is set)
-        const statisticsTab = document.getElementById('statistics-tab');
-        const settingsTab = document.getElementById('settings-tab');
-        const statisticsPanel = document.getElementById('statistics-panel');
-        const settingsPanel = document.getElementById('settings-panel');
+          // Tab switching logic (must be here, after HTML is set)
+          const statisticsTab = document.getElementById('statistics-tab');
+          const achievmentsTab = document.getElementById('achievments-tab');
+          const settingsTab = document.getElementById('settings-tab');
+          const statisticsPanel = document.getElementById('statistics-panel');
+          const achievmentsPanel = document.getElementById('achievments-panel');
+          const settingsPanel = document.getElementById('settings-panel');
 
-        if (statisticsTab && settingsTab && statisticsPanel && settingsPanel) {
-          statisticsTab.addEventListener('click', () => {
-            statisticsTab.setAttribute('data-state', 'active');
-            settingsTab.removeAttribute('data-state');
-            statisticsPanel.classList.remove('hidden');
-            settingsPanel.classList.add('hidden');
-          });
-          settingsTab.addEventListener('click', () => {
-            settingsTab.setAttribute('data-state', 'active');
-            statisticsTab.removeAttribute('data-state');
-            settingsPanel.classList.remove('hidden');
-            statisticsPanel.classList.add('hidden');
-          });
-        }
+          
 
-        // Password change form logic (only if own profile)
-        if (isOwnProfile) {
-          const passwordForm = document.getElementById('password-form');
-          if (passwordForm) {
-            passwordForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const current = document.getElementById('current-password').value;
-              const next = document.getElementById('new-password').value;
-              const confirm = document.getElementById('confirm-password').value;
-              const msg = document.getElementById('password-message');
-              msg.textContent = '';
-              if (next !== confirm) {
-                msg.textContent = 'New passwords do not match.';
-                msg.className = 'mt-2 text-center text-sm text-red-600';
-                return;
-              }
-              try {
-                const res = await fetch('api/updatePassword.php', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ current_password: current, new_password: next })
-                });
-                const data = await res.json();
-                if (data.status === 'success') {
-                  msg.textContent = 'Password updated successfully.';
-                  msg.className = 'mt-2 text-center text-sm text-green-600';
-                  passwordForm.reset();
-                } else {
-                  msg.textContent = data.message || 'Failed to update password.';
-                  msg.className = 'mt-2 text-center text-sm text-red-600';
-                }
-              } catch {
-                msg.textContent = 'Error updating password.';
-                msg.className = 'mt-2 text-center text-sm text-red-600';
-              }
+
+          if (statisticsTab && settingsTab && achievmentsTab && statisticsPanel && settingsPanel && achievmentsPanel) {
+            statisticsTab.addEventListener('click', () => {
+              console.log('clicked stats');
+              statisticsTab.setAttribute('data-state', 'active');
+              settingsTab.removeAttribute('data-state');
+              achievmentsTab.removeAttribute('data-state'); // Ensure the achievements tab is also reset
+              statisticsPanel.classList.remove('hidden');
+              settingsPanel.classList.add('hidden');
+              achievmentsPanel.classList.add('hidden'); // Hide achievements panel when switching to stats
+            });
+
+            settingsTab.addEventListener('click', () => {
+              console.log('clicked settings');
+              settingsTab.setAttribute('data-state', 'active');
+              statisticsTab.removeAttribute('data-state');
+              achievmentsTab.removeAttribute('data-state'); // Ensure the achievements tab is also reset
+              settingsPanel.classList.remove('hidden');
+              statisticsPanel.classList.add('hidden');
+              achievmentsPanel.classList.add('hidden'); // Hide achievements panel when switching to settings
+            });
+
+            achievmentsTab.addEventListener('click', () => {
+              console.log('clicked achievments');
+              achievmentsTab.setAttribute('data-state', 'active');
+              statisticsTab.removeAttribute('data-state');
+              settingsTab.removeAttribute('data-state'); // Ensure the settings tab is also reset
+              achievmentsPanel.classList.remove('hidden');
+              statisticsPanel.classList.add('hidden');
+              settingsPanel.classList.add('hidden'); // Hide settings panel when switching to achievements
             });
           }
-        }
 
-        // Profile image upload logic (only if own profile)
-        if (isOwnProfile) {
-          const profileImageInput = document.getElementById('profile-image');
-          const profileImg = document.getElementById('profile-img');
-          const profileImgPreview = document.getElementById('profile-img-preview');
-          if (profileImageInput) {
-            profileImageInput.addEventListener('change', async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
 
-              // Show preview immediately
-              if (profileImgPreview) {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                  profileImgPreview.src = ev.target.result;
-                  profileImgPreview.classList.remove('hidden');
-                  // Hide the old image while previewing
-                  if (profileImg) profileImg.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-              }
-
-              const formData = new FormData();
-              formData.append('profile_image', file);
-
-              // Show uploading toast/message
-              let toast = document.createElement('div');
-              toast.textContent = 'Uploading...';
-              toast.className = 'fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded  z-50';
-              document.body.appendChild(toast);
-
-              try {
-                const res = await fetch('api/uploadProfileImage.php', {
-                  method: 'POST',
-                  body: formData
-                });
-                const result = await res.json();
-                if (result.status === 'success') {
-                  // Update the profile image on the page
-                  if (profileImg) {
-                    // Force reload with timestamp to avoid cache
-                    profileImg.src = '/' + result.image_path.replace(/^\/?/, '') + '?t=' + Date.now();
-                    profileImg.classList.remove('hidden'); // Always show after upload
-                    // Debug: log the new src
-                    console.log('Profile image updated:', profileImg.src);
+          // Password change form logic (only if own profile)
+          if (isOwnProfile) {
+            const passwordForm = document.getElementById('password-form');
+            if (passwordForm) {
+              passwordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const current = document.getElementById('current-password').value;
+                const next = document.getElementById('new-password').value;
+                const confirm = document.getElementById('confirm-password').value;
+                const msg = document.getElementById('password-message');
+                msg.textContent = '';
+                if (next !== confirm) {
+                  msg.textContent = 'New passwords do not match.';
+                  msg.className = 'mt-2 text-center text-sm text-red-600';
+                  return;
+                }
+                try {
+                  const res = await fetch('api/updatePassword.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ current_password: current, new_password: next })
+                  });
+                  const data = await res.json();
+                  if (data.status === 'success') {
+                    msg.textContent = 'Password updated successfully.';
+                    msg.className = 'mt-2 text-center text-sm text-green-600';
+                    passwordForm.reset();
+                  } else {
+                    msg.textContent = data.message || 'Failed to update password.';
+                    msg.className = 'mt-2 text-center text-sm text-red-600';
                   }
-                  if (profileImgPreview) profileImgPreview.classList.add('hidden');
-                  toast.textContent = 'Profile image updated!';
-                  toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded  z-50';
-                } else {
-                  toast.textContent = result.message || 'Failed to upload image.';
+                } catch {
+                  msg.textContent = 'Error updating password.';
+                  msg.className = 'mt-2 text-center text-sm text-red-600';
+                }
+              });
+            }
+          }
+
+          // Profile image upload logic (only if own profile)
+          if (isOwnProfile) {
+            const profileImageInput = document.getElementById('profile-image');
+            const profileImg = document.getElementById('profile-img');
+            const profileImgPreview = document.getElementById('profile-img-preview');
+            if (profileImageInput) {
+              profileImageInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Show preview immediately
+                if (profileImgPreview) {
+                  const reader = new FileReader();
+                  reader.onload = function (ev) {
+                    profileImgPreview.src = ev.target.result;
+                    profileImgPreview.classList.remove('hidden');
+                    // Hide the old image while previewing
+                    if (profileImg) profileImg.classList.add('hidden');
+                  };
+                  reader.readAsDataURL(file);
+                }
+
+                const formData = new FormData();
+                formData.append('profile_image', file);
+
+                // Show uploading toast/message
+                let toast = document.createElement('div');
+                toast.textContent = 'Uploading...';
+                toast.className = 'fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded  z-50';
+                document.body.appendChild(toast);
+
+                try {
+                  const res = await fetch('api/uploadProfileImage.php', {
+                    method: 'POST',
+                    body: formData
+                  });
+                  const result = await res.json();
+                  if (result.status === 'success') {
+                    // Update the profile image on the page
+                    if (profileImg) {
+                      // Force reload with timestamp to avoid cache
+                      profileImg.src = '/' + result.image_path.replace(/^\/?/, '') + '?t=' + Date.now();
+                      profileImg.classList.remove('hidden'); // Always show after upload
+                      // Debug: log the new src
+                      console.log('Profile image updated:', profileImg.src);
+                    }
+                    if (profileImgPreview) profileImgPreview.classList.add('hidden');
+                    toast.textContent = 'Profile image updated!';
+                    toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded  z-50';
+                  } else {
+                    toast.textContent = result.message || 'Failed to upload image.';
+                    toast.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded  z-50';
+                    if (profileImgPreview) profileImgPreview.classList.add('hidden');
+                    if (profileImg) profileImg.classList.remove('hidden');
+                  }
+                } catch {
+                  toast.textContent = 'Error uploading image.';
                   toast.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded  z-50';
                   if (profileImgPreview) profileImgPreview.classList.add('hidden');
                   if (profileImg) profileImg.classList.remove('hidden');
                 }
-              } catch {
-                toast.textContent = 'Error uploading image.';
-                toast.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded  z-50';
-                if (profileImgPreview) profileImgPreview.classList.add('hidden');
-                if (profileImg) profileImg.classList.remove('hidden');
-              }
-              setTimeout(() => {
-                if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
-              }, 2500);
-            });
+                setTimeout(() => {
+                  if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 2500);
+              });
+            }
           }
+        } catch (e) {
+          profileContent.innerHTML = `<div class="text-red-600 text-center">Error loading profile.</div>`;
         }
-      } catch (e) {
-        profileContent.innerHTML = `<div class="text-red-600 text-center">Error loading profile.</div>`;
-      }
-    });
-  </script>
-</body>
+      });
+    </script>
+    </body>
 
 </html>
 <script type="module" src="assets/js/playerStats.js"></script>

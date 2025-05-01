@@ -1,130 +1,135 @@
-<?php
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-include 'includes/sidebar.php';
-?>
+<?php include 'includes/sidebar.php'; ?>
 
-<!-- Include custom CSS for playerStats -->
-<link rel="stylesheet" href="assets/css/custom.css">
 
-<!-- Add this style block in the <head> or before </body> -->
-<style>
-  #grid-container {
-    /* Default fallback */
-    --grid-cell-size: 45px;
-  }
-  #grid-container .grid-cell {
-    width: var(--grid-cell-size);
-    height: var(--grid-cell-size);
-    /* ...other cell styles... */
-  }
-</style>
+<?php mainContainer('main-container', 'max-w-6xl mx-auto', '', true); ?>
+<!-- Breadcrumb -->
+<nav class="flex mb-4 text-sm text-gray-500" aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2">
+    <li class="inline-flex items-center">
+      <a href="dashboard.php" class="text-gray-500 hover:text-gray-700 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a 1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z"
+            clip-rule="evenodd"></path>
+        </svg>
+        <span class="sr-only">Home</span>
+      </a>
+    </li>
+    <li>
+      <span class="mx-2 text-gray-400 flex items-center" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+          <path fill-rule="evenodd"
+            d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </span>
+    </li>
+    <li class="inline-flex items-center">
+      <span class="text-gray-500 hover:text-gray-700">Overworld</span>
+    </li>
+    <li>
+      <span class="mx-2 text-gray-400 flex items-center" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+          <path fill-rule="evenodd"
+            d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </span>
+    </li>
+    <li class="inline-flex items-center">
+      <span class="text-gray-700 font-semibold" id="current-location-breadcrumbs">
+        <!-- Location will be set by dashboard-v2.js -->
+      </span>
+    </li>
+  </ol>
+</nav>
+<!-- End Breadcrumb -->
 
-<h1 class="text-x2 py-1 mb-1 flex items-center justify-between">
-  <span>
-    <span class="text-muted-foreground font-light">Battlewarz /</span>
-    <span class="font-bold"> Overworld</span>
-  </span>
-  <!-- Online Players Button (inline, styled) -->
-  <button id="online-players" class="h-7 px-2 flex items-center gap-1 bg-sidebar text-sidebar-foreground border-sidebar-border border hover:bg-accent hover:text-accent-foreground rounded-md justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
-    <!-- Lucide Users Icon -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users h-3.5 w-3.5">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-      <circle cx="9" cy="7" r="4"></circle>
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-    </svg>
-   
-    <span class="text-xs">Online (<span id="online-player-count">0</span>)</span>
-  </button>
-</h1>
 
-<!-- Main Flex Container -->
-<div id="main-container" class="flex flex-col h-[80vh] gap-4">
-  <div class="flex flex-1 gap-4 min-h-0">
-    <!-- Main Area (was col-span-9) -->
-    <div id="grid-controller" class="flex-1 rpg-panel flex flex-col min-h-0 ">
-      <main class="flex-1 overflow-auto p-0 flex flex-col">
-        <div class="space-y-4 flex flex-col h-full">
-          <div class="rpg-panel space-y-4 flex flex-col h-full h-[80vh]">
-            <div class="flex justify-between items-center">
-              <h1 class="text-lg font-bold"></h1>
-              <!-- Buttons aligned right -->
-              <div class="flex space-x-2 ml-auto">
-                <div id="owner-text" class="flex items-center gap-1 text-sm text-black"></div>
-                <div class="flex items-center gap-1 text-black bg-white border border-black px-3 py-1 rounded-md w-fit"
-                  id="player-location-display">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-black" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                      d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0">
-                    </path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  <span id="location-text" class="text-sm">Loading...</span>
-                </div>
-                
-                <button class="rpg-button flex items-center gap-1 h-8 border border-black" id="take-ownership-button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-flag h-3.5 w-3.5">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                    <line x1="4" x2="4" y1="22" y2="15"></line>
-                  </svg>
-                  <span class="text-sm">Claim Territory</span>
-                </button>
-                <button class="rpg-button rpg-button-primary h-8" id="travel-button">
-                  <span class="text-sm">Travel</span>
-                </button>
-              </div>
-            </div>
-            <div id="area-sidebar" class="w-full mb-2 mt-2"></div>
-            <p class="text-sm text-muted-foreground mt-1" id="travel-details">Loading travel position details</p>
-            <div class="w-full flex justify-center flex-1 items-center mt-0">
-              <div id="grid-container" class="grid grid-cols-9 gap-2" style="width: max-content;">
-                <!-- Grid will be dynamically populated here -->
-                <!-- Make sure each cell has class="grid-cell" -->
-              </div>
-            </div>
-          </div>
+<!-- TESTING -->
+<div class="relative mx-auto w-full max-w-8xl mb-3 rounded-lg border-gray-200 border">
+
+  <div class="flex flex-col bg-white rounded-md p-4">
+
+    <!-- Top row: Location + Owner -->
+    <div class="flex flex-col md:flex-row justify-between items-start mb-2 gap-4">
+      
+      <!-- Left: Player Location + Travel -->
+      <div class="flex flex-col gap-2 text-black text-sm ">
+        <div class="flex items-center gap-1">
+          <span class="font-semibold text-gray-700">Current Location:</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span id="player-grid-location" class="text-gray-800">X: 6 Y: 2 Z: 2</span>
         </div>
-      </main>
-    </div>
-    <!-- Monsters Nearby (was col-span-3) -->
-    <div class="flex flex-col w-[320px] min-w-[240px] max-w-[400px] h-full">
-      <div class="border rounded-md p-3 bg-card/50 flex-1 overflow-auto">
-        <h2 class="text-sm font-medium mb-2">Nearby Monsters</h2>
-        <div class="space-y-1" id="monsters-nearby">
-          <!-- Monsters will be dynamically populated here -->
+        
+        <!-- Travel To -->
+        <div class="flex items-center gap-1" id="travel-container">
+          <label for="area-select" class="font-semibold text-gray-700">Travel to:</label>
+          <select id="area-select" class="border rounded px-2 py-1 text-xs">
+            <!-- etc... -->
+          </select>
         </div>
       </div>
-    </div>
-    <!-- Online Players List Container (hidden by default, shown by JS) -->
-    <div id="online-players-list" class="flex flex-col w-[200px] min-w-[160px] max-w-[240px] h-full" style="display:none;">
-      <div class="border rounded-md p-3 bg-card/50 flex-1 overflow-auto">
-        <h2 class="text-sm font-medium mb-2">Online Players</h2>
-        <div class="space-y-1" id="online-players-cards">
-          <!-- Player cards will be dynamically populated here -->
+
+      <!-- Right: Owner Info -->
+      <div class="flex items-center gap-2 text-sm">
+        <img id="owner-image" class="w-8 h-8 rounded-full object-cover" alt="Owner" src="uploads/default_image.jpg">
+        <div class="flex flex-col leading-tight">
+          <span id="owner-text" class="text-gray-700 font-semibold text-xs">
+            DoinLad <span class="text-gray-500 font-normal">(Level 28)</span>
+          </span>
+          <span id="owner-guild-text" class="text-gray-500 text-xs"></span>
         </div>
       </div>
+
     </div>
-  </div>
-  <!-- World Events (was col-span-12) -->
-  <div>
-    <div class="border rounded-md p-3 bg-card/50 mt-2">
-      <h2 class="text-sm font-medium mb-2">World Events</h2>
-      <div>
-        <div id="world-events" 
-             class="overflow-y-auto overflow-x-hidden pr-2"
-             style="height:10vh; max-height:20vh;">
-          <!-- world events should be populated here -->
-          <p class="text-xs text-muted-foreground">Loading...</p>
-        </div>
-      </div>
+
+    <!-- Divider -->
+    <div class="border-t border-gray-200 my-2"></div>
+
+    <!-- Actions Row -->
+    <div class="flex justify-end gap-2 mt-2">
+    
+    <button id="owner-profile-button" class="rpg-button border border-yellow-400 bg-white-200 text-black-800 h-7 px-3 text-xs hidden">
+        Owner Profile
+      </button>
+      <button id="take-ownership-button" class="rpg-button border border-yellow-400 bg-white-200 text-black-800 h-7 px-3 text-xs">
+        Take Ownership
+      </button>
+      <button id="travel-button" class="rpg-button rpg-button-primary h-7 px-3 text-xs ">
+        Travel
+      </button>
     </div>
+
   </div>
 </div>
+
+
+<!-- Main Game Content -->
+<div class="flex-grow flex overflow-hidden ">
+  <!-- Game Main Area -->
+  <div class="game-container flex-grow p-0 bg-white border border-gray-200 rounded-lg p-4 flex-1 flex flex-col w-full max-w-4xl">
+    <!-- Grid Container with auto-sizing tiles -->
+    <div class="grid-container" id="grid-container">
+      <!-- Grid will be dynamically populated here -->
+      <!-- Make sure each cell has class="grid-cell" -->
+
+    </div>
+  </div>
+
+  <!-- Right Sidebar (Fixed Width) -->
+  <aside class="xl:w-80 w-full mt-0 flex-shrink-0 flex flex-col overflow-hidden ml-5">
+    <!-- Nearby Monsters Card -->
+    <div class="bg-white rounded-lg mb-3 flex flex-col border border-gray-200 w-full xl:w-80">
+      <h2 class="text-sm font-medium mb-2 p-4 !pb-0">Nearby Monsters</h2>
+      <div class="space-y-1 p-4 !pt-0" id="monsters-nearby">
+        <!-- Monsters will be dynamically populated here -->
+      </div>
+    </div>
+
 
 <!-- Player Battle Modal -->
 <div id="player-battle-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -176,10 +181,7 @@ include 'includes/sidebar.php';
   </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="module" src="assets/js/playerStats.js"></script>
-<script type="module" src="assets/js/dashboard.js"></script>
-<script src="assets/js/main.js"></script>
 
-</body>
-</html>
+            <script type="module" src="assets/js/playerStats.js"></script>
+            <script type="module" src="assets/js/dashboard-v2.js"></script>
+            <script src="assets/js/main.js"></script>

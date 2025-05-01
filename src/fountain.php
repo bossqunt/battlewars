@@ -4,7 +4,7 @@
 <!-- <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div> -->
 
 <?php
-session_start();
+
 //include('./includes/header.php');
 require_once('controller/Player.php'); // Include the Player class
 require_once('controller/Database.php'); // Include the Database class

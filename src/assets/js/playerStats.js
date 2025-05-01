@@ -53,6 +53,7 @@ async function fetchPlayerData() {
 
 function updateProgressBar(barElement, valueElement, value, maxValue) {
   // Prevent division by zero and negative values
+
   let percentage = 0;
   if (maxValue > 0) {
     percentage = Math.max(0, Math.min(100, (value / maxValue) * 100));

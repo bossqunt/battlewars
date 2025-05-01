@@ -18,40 +18,9 @@ function compareStat($invValue, $eqValue)
   }
 }
 
-function pageInfoBox($message, $linkText = null, $linkHref = null)
-{
-  ?>
-  <div
-    class="rounded-lg mt-2 bg-white dark:bg-gray-950 ring-1 ring-black ring-opacity-5 shadow-sm p-4 dark:border dark:border-gray-800">
-    <div class="flex">
-      <div class="flex-shrink-0">
-        <svg class="h-5 w-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-          aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-            clip-rule="evenodd"></path>
-        </svg>
-      </div>
-      <div class="ml-3 flex-1 md:flex md:justify-between">
-        <p class="text-xs sm:text-sm text-gray-700">
-          <?php echo htmlspecialchars($message); ?>
-        </p>
-        <?php if ($linkText && $linkHref): ?>
-          <p class="mt-3 text-xs sm:text-sm md:mt-0 md:ml-6">
-            <a href="<?php echo htmlspecialchars($linkHref); ?>"
-              class="whitespace-nowrap font-medium text-indigo-600 hover:text-indigo-700">
-              <?php echo htmlspecialchars($linkText); ?> <span aria-hidden="true">→</span>
-            </a>
-          </p>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
-  <?php
-}
 ?>
 
-  <?php mainContainer('main-container', 'max-w-6xl mx-auto', '', true); ?>
+<?php mainContainer('main-container', 'max-w-6xl mx-auto', '', true); ?>
     <nav class="flex mb-4 text-sm text-gray-500" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-2">
         <li class="inline-flex items-center">
@@ -106,7 +75,7 @@ function pageInfoBox($message, $linkText = null, $linkHref = null)
           <div id="equippedSection" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
         </div>
-        <?php include 'includes/footer.php'; ?>
+       
       </div>
     </div>
   <?php mainContainerClose(true); ?>
@@ -302,6 +271,7 @@ function pageInfoBox($message, $linkText = null, $linkHref = null)
       });
     });
   }
+
 
   $(document).ready(function () {
     loadInventory();
