@@ -1,0 +1,24 @@
+{
+  "name": "bw2---docker",
+  "version": "1.0.0",
+  "description": "Battlewarz is a browser-based RPG set in a dynamic grid-based world. Players engage in real-time PVP, slay monsters, loot and equip powerful gear, and trade items through a live marketplace. With item rarities, stat-based battles, and a persistent online environment, Battlewarz delivers an old-school MMO vibe with modern mechanics.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gesoteric/battlewars.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gesoteric/battlewars/issues"
+  },
+  "homepage": "https://github.com/gesoteric/battlewars#readme",
+  "dependencies": {
+    "ws": "^8.18.2"
+  }
+}

@@ -20,8 +20,24 @@ try {
     // Optionally log error
 }
 
+function refreshToken($refreshToken) {
+    try {
+        $decoded = JWT::decode($refreshToken, new Key('refresh_secret_key', 'HS256'));
+        $newToken = JWT::encode([
+            'id' => $decoded->id,
+            'admin' => $decoded->admin,
+            'exp' => time() + 3600 // 1 hour expiration
+        ], 'fuckoffdog', 'HS256');
+
+        return $newToken;
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
 function authenticateOrRedirect($redirectPath = '/index.php', $asJson = false) {
     $authHeader = $_COOKIE['token'] ?? null;
+    $refreshToken = $_COOKIE['refresh_token'] ?? null;
 
     if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
         $token = $matches[1];
@@ -29,6 +45,13 @@ function authenticateOrRedirect($redirectPath = '/index.php', $asJson = false) {
             $decoded = JWT::decode($token, new Key('fuckoffdog', 'HS256'));
             return $decoded;
         } catch (Exception $e) {
+            if ($refreshToken) {
+                $newToken = refreshToken($refreshToken);
+                if ($newToken) {
+                    setcookie('token', "Bearer $newToken", time() + 3600, '/');
+                    return JWT::decode($newToken, new Key('fuckoffdog', 'HS256'));
+                }
+            }
             if ($asJson) {
                 http_response_code(401);
                 header('Content-Type: application/json');

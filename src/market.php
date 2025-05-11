@@ -47,27 +47,29 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
 
   <div class="mb-4 flex gap-2">
     <form method="GET" class="flex gap-2">
-      <input type="text" name="search" placeholder="Search items..." class="p-2 border rounded"
+   
+      <input type="text" name="search" placeholder="Search items..." class="p-2 border rounded  h-7 px-2 py-1 text-xs"
         value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
       <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
-      <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">Search</button>
+      <button type="submit" class="bg-blue-500  text-white  h-7 px-2 py-1 text-xs py-1 rounded text-xs">Search</button>
     </form>
-    <a href="?filter=all" class="inline-flex items-center px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">All Listings</a>
-    <a href="?filter=my" class="inline-flex items-center px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">My Listings</a>
-    <a href="?filter=past" class=" inline-flex items-center px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'past' ? 'bg-blue-600 text-white' : 'bg-gray-200' ?>">Past Listings</a>
+    <a href="?filter=all" class="inline-flex items-center  h-7 px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-800' ?>">All Listings</a>
+    <a href="?filter=my" class="inline-flex items-center  h-7 px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-800' ?>">My Listings</a>
+    <a href="?filter=past" class="inline-flex items-center h-7 px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 transition <?= $filter === 'past' ? 'bg-blue-600 text-white' : 'bg-gray-800' ?>">Past Listings</a>
   </div>
+  
 
-  <div class="!overflow-x-none">
-    <table class="min-w-full divide-y divide-gray-200 border border-gray-300  rounded-lg shadow-sm bg-white">
-      <thead class="bg-gray-100">
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
         <tr class="bg-gray-100">
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">SELLER</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">ITEM NAME</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">TYPE</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">RARITY</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase">STATS</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">PRICE</th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">OFFER</th>
+        <th scope="col" class="px-6 py-3">SELLER</th>
+        <th scope="col" class="px-6 py-3">ITEM NAME</th>
+        <th scope="col" class="px-6 py-3">TYPE</th>
+        <th scope="col" class="px-6 py-3">RARITY</th>
+        <th scope="col" class="px-6 py-3">STATS</th>
+        <th scope="col" class="px-6 py-3">PRICE</th>
+        <th scope="col" class="px-6 py-3">OFFER</th>
           <?php if ($status !== 'sold'): ?>
             <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase text-center">ACTIONS</th>
           <?php endif; ?>
@@ -105,7 +107,7 @@ $listings = $market->getListings($_GET['search'] ?? '', $ownerId, $status);
     <?php endif; ?>
     <?php if ($listing['defence'] ?? 0): ?>
       <div class="flex justify-start gap-1">
-        <span class="text-muted-foreground ">defence</span>
+        <span class="text-muted-foreground ">Defence</span>
         <span class="text-foreground font-medium "><?= (int)$listing['defence'] ?></span>
       </div>
     <?php endif; ?>

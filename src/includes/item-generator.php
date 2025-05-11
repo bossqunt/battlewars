@@ -1,36 +1,210 @@
-
 <?php
 include_once './controller/Database.php';
 
-// Prefix configs, itemTypes, itemNames, baseStats, etc.
-$prefixConfigs = [
-    ['name' => 'Starter',    'multiplier' => 0.7, 'level_range' => [1, 10]],
-    ['name' => 'Wooden',     'multiplier' => 1.0, 'level_range' => [1, 10]],
-    ['name' => 'Cloth',      'multiplier' => 1.1, 'level_range' => [11, 20]],
-    ['name' => 'Leather',    'multiplier' => 1.2, 'level_range' => [21, 30]],
-    ['name' => 'Bronze',     'multiplier' => 1.3, 'level_range' => [31, 40]],
-    ['name' => 'Iron',       'multiplier' => 1.4, 'level_range' => [41, 50]],
-    ['name' => 'Steel',      'multiplier' => 1.5, 'level_range' => [51, 60]],
-    ['name' => 'Plate',      'multiplier' => 1.6, 'level_range' => [61, 70]],
-    ['name' => 'Tempered',   'multiplier' => 1.7, 'level_range' => [71, 80]],
-    ['name' => 'Forged',     'multiplier' => 1.8, 'level_range' => [81, 90]],
-    ['name' => 'Gladiator',  'multiplier' => 1.9, 'level_range' => [91, 100]],
-    ['name' => 'Crusader',   'multiplier' => 2.0, 'level_range' => [101, 110]],
-    ['name' => 'Enchanted',  'multiplier' => 2.1, 'level_range' => [111, 120]],
-    ['name' => 'Arcane',     'multiplier' => 2.2, 'level_range' => [121, 130]],
-    ['name' => 'Astral',     'multiplier' => 2.3, 'level_range' => [131, 140]],
-    ['name' => 'Divine',     'multiplier' => 2.4, 'level_range' => [141, 150]],
-    ['name' => 'Mythic',     'multiplier' => 2.5, 'level_range' => [151, 160]],
-    ['name' => 'Celestial',  'multiplier' => 2.6, 'level_range' => [161, 170]],
-    ['name' => 'Ethereal',   'multiplier' => 2.7, 'level_range' => [171, 180]],
-    ['name' => 'Godforged',  'multiplier' => 2.8, 'level_range' => [181, 190]],
-    ['name' => 'Deity',      'multiplier' => 3.0, 'level_range' => [191, 200]],
+// Weapon types Sword, Axe, Dagger, Spear, Bow, Staff, Crossbow
+// Armor types Helmet, Armor, Boots, Shield, Amulet, Ring, Legs
+
+// REQUIREMENTS
+// 1. Items must have a prefix relative to their level range
+// 2. The number of rolled modifiers must be limited based on rarity
+// - Common: 1 modifier
+// - Uncommon: 2 modifiers
+// - Rare: 3 modifiers
+// - Epic: 3-4 modifiers
+// - Legendary: 5-6 modifiers
+// - Godly: 6 modifiers
+// 3. Each item type must have a set of base stats (attack, defense, etc.)
+// 4. Modifiers can roll in "tiers", for example, t0 to t6, where each tier has a different set of modifier rolls for example.. t1 = 1-5%, t2 = 5-10%, t3 = 10-15%, etc. (or whatever you want)
+// 5. For modifiers which roll physical_attack, there should be an increased probability to roll physical_attack_percent, this will be in addition to the base state of the item, and the physical_attack modifier
+// 6. For rings and amulets, the base stats should be different from weapons and armor, and should have a different set of modifiers (for example, rings can roll crit_chance_percent, crit_multi_percent, life_steal_percent, etc.)
+// I have included all the new modifiers, and I've included all modifiers based on item type
+
+$modifiers = [
+    'physical_attack',
+    'physical_attack_percent',
+    'crit_chance_percent', 
+    'crit_multi_percent', 
+    'life_steal_percent', 
+    'armor', 
+    'armor_percent',
+    'speed', 
+    'speed_percent',
+    'health', 
+    'health_percent',
+    'health_regen',
+    'stamina', 
+    'fire_attack', 
+    'fire_attack_percent',
+    'ice_attack', 
+    'ice_attack_percent',
+    'lightning_attack', 
+    'lightning_attack_percent',
+    'poison_attack', 
+    'poison_attack_percent',
+    'fire_defence_percent',
+    'ice_defence_percent',
+    'lightning_defence_percent',
+    'poison_defence_percent',
+    'physical_defence_percent', 
+    'gold'
 ];
 
+// Adding new elemental attack and defense modifiers
+$modifiers = array_merge($modifiers, [
+    'fire_attack_flat', 'fire_attack_percent',
+    'ice_attack_flat', 'ice_attack_percent',
+    'lightning_attack_flat', 'lightning_attack_percent',
+    'poison_attack_flat', 'poison_attack_percent',
+    'fire_defense_flat', 'fire_defense_percent',
+    'ice_defense_flat', 'ice_defense_percent',
+    'lightning_defense_flat', 'lightning_defense_percent',
+    'poison_defense_flat', 'poison_defense_percent'
+]);
+
+$modifiersByType = [
+    'Weapon' => [
+        'physical_attack', 
+        'physical_attack_percent', 
+        'crit_chance_percent', 
+        'crit_multi_percent', 
+        'life_steal_percent', 
+        'speed', 
+        'speed_percent', 
+        'fire_attack', 
+        'fire_attack_percent', 
+        'ice_attack', 
+        'ice_attack_percent', 
+        'lightning_attack', 
+        'lightning_attack_percent', 
+        'poison_attack', 
+        'poison_attack_percent'
+    ],
+    'Helmet' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent', 
+        'health_regen', 
+        'fire_defence_percent', 
+        'ice_defence_percent', 
+        'lightning_defence_percent', 
+        'poison_defence_percent'
+    ],
+    'Armor' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent', 
+        'health_regen', 
+        'fire_defence_percent', 
+        'ice_defence_percent', 
+        'lightning_defence_percent', 
+        'poison_defence_percent'
+    ],
+    'Boots' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent', 
+        'health_regen', 
+        'fire_defence_percent', 
+        'ice_defence_percent', 
+        'lightning_defence_percent', 
+        'poison_defence_percent'
+    ],
+    'Shield' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent',
+        'health_regen',
+        'fire_defence_percent',
+        'ice_defence_percent',
+        'lightning_defence_percent',
+        'poison_defence_percent',
+    ],
+    'Amulet' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent', 
+        'health_regen', 
+        'fire_defence_percent', 
+        'ice_defence_percent', 
+        'lightning_defence_percent', 
+        'poison_defence_percent',
+        'crit_chance_percent',
+        'crit_multi_percent',
+        'speed',
+        'speed_percent',   
+    ],
+    'Ring' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent', 
+        'health_regen', 
+        'fire_defence_percent', 
+        'ice_defence_percent', 
+        'lightning_defence_percent', 
+        'poison_defence_percent',
+        'crit_chance_percent',
+        'crit_multi_percent',
+        'speed',
+        'speed_percent',   
+    ],
+    'Legs' => [
+        'armor', 
+        'armor_percent', 
+        'health', 
+        'health_percent', 
+        'health_regen', 
+        'fire_defence_percent', 
+        'ice_defence_percent', 
+        'lightning_defence_percent', 
+        'poison_defence_percent'
+    ],
+];
+
+// Prefix configs, itemTypes, itemNames, baseStats, etc.
+$prefixConfigs = [
+    ['name' => 
+        'Starter', 
+        'multiplier' => 0.7, 
+        'level_range' => [1, 10]
+    ],
+    ['name' => 'Wooden', 'multiplier' => 1.0, 'level_range' => [1, 10]],
+    ['name' => 'Cloth', 'multiplier' => 1.1, 'level_range' => [11, 20]],
+    ['name' => 'Leather', 'multiplier' => 1.2, 'level_range' => [21, 30]],
+    ['name' => 'Bronze', 'multiplier' => 1.3, 'level_range' => [31, 40]],
+    ['name' => 'Iron', 'multiplier' => 1.4, 'level_range' => [41, 50]],
+    ['name' => 'Steel', 'multiplier' => 1.5, 'level_range' => [51, 60]],
+    ['name' => 'Plate', 'multiplier' => 1.6, 'level_range' => [61, 70]],
+    ['name' => 'Tempered', 'multiplier' => 1.7, 'level_range' => [71, 80]],
+    ['name' => 'Forged', 'multiplier' => 1.8, 'level_range' => [81, 90]],
+    ['name' => 'Gladiator', 'multiplier' => 1.9, 'level_range' => [91, 100]],
+    ['name' => 'Crusader', 'multiplier' => 2.0, 'level_range' => [101, 110]],
+    ['name' => 'Enchanted', 'multiplier' => 2.1, 'level_range' => [111, 120]],
+    ['name' => 'Arcane', 'multiplier' => 2.2, 'level_range' => [121, 130]],
+    ['name' => 'Astral', 'multiplier' => 2.3, 'level_range' => [131, 140]],
+    ['name' => 'Divine', 'multiplier' => 2.4, 'level_range' => [141, 150]],
+    ['name' => 'Mythic', 'multiplier' => 2.5, 'level_range' => [151, 160]],
+    ['name' => 'Celestial', 'multiplier' => 2.6, 'level_range' => [161, 170]],
+    ['name' => 'Ethereal', 'multiplier' => 2.7, 'level_range' => [171, 180]],
+    ['name' => 'Godforged', 'multiplier' => 2.8, 'level_range' => [181, 190]],
+    ['name' => 'Deity', 'multiplier' => 3.0, 'level_range' => [191, 200]],
+];
+
+
+
+
+
 // Helper: get prefix config by name
-function getPrefixConfig($name, $prefixConfigs) {
+function getPrefixConfig($name, $prefixConfigs)
+{
     foreach ($prefixConfigs as $cfg) {
-        if ($cfg['name'] === $name) return $cfg;
+        if ($cfg['name'] === $name)
+            return $cfg;
     }
     // fallback
     return $prefixConfigs[0];
@@ -39,8 +213,8 @@ function getPrefixConfig($name, $prefixConfigs) {
 // Weapon subtype base stats config (per subtype)
 $weaponSubtypeBaseStats = [
     'Sword' => ['attack' => 6, 'defence' => 4, 'speed' => 4, 'crit_chance' => 1, 'crit_multi' => 1],
-    'Axe'   => ['attack' => 8, 'defence' => 1, 'speed' => 2, 'crit_chance' => 1, 'crit_multi' => 0],
-    'Dagger'=> ['attack' => 4, 'defence' => 1, 'speed' => 7, 'crit_chance' => 2, 'crit_multi' => 2],
+    'Axe' => ['attack' => 8, 'defence' => 1, 'speed' => 2, 'crit_chance' => 1, 'crit_multi' => 0],
+    'Dagger' => ['attack' => 4, 'defence' => 1, 'speed' => 7, 'crit_chance' => 2, 'crit_multi' => 2],
     'Spear' => ['attack' => 7, 'defence' => 3, 'speed' => 5, 'crit_chance' => 1, 'crit_multi' => 1],
 ];
 
@@ -76,22 +250,22 @@ $itemNames = [
 
 // Subtype base stats for Amulet and Ring
 $amuletSubtypeBaseStats = [
-    'Amulet of Attack'     => ['attack' => 2],
-    'Amulet of Crit'       => ['crit_chance' => 5],
-    'Amulet of CritMulti'  => ['crit_multi' => 2],
-    'Amulet of Lifesteal'  => ['life_steal' => 2],
-    'Amulet of Health'     => ['health' => 10],
-    'Amulet of Defense'    => ['defence' => 2],
-    'Amulet of Stamina'    => ['stamina' => 5],
+    'Amulet of Attack' => ['attack' => 2],
+    'Amulet of Crit' => ['crit_chance' => 5],
+    'Amulet of CritMulti' => ['crit_multi' => 2],
+    'Amulet of Lifesteal' => ['life_steal' => 2],
+    'Amulet of Health' => ['health' => 10],
+    'Amulet of Defense' => ['defence' => 2],
+    'Amulet of Stamina' => ['stamina' => 5],
 ];
 $ringSubtypeBaseStats = [
-    'Ring of Attack'     => ['attack' => 1],
-    'Ring of Crit'       => ['crit_chance' => 3],
-    'Ring of CritMulti'  => ['crit_multi' => 1],
-    'Ring of Lifesteal'  => ['life_steal' => 1],
-    'Ring of Health'     => ['health' => 5],
-    'Ring of Defence'    => ['defence' => 1],
-    'Ring of Stamina'    => ['stamina' => 3],
+    'Ring of Attack' => ['attack' => 1],
+    'Ring of Crit' => ['crit_chance' => 3],
+    'Ring of CritMulti' => ['crit_multi' => 1],
+    'Ring of Lifesteal' => ['life_steal' => 1],
+    'Ring of Health' => ['health' => 5],
+    'Ring of Defence' => ['defence' => 1],
+    'Ring of Stamina' => ['stamina' => 3],
 ];
 
 // Define stat categories for each item type (all integer ranges)
@@ -379,5 +553,16 @@ function generateItemTable($types, $itemNames, $baseStats, $prefixConfigs, $grou
     $html .= '</tbody></table></div>';
 
     return $html;
+}
+
+// Adding logic to prefix item names with elemental properties
+function applyElementalPrefix($name, $modifiers) {
+    $elementalPrefixes = ['Fire', 'Ice', 'Lightning', 'Poison'];
+    foreach ($elementalPrefixes as $prefix) {
+        if (strpos($name, $prefix) === false && (in_array(strtolower($prefix) . '_attack_flat', $modifiers) || in_array(strtolower($prefix) . '_attack_percent', $modifiers))) {
+            return $prefix . ' ' . $name;
+        }
+    }
+    return $name;
 }
 ?>

@@ -10,7 +10,7 @@ require_once 'controller/Database.php';
 function compareStat($invValue, $eqValue)
 {
   if ($invValue > $eqValue) {
-    return ['+' . ($invValue - $eqValue), 'text-rpg-success', '↑']; // Green for positive
+    return ['+' . ($invValue > 0 ? $invValue - $eqValue : 0), 'text-rpg-success', '↑']; // Green for positive
   } elseif ($invValue < $eqValue) {
     return ['-' . ($eqValue - $invValue), 'text-rpg-danger', '↓']; // Red for negative
   } else {

@@ -136,37 +136,50 @@
   </div>
 </div>
 
+
 <!-- Modal Structure -->
-<div id="battle-modal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden">
-<div class="bg-white rounded-lg w-full max-w-3xl p-6 shadow-lg">
+<div id="battle-modal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 overflow-auto hidden">
+  <div class="bg-white rounded-lg w-full max-w-5xl p-6 shadow-lg my-12">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">Battle Result</h2>
       <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
     </div>
-    <!-- ...existing code for modal content... -->
-    <div id="battle-outcome" class="mb-4 text-center"></div>
-    <div id="level-up" class="mb-4" style="display: none;">
-      <p id="level-up-message" class="text-sm text-green-600 text-center"></p>
-    </div>
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-gray-800 mb-2">Battle Log</h3>
-      <div id="battle-log-content" class="bg-gray-100 p-3 rounded-md max-h-[300px] overflow-y-auto space-y-1 text-sm text-gray-700">
 
+    <!-- Split into two vertical sections -->
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Left: Battle Log -->
+      <div class="lg:w-2/3 w-full">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Battle Log</h3>
+        <div id="battle-log-content" class="bg-gray-100 p-3 rounded-md max-h-[300px] overflow-y-auto space-y-1 text-sm text-gray-700">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Right: Results / Rewards / Level Up -->
+      <div class="lg:w-1/3 w-full flex flex-col gap-4">
+        <div id="battle-outcome" class="text-center text-sm text-gray-800"></div>
+
+        <div id="level-up" style="display: none;">
+          <p id="level-up-message" class="text-sm text-green-600 text-center"></p>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Rewards</h3>
+          <ul class="space-y-1 text-sm">
+            <p id="loot-message" class="text-md text-purple-600"></p>
+            <li id="exp-reward" class="flex items-center space-x-2"></li>
+            <li id="gold-reward" class="flex items-center space-x-2"></li>
+          </ul>
+        </div>
+
+        <div id="loot-section" style="display: none;">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Loot</h3>
+          <ul id="loot-list" class="space-y-1 text-sm text-gray-700"></ul>
+        </div>
       </div>
     </div>
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-gray-800 mb-2">Rewards</h3>
-      <ul class="space-y-1 text-sm">
-        <p class="text-md text-purple-600" id="loot-message" class="flex items-center space-x-2"></p>
-        <li id="exp-reward" class="flex items-center space-x-2"></li>
-        <li id="gold-reward" class="flex items-center space-x-2"></li>
-      </ul>
-    </div>
-    <div class="mb-4" id="loot-section" style="display: none;">
-      <h3 class="text-lg font-semibold text-gray-800 mb-2">Loot</h3>
-      <ul id="loot-list" class="space-y-1 text-sm text-gray-700"></ul>
-    </div>
-    <button id="close-battle" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+
+    <button id="close-battle" class="mt-6 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
       Close
     </button>
   </div>

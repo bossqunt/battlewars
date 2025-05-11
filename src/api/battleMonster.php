@@ -152,9 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if (!$missed) {
                 // Debug: log monster/player base attack before calculation
                 if ($attacker instanceof Monster) {
-                    $battleLog['battle'][] = "[DEBUG] Monster base attack: " . $attacker->getAttack($target);
+                    $battleLog['battle'][] = "[DEBUG] Monster base attack: " . $attacker->getAttack();
                 } elseif ($attacker instanceof Player) {
-                    $battleLog['battle'][] = "[DEBUG] Player base attack: " . $attacker->getAttack($target);
+                    $battleLog['battle'][] = "[DEBUG] Player base attack: " . $attacker->getAttack();
                 }
 
                 $result = calculateAttack($attacker, $target);
