@@ -128,29 +128,29 @@ export function createMonsterCard(monster, index) {
 }
 
 export async function battleMonster(event) {
-    const button = event.currentTarget;
-    const monsterId = button.getAttribute('data-monster-id');
-    const monsterIndex = button.getAttribute('data-monster-index');
-  
-    const monsterCard = document.getElementById(`monster-${monsterIndex}`);
-    
-    if (monsterCard) {
-      monsterCard.remove();
-  
-      const container = document.getElementById('monsters-nearby');
-  
-      // ✅ Select all remaining monster cards in the container
-      const remainingMonsters = container.querySelectorAll('.monster-card');
-  
-      if (remainingMonsters.length === 0) {
-        container.innerHTML = `
+  const button = event.currentTarget;
+  const monsterId = button.getAttribute('data-monster-id');
+  const monsterIndex = button.getAttribute('data-monster-index');
+
+  const monsterCard = document.getElementById(`monster-${monsterIndex}`);
+
+  if (monsterCard) {
+    monsterCard.remove();
+
+    const container = document.getElementById('monsters-nearby');
+
+    // ✅ Select all remaining monster cards in the container
+    const remainingMonsters = container.querySelectorAll('.monster-card');
+
+    if (remainingMonsters.length === 0) {
+      container.innerHTML = `
           <div class="text-center text-sm text-muted-foreground py-4">
             🧭 There are no nearby monsters.
           </div>`;
-      }
     }
- 
-  
+  }
+
+
 
   // Pre-fetch level up elements (or do it inside the if/else if preferred)
   const levelUpContainer = document.getElementById("level-up");
@@ -165,8 +165,20 @@ export async function battleMonster(event) {
 
     // Populate combat log
     const battleLogArray = Array.isArray(result.battle) ? result.battle : [];
-    const logHtml = battleLogArray.map(log => `<p class="text-gray-600">${log}</p>`).join('');
-    document.getElementById('battle-log-content').innerHTML = logHtml;
+    const battleLogContainer = document.getElementById('battle-log-content');
+    battleLogContainer.innerHTML = ''; // Clear previous logs
+
+    battleLogArray.forEach((log, index) => {
+      const logEntry = document.createElement('p');
+      logEntry.className = 'text-gray-600 opacity-0 transition-opacity duration-500';
+      logEntry.textContent = log;
+      battleLogContainer.appendChild(logEntry);
+
+      // Use setTimeout to stagger the animation
+      setTimeout(() => {
+        logEntry.classList.add('opacity-100');
+      }, index * 300); // Adjust the delay per line
+    });
 
     // Battle outcome
     const battleOutcome = document.getElementById('battle-outcome');
@@ -259,8 +271,8 @@ export async function battleMonster(event) {
 
     // update battle history
     if (typeof playerId !== 'undefined') {
-        getBattleHistory(playerId);
-      }
+      getBattleHistory(playerId);
+    }
 
   } catch (error) {
     console.error('Error during battle:', error);

@@ -118,7 +118,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                   <span>Experience</span>
                   <span>${data.exp ?? 0} / ${data.exp_req ?? 0}</span>
                 </div>
-                <div class="relative w-full overflow-hidden rounded-full bg-secondary h-2">
+                <div class="relative w-full overflow-hidden rounded-full bg-secondary h-2 !bg-amber-100">
                   <div class="h-full transition-all bg-gradient-to-r from-amber-400 to-amber-300 bg-green-500" style="width:${expPercent}%;"></div>
                 </div>
               </div>
@@ -131,7 +131,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                   </span>
                   <span >${data.c_hp ?? 0} / ${data.max_hp ?? 0}</span>
                 </div>
-                <div class="relative w-full overflow-hidden rounded-full h-2 bg-red-100">
+                <div class="relative w-full overflow-hidden rounded-full h-2 bg-green-100">
                   <div class="h-full w-full flex-1 transition-all bg-green-500" style="width:${hpPercent}%;"></div>
                 </div>
               </div>
@@ -144,7 +144,7 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                   </span>
                   <span>${data.stamina ?? 0}${60 ? ' / ' + 60 : ''}</span>
                 </div>
-                <div class="relative w-full overflow-hidden rounded-full h-2 bg-amber-100">
+                <div class="relative w-full overflow-hidden rounded-full h-2 bg-blue-100">
                   <div class="h-full w-full flex-1 bg-primary transition-all bg-gradient-to-r from-blue-500 to-blue-400 bg-green-500" style="width:${staminaPercent}%;"></div>
                 </div>
               </div>
@@ -642,6 +642,37 @@ $viewId = isset($_GET['id']) ? intval($_GET['id']) : $playerId;
                 }, 2500);
               });
             }
+          }
+
+          // Fetch achievements progress for the player
+          const achievementsRes = await fetch('api/getPlayerAchievments.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ player_id: VIEW_PLAYER_ID })
+          });
+          const achievementsData = await achievementsRes.json();
+
+          if (achievementsData.status === 'success') {
+            const achievements = achievementsData.achievements;
+            const achievementsPanel = document.getElementById('achievments-panel');
+
+            if (achievements.length > 0) {
+              achievementsPanel.innerHTML = achievements.map(ach => `
+                <div class="flex items-center space-x-4 p-4 border-b">
+                  
+                  <div>
+                    <h4 class="font-bold">${ach.name}</h4>
+                    <p class="text-sm text-gray-500">${ach.description}</p>
+                    <p class="text-xs text-gray-400">Progress: ${ach.current_value} / ${ach.threshold} (${ach.progress}%)</p>
+                    ${ach.unlocked ? '<span class="text-green-500 font-bold">Unlocked</span>' : '<span class="text-gray-500">Locked</span>'}
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              achievementsPanel.innerHTML = '<p class="text-center text-gray-500">No achievements available.</p>';
+            }
+          } else {
+            console.error('Failed to load achievements:', achievementsData.message);
           }
         } catch (e) {
           profileContent.innerHTML = `<div class="text-red-600 text-center">Error loading profile.</div>`;

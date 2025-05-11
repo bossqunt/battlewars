@@ -5,14 +5,14 @@ $db = new Database(); // Assuming your class is named Database and handles conne
 
 $tables = [];
 $res = $db->fetch("SHOW TABLES");
-while ($row = $res->fetch_all()) {
+while ($row = $res->fetchAll()) {
     $tables[] = $row[0];
 }
 
 $sql = "";
 foreach ($tables as $table) {
     $res = $db->fetch("SHOW CREATE TABLE `$table`");
-    $row = $res->fetch_all();
+    $row = $res->fetchAll();
     $sql .= $row['Create Table'] . ";\n\n";
 }
 

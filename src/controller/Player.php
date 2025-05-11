@@ -841,4 +841,37 @@ class Player
         $params = [$playerId];
         return $this->fetchSingleRow($sql, $params);
     }
+    public function getAchievements() {
+        $query = "SELECT a.id, a.name, a.description, a.icon_path, pa.unlocked_at
+                  FROM player_achievements pa
+                  INNER JOIN achievements a ON pa.achievement_id = a.id
+                  WHERE pa.player_id = ?";
+        $params = [$this->id];
+        return $this->fetchAllRows($query, $params);
+    }
+
+    public function checkAndUnlockAchievements() {
+        $query = "SELECT id, stat_key, threshold FROM achievements";
+        $achievements = $this->fetchAllRows($query);
+
+        foreach ($achievements as $achievement) {
+            $statKey = $achievement['stat_key'];
+            $threshold = $achievement['threshold'];
+
+            $playerStats = $this->getPlayerStats();
+            if (isset($playerStats[$statKey]) && $playerStats[$statKey] >= $threshold) {
+                $checkQuery = "SELECT 1 FROM player_achievements WHERE player_id = ? AND achievement_id = ?";
+                $checkParams = [$this->id, $achievement['id']];
+                $exists = $this->fetchSingleRow($checkQuery, $checkParams);
+
+                if (!$exists) {
+                    $insertQuery = "INSERT INTO player_achievements (player_id, achievement_id) VALUES (?, ?)";
+                    $insertParams = [$this->id, $achievement['id']];
+                    $stmt = $this->conn->prepare($insertQuery);
+                    $stmt->bind_param("ii", ...$insertParams);
+                    $stmt->execute();
+                }
+            }
+        }
+    }
 }

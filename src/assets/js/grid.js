@@ -75,7 +75,7 @@ export async function updateGridLocation(playerData) {
 
       // Player indicator (overrides boss if on same tile)
       if (playerLocation.x === col && playerLocation.y === row) {
-        cell.classList.add('player-location');
+        cell.classList.add('player-location', 'animate-pulse', 'shadow-lg', 'shadow-red-500/50');
         cell.textContent = 'P';
         // If player is on boss tile, show both indicators
         if (boss_x === col && boss_y === row) {
