@@ -4,17 +4,21 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'includes/sidebar.php';
 require 'controller/Player.php';
-
 require_once 'controller/Database.php';
 
 function compareStat($invValue, $eqValue)
 {
+  if ($eqValue === 0) {
+    // No equipped item, show positive increase for inventory value
+    return ['+' . $invValue, 'text-rpg-success', '↑']; // Green for positive
+  }
+
   if ($invValue > $eqValue) {
-    return ['+' . ($invValue > 0 ? $invValue - $eqValue : 0), 'text-rpg-success', '↑']; // Green for positive
-  } elseif ($invValue < $eqValue) {
+    return ['+' . ($invValue - $eqValue), 'text-rpg-success', '↑']; // Green for positive
+  } elseif ($invValue <= $eqValue) {
     return ['-' . ($eqValue - $invValue), 'text-rpg-danger', '↓']; // Red for negative
   } else {
-    return ['0', 'text-muted-foreground', '–']; // Neutral for equal
+    return ['0', 'text-muted-foreground', '-']; // Neutral for equal
   }
 }
 
@@ -307,17 +311,16 @@ function compareStat($invValue, $eqValue)
       });
     });
 
-    // Handle sell button click
-    $(document).on('click', '.sell-btn', function (e) {
-      e.preventDefault();
-      const itemId = $(this).data('id');
-      const gold = $(this).data('gold');
-      if (!confirm(`Sell this item for ${gold} gold?`)) return;
-      $.post('api/playerSellItem.php', { item_id: itemId }, response => {
-        showToast(response.message, response.success);
-        loadInventory();
-      });
-    });
+// Handle sell button click
+$(document).on('click', '.sell-btn', function (e) {
+  e.preventDefault();
+  const itemId = $(this).data('id');
+  const gold = $(this).data('gold');
+  if (!confirm(`Sell this item for ${gold} gold?`)) return;
+  $.post('api/playerSellItem.php', { item_id: itemId }, response => {
+  showToast(response.message, response.success);
+  loadInventory();
+}, 'json')});
 
     // Handle "List on Market" button click
     $(document).on('click', '.market-list-btn', function (e) {

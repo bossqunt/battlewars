@@ -15,9 +15,22 @@ $database = new Database();
 $conn = $database->getConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (isset($_GET['playerId']) && isset($_GET['monsterId']) && ($_GET['playerId']) == $playerId) {
 
-        $playerId = intval($_GET['playerId']);
+    // Get required parameters
+    $playerId = $_GET['playerId'] ?? null;
+    $monsterId = $_GET['monsterId'] ?? null;
+    $ownerId = $_GET['ownerId'] ?? null; // Optional
+
+    if (
+        isset($_GET['playerId'], $_GET['monsterId']) &&
+        $_GET['playerId'] == $playerId &&
+        $_GET['monsterId'] &&
+        (!isset($_GET['ownerId']) || $_GET['ownerId'] == $ownerId)
+    ) {
+        
+        // CHECKS WHICH NEED TO BE DONE IN FUTURE
+        // Ensure player can battle monster only from same area as monster/player location
+        
         $monsterId = intval($_GET['monsterId']);
 
         $player = new Player($conn, $playerId);
@@ -240,20 +253,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $battleLog['outcome'] = json_encode($battleLog['battle']);
             $battleLog['result'] = "{$player->getName()} wins the battle against " . $monster->getName();
             $battleLog['victory'] = 1;
-            $battleLog['exp'] = $monster->getExp();
-            $battleLog['gold'] = $monster->getGold();
-            
+            $battleLog['exp'] = $expReward;
+            $battleLog['gold'] = $goldReward;
+            // If the battle has taken place on a grid owned by another player, we need to award the grid owner with exp and gold
+            // This part involves distributing loot to grid owner
+            if(isset($ownerId) && $ownerId != $playerId && $battleLog['victory'] == 1) {
+                $goldReward = (int)round(max($goldReward / 10,1));
+                $owner = new Player($conn, $ownerId);
+                $battleLog['grid_owner'] = array();
+                $battleLog['grid_owner']['name'] = $player->getName();
+                $battleLog['grid_owner']['id'] = $ownerId;
+                $battleLog['grid_owner']['gold'] = $goldReward;
+                $owner->setPlayerGoldSum($goldReward);
+                $owner->updateGold($goldReward);
+                //$battleLog['grid_owner']['exp'] = $expReward / 10;
+            }
+
 
             updateBattleHistory($conn, $playerId, null, $monsterId, $battleLog['result'], $battleLog['outcome'], $battleLog['victory'], $expReward, $goldReward);
             // this must occur before update player, as this will update player exp first.
 
+
             // Check if player has leveled up
-            $battleLog['levelup'] = $player->checkLevelUp($monster->getExp()) ? true : false;
+            $battleLog['levelup'] = $player->checkLevelUp($expReward);
             $player->updatePlayerBattleReward($playerCurrentHp, $goldReward, $expReward);
+            
+            // If player levels up, give3 them full stamina and hp
             $player->setPlayerPveBattleWinCount();
             $player->setPlayerGoldSum((int)$monster->getGold());
             
-   
+            
 
             // Handle item drops
             $itemsDropped = handleItemDrops($conn, $playerId, $monsterId);

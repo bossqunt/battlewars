@@ -1,5 +1,5 @@
 import { getRarityBadgeClass, getRarityLabel } from './rarity.js';
-import { updatePlayerStats } from './playerStats.js';
+import { updatePlayerStats, fetchPlayerData } from './playerStats.js';
 import { getBattleHistory } from './battle.js';
 
 
@@ -131,8 +131,8 @@ export async function battleMonster(event) {
   const button = event.currentTarget;
   const monsterId = button.getAttribute('data-monster-id');
   const monsterIndex = button.getAttribute('data-monster-index');
-
   const monsterCard = document.getElementById(`monster-${monsterIndex}`);
+
 
   if (monsterCard) {
     monsterCard.remove();
@@ -150,8 +150,6 @@ export async function battleMonster(event) {
     }
   }
 
-
-
   // Pre-fetch level up elements (or do it inside the if/else if preferred)
   const levelUpContainer = document.getElementById("level-up");
   const levelUpMessageElement = document.getElementById("level-up-message");
@@ -159,9 +157,22 @@ export async function battleMonster(event) {
   const lootSection = document.getElementById("loot-section");
   const lootList = document.getElementById("loot-list");
 
+  const playerData = await fetchPlayerData();
+  const playerLocation = playerData.area[0];
+  const areaOwner = playerData.areaOwner.find(
+    owner => owner.x === playerLocation.x && owner.y === playerLocation.y
+  );
+  console.log(areaOwner); // Debug log
+
+  let url = `api/battleMonster.php?playerId=${playerId}&monsterId=${monsterId}`;
+
+  if (areaOwner?.player_id) {
+    url += `&ownerId=${areaOwner.player_id}`;
+  }
+
   try {
-    const response = await fetch(`api/battleMonster.php?playerId=${playerId}&monsterId=${monsterId}`);
-    const result = await response.json();
+    const response = await fetch(url);
+    const result = await response.json(); // Await here to get the parsed JSON
 
     // Populate combat log
     const battleLogArray = Array.isArray(result.battle) ? result.battle : [];
@@ -205,6 +216,33 @@ export async function battleMonster(event) {
       <span>Collected <strong class="text-yellow-600">${result.gold || 0}</strong> Gold Coins</span>
     `;
 
+    // Get elements
+    const areaOwnerElement = document.getElementById('owner-reward');
+    const areaOwnerGoldRewardElement = document.getElementById('owner-gold-reward');
+    const areaOwnerExpRewardElement = document.getElementById('owner-exp-reward');
+    const ownerLootMessage = document.getElementById('owner-loot-message');
+    areaOwnerElement.classList.add('hidden'); // Hides the container element
+    ownerLootMessage.innerHTML = ''; // Clear previous content
+    areaOwnerGoldRewardElement.innerHTML = ''; // Clear previous content
+
+    // If there is a grid owner, display owner's loot rewards
+
+    if (result.grid_owner) {
+   
+      areaOwnerElement.classList.remove('hidden');
+
+      // Message suggesting stolen loot
+      ownerLootMessage.textContent = `The grid owner has taxed your battle and taken a cut of the loot.`;
+
+      // Gold
+      areaOwnerGoldRewardElement.innerHTML = `
+    <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path>
+    </svg>
+    <span><strong class="text-yellow-600">${result.grid_owner.gold || 0}</strong> Gold stolen by owner</span>
+  `;
+    }
+
     // Ensure rewards section is visible if there are rewards
     const lootMessageElement = document.getElementById('loot-message');
     const expRewardElement = document.getElementById('exp-reward');
@@ -228,6 +266,7 @@ export async function battleMonster(event) {
         // Level Up occurred: Show the section and set the message
         levelUpContainer.style.display = "block";
         levelUpMessageElement.textContent = "Congratulations! You have leveled up!!";
+        levelUpMessageElement.textContent = "You have gained +30 HP and regained health and stamina";
       } else {
         // NO Level Up occurred: Hide the section and clear any old message
         levelUpContainer.style.display = "none";

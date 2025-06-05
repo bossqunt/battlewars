@@ -5,7 +5,7 @@ CREATE TABLE achievements (
     stat_key VARCHAR(255) NOT NULL, -- The stat to track (e.g., 'pve_kills', 'quests_completed')
     threshold INT NOT NULL,         -- The value required to unlock the achievement
     icon_path VARCHAR(255) DEFAULT NULL, -- Optional: Path to an icon for the achievement
-    title_unlocked VARCHAR(255) DEFAULT NULL, -- Optional: Title to display when the achievement is unlocked
+    unlocked_title VARCHAR(255) DEFAULT NULL -- Optional: Title to display when the achievement is unlocked
 );
 
 CREATE TABLE player_achievements (
