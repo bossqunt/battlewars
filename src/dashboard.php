@@ -172,6 +172,16 @@
           </ul>
         </div>
 
+        <div id="owner-reward" class="hidden">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Losses</h3>
+          <ul class="space-y-1 text-sm">
+            <p id="owner-loot-message" class="text-md text-purple-600"></p>
+            <li id="owner-exp-reward" class="flex items-center space-x-2"></li>
+            <li id="owner-gold-reward" class="flex items-center space-x-2"></li>
+          </ul>
+        </div>
+
+
         <div id="loot-section" style="display: none;">
           <h3 class="text-lg font-semibold text-gray-800 mb-2">Loot</h3>
           <ul id="loot-list" class="space-y-1 text-sm text-gray-700"></ul>

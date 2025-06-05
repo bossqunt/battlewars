@@ -144,7 +144,7 @@ export function updateGridOwner(playerData) {
       }
 
       // Show ownership button if player is not the owner
-      if (ownershipButton && owner.player_id == playerData.id) {
+      if (ownershipButton && owner.player_id == playerData.id || owner.player_id == null) {
         ownershipButton.classList.add('hidden');
       } else {
         ownershipButton.classList.remove('hidden');
@@ -152,7 +152,6 @@ export function updateGridOwner(playerData) {
         ownerProfileButton.onclick = () => {
           window.location.href = `/profile.php?id=${owner.player_id}`;
         };
-
       }
       ownerDisplay.appendChild(nameSpan);
       ownerDisplay.appendChild(levelSpan);
@@ -170,7 +169,10 @@ export function updateGridOwner(playerData) {
       if (ownershipButton) {
         ownershipButton.classList.remove('hidden');
       }
-
+      // Hide owner profile button if no owner exists
+      if (ownerProfileButton) {
+        ownerProfileButton.classList.add('hidden');
+      }
     }
   }
 }

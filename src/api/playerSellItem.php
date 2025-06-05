@@ -15,9 +15,6 @@ $database = new Database();
 $conn = $database->getConnection();
 $player = new Player($conn, $playerId);
 
-$result = $player->sellItem($_POST['item_id']);
-
-echo json_encode([
-  'success' => true,
-  'message' => $result
-]);
+// sellItem should return an array with 'success' and 'message'
+$response = $player->sellItem($_POST['item_id']);
+echo json_encode($response);

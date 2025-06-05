@@ -240,7 +240,7 @@ class Player
             default: return 'bg-gray-300 text-black';
         }
       }
-      public function fetchProfileDetails()
+      public function getProfileDetails()
       {
         $profile = [
             'id'         => $this->getId(),
@@ -270,7 +270,7 @@ class Player
     // Retrieves player details including attributes and related data
     public function getDetails()
     {
-        $player = $this->fetchProfileDetails();
+        $player = $this->getProfileDetails();
     
         if ($player) {
             $player['area'] = $this->getPlayerArea();
@@ -325,6 +325,7 @@ class Player
         return $this->fetchSingleRow($sql, $params);
     }
 
+
     public function checkLevelUp($newExp) {
         $currentExp = $this->getExp();
         $nextLevelExp = $this->getRequiredExp();
@@ -375,7 +376,7 @@ class Player
 
         return $areas;
     }
-
+    
     // Retrieves details of the player owning the current area
     private function getPlayerAreaOwner()
     {
@@ -567,6 +568,7 @@ class Player
         return $stmt->affected_rows > 0;
     }
 
+
     // update players exp, gold and player level after battle
     public function updatePlayerBattleReward($hpChange, $goldChange = 0, $expChange = 0)
     {
@@ -582,7 +584,25 @@ class Player
 
         if ($newExp >= $nextLevelExp) {
             $this->levelUp();
+            $this->setPlayerStamina(); // Reset stamina on level up
+            $this->setPlayerCurrentHpAsMaxHp(); // Set current HP to max HP on level up
         }
+    }
+    public function setPlayerStamina() {
+        $stamina = 200;
+        $sql = "UPDATE players SET stamina = $stamina WHERE id = ?";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
+    }
+    public function setPlayerCurrentHpAsMaxHp() {
+        $maxHp = $this->getMaxHp();
+        $sql = "UPDATE players SET c_hp = $maxHp WHERE id = ?";
+        $params = [$this->id];
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", ...$params);
+        return $stmt->execute();
     }
     private function getNextLevelExperience($currentLevel)
     {
@@ -660,7 +680,7 @@ class Player
 
         return $stmt->affected_rows > 0;
     }
-    private function updateGold($goldChange)
+    public function updateGold($goldChange)
     {
         // Update player's gold
         $query = "UPDATE players SET gold = gold + ? WHERE id = ?";
@@ -695,12 +715,18 @@ class Player
     
             if ($stmt->affected_rows > 0) {
                 // Update player's gold
-                $this->updateGold($itemGoldValue);
-                return true;
+                $this->updateGold($itemGoldValue); 
+                return [
+                    'success' => true,
+                    'message' => 'Item sold for ' . $itemGoldValue . ' gold.'
+                  ];
             }
         }
     
-        return false;
+        return [
+            'success' => false,
+            'message' => 'Item not found in inventory.'
+          ];
     }
 
     // Equips an item for the player

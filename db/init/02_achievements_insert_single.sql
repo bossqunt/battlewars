@@ -30,11 +30,7 @@ VALUES
 (27, 'PvE Kills 100000', 'Achieve 100,000 PvE kills.', 'pve_kills', 100000, '/icons/pve_kills_100000.png', 'Myth Hunter'),
 (28, 'PvE Kills 500000', 'Achieve 500,000 PvE kills.', 'pve_kills', 500000, '/icons/pve_kills_500000.png', 'Massacre Legend'),
 (29, 'PvE Kills 1000000', 'Achieve 1,000,000 PvE kills.', 'pve_kills', 1000000, '/icons/pve_kills_1000000.png', 'Nightmare Incarnate'),
-(30, 'PvE Kills 10000000', 'Achieve 10,000,000 PvE kills.', 'pve_kills', 10000000, '/icons/pve_kills_10000000.png', 'Ultimate Executioner');
-
-INSERT INTO `battlewarz`.`achievements` 
-(`id`, `name`, `description`, `stat_key`, `threshold`, `icon_path`, `unlocked_title`)
-VALUES
+(30, 'PvE Kills 10000000', 'Achieve 10,000,000 PvE kills.', 'pve_kills', 10000000, '/icons/pve_kills_10000000.png', 'Ultimate Executioner'),
 (31, 'PvP Kills 1', 'Achieve 1 PvP kill.', 'pvp_kills', 1, '/icons/pvp_kills_1.png', 'PvP Initiate'),
 (32, 'PvP Kills 10', 'Achieve 10 PvP kills.', 'pvp_kills', 10, '/icons/pvp_kills_10.png', 'PvP Duelist'),
 (33, 'PvP Kills 25', 'Achieve 25 PvP kills.', 'pvp_kills', 25, '/icons/pvp_kills_25.png', 'PvP Hunter'),
@@ -79,19 +75,19 @@ VALUES
 (72, 'Travel Count 100000', 'Achieve 100,000 travels.', 'travel_count', 100000, '/icons/travel_count_100000.png', 'Master of the Roads'),
 (73, 'Travel Count 500000', 'Achieve 500,000 travels.', 'travel_count', 500000, '/icons/travel_count_500000.png', 'Supreme Voyager'),
 (74, 'Travel Count 1000000', 'Achieve 1,000,000 travels.', 'travel_count', 1000000, '/icons/travel_count_1000000.png', 'King of the Pathways'),
-(75, 'Travel Count 10000000', 'Achieve 10,000,000 travels.', 'travel_count', 10000000, '/icons/travel_count_10000000.png', 'Lord of the Endless Journeys');
-(71, 'Grid Tiles Taken Over 1', 'Take over 1 grid tile.', 'grid_tiles_taken_over', 1, '/icons/grid_tiles_taken_over_1.png', 'Tile Seeker'),
-(72, 'Grid Tiles Taken Over 10', 'Take over 10 grid tiles.', 'grid_tiles_taken_over', 10, '/icons/grid_tiles_taken_over_10.png', 'Grid Explorer'),
-(73, 'Grid Tiles Taken Over 25', 'Take over 25 grid tiles.', 'grid_tiles_taken_over', 25, '/icons/grid_tiles_taken_over_25.png', 'Map Ruler'),
-(74, 'Grid Tiles Taken Over 50', 'Take over 50 grid tiles.', 'grid_tiles_taken_over', 50, '/icons/grid_tiles_taken_over_50.png', 'Tile Conqueror'),
-(75, 'Grid Tiles Taken Over 100', 'Take over 100 grid tiles.', 'grid_tiles_taken_over', 100, '/icons/grid_tiles_taken_over_100.png', 'King of the Grid'),
-(76, 'Grid Tiles Taken Over 250', 'Take over 250 grid tiles.', 'grid_tiles_taken_over', 250, '/icons/grid_tiles_taken_over_250.png', 'Master of Terrain'),
-(77, 'Grid Tiles Taken Over 500', 'Take over 500 grid tiles.', 'grid_tiles_taken_over', 500, '/icons/grid_tiles_taken_over_500.png', 'Grid Warlord'),
-(78, 'Grid Tiles Taken Over 1000', 'Take over 1,000 grid tiles.', 'grid_tiles_taken_over', 1000, '/icons/grid_tiles_taken_over_1000.png', 'Dominion Ruler'),
-(79, 'Grid Tiles Taken Over 5000', 'Take over 5,000 grid tiles.', 'grid_tiles_taken_over', 5000, '/icons/grid_tiles_taken_over_5000.png', 'Grid Titan'),
-(80, 'Grid Tiles Taken Over 10000', 'Take over 10,000 grid tiles.', 'grid_tiles_taken_over', 10000, '/icons/grid_tiles_taken_over_10000.png', 'Supreme Grid Master');
-(81, 'Grid Tiles Taken Over 50000', 'Take over 50,000 grid tiles.', 'grid_tiles_taken_over', 50000, '/icons/grid_tiles_taken_over_50000.png', 'Territory Overlord'),
-(82, 'Grid Tiles Taken Over 100000', 'Take over 100,000 grid tiles.', 'grid_tiles_taken_over', 100000, '/icons/grid_tiles_taken_over_100000.png', 'Master of the Domain'),
-(83, 'Grid Tiles Taken Over 500000', 'Take over 500,000 grid tiles.', 'grid_tiles_taken_over', 500000, '/icons/grid_tiles_taken_over_500000.png', 'Grid Overlord'),
-(84, 'Grid Tiles Taken Over 1000000', 'Take over 1,000,000 grid tiles.', 'grid_tiles_taken_over', 1000000, '/icons/grid_tiles_taken_over_1000000.png', 'Supreme Grid Overlord'),
-(85, 'Grid Tiles Taken Over 10000000', 'Take over 10,000,000 grid tiles.', 'grid_tiles_taken_over', 10000000, '/icons/grid_tiles_taken_over_10000000.png', 'God of the Grid');
+(75, 'Travel Count 10000000', 'Achieve 10,000,000 travels.', 'travel_count', 10000000, '/icons/travel_count_10000000.png', 'Lord of the Endless Journeys'),
+(76, 'Grid Tiles Taken Over 1', 'Take over 1 grid tile.', 'grid_tiles_taken_over', 1, '/icons/grid_tiles_taken_over_1.png', 'Tile Seeker'),
+(77, 'Grid Tiles Taken Over 10', 'Take over 10 grid tiles.', 'grid_tiles_taken_over', 10, '/icons/grid_tiles_taken_over_10.png', 'Grid Explorer'),
+(78, 'Grid Tiles Taken Over 25', 'Take over 25 grid tiles.', 'grid_tiles_taken_over', 25, '/icons/grid_tiles_taken_over_25.png', 'Map Ruler'),
+(79, 'Grid Tiles Taken Over 50', 'Take over 50 grid tiles.', 'grid_tiles_taken_over', 50, '/icons/grid_tiles_taken_over_50.png', 'Tile Conqueror'),
+(80, 'Grid Tiles Taken Over 100', 'Take over 100 grid tiles.', 'grid_tiles_taken_over', 100, '/icons/grid_tiles_taken_over_100.png', 'King of the Grid'),
+(81, 'Grid Tiles Taken Over 250', 'Take over 250 grid tiles.', 'grid_tiles_taken_over', 250, '/icons/grid_tiles_taken_over_250.png', 'Master of Terrain'),
+(82, 'Grid Tiles Taken Over 500', 'Take over 500 grid tiles.', 'grid_tiles_taken_over', 500, '/icons/grid_tiles_taken_over_500.png', 'Grid Warlord'),
+(83, 'Grid Tiles Taken Over 1000', 'Take over 1,000 grid tiles.', 'grid_tiles_taken_over', 1000, '/icons/grid_tiles_taken_over_1000.png', 'Dominion Ruler'),
+(84, 'Grid Tiles Taken Over 5000', 'Take over 5,000 grid tiles.', 'grid_tiles_taken_over', 5000, '/icons/grid_tiles_taken_over_5000.png', 'Grid Titan'),
+(85, 'Grid Tiles Taken Over 10000', 'Take over 10,000 grid tiles.', 'grid_tiles_taken_over', 10000, '/icons/grid_tiles_taken_over_10000.png', 'Supreme Grid Master'),
+(86, 'Grid Tiles Taken Over 50000', 'Take over 50,000 grid tiles.', 'grid_tiles_taken_over', 50000, '/icons/grid_tiles_taken_over_50000.png', 'Territory Overlord'),
+(87, 'Grid Tiles Taken Over 100000', 'Take over 100,000 grid tiles.', 'grid_tiles_taken_over', 100000, '/icons/grid_tiles_taken_over_100000.png', 'Master of the Domain'),
+(88, 'Grid Tiles Taken Over 500000', 'Take over 500,000 grid tiles.', 'grid_tiles_taken_over', 500000, '/icons/grid_tiles_taken_over_500000.png', 'Grid Overlord'),
+(89, 'Grid Tiles Taken Over 1000000', 'Take over 1,000,000 grid tiles.', 'grid_tiles_taken_over', 1000000, '/icons/grid_tiles_taken_over_1000000.png', 'Supreme Grid Overlord'),
+(90, 'Grid Tiles Taken Over 10000000', 'Take over 10,000,000 grid tiles.', 'grid_tiles_taken_over', 10000000, '/icons/grid_tiles_taken_over_10000000.png', 'God of the Grid');
